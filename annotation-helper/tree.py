@@ -6,11 +6,14 @@ one parse tree remains.
 
 from collections import Counter
 from subprocess import call
+
+
 class Tree(object):
     '''
     Class to contain the complete CONLL parse of a sentence and many methods
     to work with it.
     '''
+
     def __init__(self):
         '''
         Initialize the Tree with an empty list later containing the CONLL-Tuples
@@ -18,6 +21,7 @@ class Tree(object):
         '''
         self.liste = []
         self.dictio = dict()
+
     def add(self, sentence):
         '''
         Gets a CONLL-Line, splits it and then converts it into a tuple to
@@ -27,6 +31,7 @@ class Tree(object):
         tuple1 = sentence.strip().split()
         self.liste.append(tuple(tuple1))
         self.dictio[tuple1[0]] = tuple1[1] #fills mapping position -> word
+
     def contains(self, tup):
         '''
         Checks if a 3-tuple (for example ('Es1', 'ist2', 'SB') ) is contained
@@ -40,6 +45,7 @@ class Tree(object):
                            #dictionary. take the word and add the index to it.
                            x[10]) for x in self.liste)
                            #Last element of the tuple is the relation type.
+
     def get(self):
         '''
         Gets a list of 3-tuples from the list containing the CONLL-tuples.
@@ -53,12 +59,14 @@ class Tree(object):
                  #take the word and add the index to it.
                  x[10]) for x in self.liste]
                  #Last element of the tuple is the relation type.
+
     def to_conll(self):
         '''
         Returns a complete CONLL Representation of the parse contained
         in this object.
         '''
         return "\n".join("\t".join(x) for x in self.liste)
+
     def to_latex(self):
         '''
         Writes latex to a hard-coded latexfile and then generates a
@@ -84,20 +92,25 @@ class Tree(object):
         print(string)
         call(["latex", "test10.tex"])
         call(["dvisvgm", "test10.dvi"])
+
+
 class Forest(object):
     '''
     A Forest object is there to deal with multiple tree objects.
     '''
+
     def __init__(self):
         '''
         Forest is there to contain many tree objects.
         '''
         self.liste = []
+
     def add(self, finishedtree):
         '''
         Adds a filled tree into the parse forest.
         '''
         self.liste.append(finishedtree)
+
     def get_dict(self):
         '''
         Returns a Liste containing 3-tuples and their counts.
@@ -106,6 +119,7 @@ class Forest(object):
         print(len(self.liste))
         return Counter([x for tree in self.liste for x \
                            in tree.get()]).most_common()
+
     def question(self):
         '''
         Chooses the tuple minimizing the equation:
@@ -115,6 +129,7 @@ class Forest(object):
         '''
         length = len(self.liste)
         return min(self.get_dict(), key=lambda x: abs(x[1]-length/2))[0]
+
     def filter(self, asked_tuple, boolean):
         '''
         Filters the treelist based on a tuple and a boolean value.
@@ -123,6 +138,7 @@ class Forest(object):
         '''
         self.liste = [tree for tree in self.liste if \
                           (tree.contains(asked_tuple)) == boolean]
+
 
 tree = Tree()
 forest = Forest()
