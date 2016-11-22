@@ -139,23 +139,23 @@ class Forest(object):
         self.liste = [tree for tree in self.liste if \
                           (tree.contains(asked_tuple)) == boolean]
 
-
-tree = Tree()
-forest = Forest()
-for line in open("conll_for_micha.conll"):
-    if line == "\n":
-        forest.add(tree)
-        tree = Tree()
-        continue
-    tree.add(line)
-while len(forest.liste) != 1:
-    question = forest.question()
-    print(" ".join(x[1] for x in forest.liste[0].liste))
-    answer = input(question)
-    if answer == "j":
-        forest.filter(question, True)
-    else:
-        forest.filter(question, False)
-    if len(forest.liste) == 1:
-        forest.liste[0].to_latex()
-        print(forest.liste[0].to_conll())
+if __name__=="__main__":
+    tree = Tree()
+    forest = Forest()
+    for line in open("conll_for_micha.conll"):
+        if line == "\n":
+            forest.add(tree)
+            tree = Tree()
+            continue
+        tree.add(line)
+    while len(forest.liste) != 1:
+        question = forest.question()
+        print(" ".join(x[1] for x in forest.liste[0].liste))
+        answer = input(question)
+        if answer == "j":
+            forest.filter(question, True)
+        else:
+            forest.filter(question, False)
+        if len(forest.liste) == 1:
+            forest.liste[0].to_latex()
+            print(forest.liste[0].to_conll())
