@@ -37,14 +37,14 @@ class Tree(object):
         Checks if a 3-tuple (for example ('Es1', 'ist2', 'SB') ) is contained
         in this tree.
         '''
-        return any(tup == (self.dictio[x[0]]+x[0], #Look up the index
-                           #in the dictionary, take the word and add the
-                           #the index to the word.
-                           self.dictio[x[8]]+x[8] if x[8] != "0" else "Root0",
-                           #Look up the index of the target word in the
-                           #dictionary. take the word and add the index to it.
-                           x[10]) for x in self.liste)
-                           #Last element of the tuple is the relation type.
+        return tup in self.get()
+
+    def overlap(self, other):
+        '''
+        Returns the number of triples contained in the tree and a given
+        other tree.
+        '''
+        return len(set(self.get())&set(other.get()))
 
     def get(self):
         '''
@@ -113,7 +113,7 @@ class Forest(object):
 
     def get_dict(self):
         '''
-        Returns a Liste containing 3-tuples and their counts.
+        Returns a list containing 3-tuples and their counts.
         Example: ('Es1', 'ist2', 'SB'): 540
         '''
         print(len(self.liste))

@@ -28,7 +28,7 @@ class Evaluator(object):
                 self.goldtree.add(line)
         self.forest=tree.Forest()
         temptree = tree.Tree()
-        for line in open("conll_for_micha.conll"):
+        for line in open(self.file_with_kbest):
             if line == "\n":
                 self.forest.add(temptree)
                 temptree = tree.Tree()
@@ -54,7 +54,7 @@ class Evaluator(object):
             else:
                 self.forest.filter(question, False)
             if len(self.forest.liste) == 1:
-                print(self.forest[0].liste)
+                print(self.forest.liste[0])
         print(count)
 
 
