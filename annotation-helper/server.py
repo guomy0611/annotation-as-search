@@ -10,13 +10,10 @@ import socket
 import argparse
 import asyncio
 import json
+import logging
 
 # annotation-helper modules
 import tree
-
-# Supposed to be replaced by an actual logger.
-def log(message):
-    print(message)
 
 def pack_data_for_sending(string):
     '''
@@ -42,7 +39,7 @@ class AnnotationHelperProtocol(asyncio.Protocol):
         connection information.
         '''
         self.peername = transport.get_extra_info('peername')
-        log('Connection from {}'.format(self.peername))
+        logging.info('Connection from {}'.format(self.peername))
         self.transport = transport
         self.forest = None
 
@@ -52,11 +49,11 @@ class AnnotationHelperProtocol(asyncio.Protocol):
         the client to prompt them for further action.
         '''
         received = unpack_received_data(data)
-        log('Data received: {!r}'.format(received))
+        logging.debug('Received {} from {}.'.format(data, self.peername))
 
-        to_be_sent = self.interpret_data(received)
-        log('Sent: {!r}'.format(message))
-        self.transport.write(pack_data_for_sending(to_be_sent))
+        to_be_sent = pack_data_for_sending(self.interpret_data(received))
+        self.transport.write(to_be_sent)
+        logging.debug('Sent {} to {}.'.format(to_be_sent, self.peername))
 
     def interpret_data(self, data):
         '''
@@ -71,6 +68,7 @@ class AnnotationHelperProtocol(asyncio.Protocol):
             if not isinstance(self.forest, tree.Forest):
                 error_messsage = 'Create a forest before answering questions.'
                 response = self.create_error(error_messsage)
+                logging.info('No-forest error with {}.'.format(self.peername))
             else:
                 response = self.forest.format_question()
         return response
@@ -86,24 +84,62 @@ class AnnotationHelperProtocol(asyncio.Protocol):
         '''
         Log when a connection is terminated.
         '''
-        log('Connection to {} lost.'.format(self.peername))
+        logging.info('Connection to {} lost.'.format(self.peername))
+
+def setup_logging(logfile, loglevel):
+    '''
+    Set up logging for the server application.
+    
+    Args:
+        logfile: The name of the logfile.
+        loglevel: String representation of one of the default loglevels:
+                DEBUG, INFO, WARNING, ERROR or CRITICAL.
+    '''
+    logging.basicConfig(
+            filename=logfile,
+            format='%(asctime)s|%(levelname)s: %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S',
+            level=getattr(logging, loglevel.upper(), logging.INFO)
+            )
 
 def main():
     desc = 'Start a server that sends questions and accepts answers.'
     parser = argparse.ArgumentParser(description=desc)
+    parser.add_argument('-H', '--host', required=False, type=str,
+            default='127.0.0.1', help='The host that accepts TCP connections.')
     parser.add_argument('-p', '--port', required=False, type=int,
             default=8080, help='The port that accepts TCP connections.')
+    parser.add_argument('-s', '--unix_socket', required=False, type=str,
+            help='Unix socket file to use instead of host and port.')
+    parser.add_argument('-l', '--logfile', required=False, type=str,
+            default='', help='Name of the log file.')
+    parser.add_argument('--loglevel', required=False, type=str,
+            default='INFO', help='Log level',
+            choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'])
     args = parser.parse_args()
 
-    incoming_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    incoming_socket.bind(('127.0.0.1', args.port))
+    setup_logging(args.logfile, args.loglevel)
+
+    if args.unix_socket:
+        incoming_socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        incoming_socket.bind(args.unix_socket)
+        logging.debug(
+                'Bound incoming unix socket to {}.'.format(args.unix_socket)
+                )
+    else:
+        incoming_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        incoming_socket.bind((args.host, args.port))
+        logging.debug(
+                'Bound incoming tcp socket to {}:{}.'.format(args.host, args.port)
+                )
 
     loop = asyncio.get_event_loop()
     coro = loop.create_server(AnnotationHelperProtocol, sock=incoming_socket)
     server = loop.run_until_complete(coro)
+    logging.debug('Started event loop.')
 
     # Serve requests until Ctrl+C is pressed
-    print('Serving on {}'.format(server.sockets[0].getsockname()))
+    logging.info('Serving on {}.'.format(server.sockets[0].getsockname()))
     try:
         loop.run_forever()
     except KeyboardInterrupt:
@@ -111,8 +147,10 @@ def main():
 
     # Close the server
     server.close()
+    logging.info('Closed server.')
     loop.run_until_complete(server.wait_closed())
     loop.close()
+    logging.debug('Terminating application.')
 
 if __name__ == '__main__':
     main()
