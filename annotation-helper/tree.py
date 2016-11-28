@@ -6,7 +6,8 @@ one parse tree remains.
 
 from collections import Counter
 from subprocess import call
-
+import sys
+import re
 
 class Tree(object):
     '''
@@ -21,6 +22,22 @@ class Tree(object):
         '''
         self.liste = []
         self.dictio = dict()
+
+    @classmethod
+    def from_string(cls, tree_string):
+        '''
+        Initialize a tree object from an already formatted conll string.
+        '''
+        tree = cls()
+        lines = [
+                line.strip()
+                for line in tree_string.split('\n')
+                if not re.match(r'(^\s*$)|(^#.*$)', line)
+                ]
+        for line in lines:
+            tree.add(line)
+
+        return tree
 
     def add(self, sentence):
         '''
@@ -92,7 +109,9 @@ class Tree(object):
         print(string)
         call(["latex", "test10.tex"])
         call(["dvisvgm", "test10.dvi"])
-
+    
+    def as_dict(self):
+        return {'nodes': self.liste}
 
 class Forest(object):
     '''
@@ -104,6 +123,44 @@ class Forest(object):
         Forest is there to contain many tree objects.
         '''
         self.liste = []
+
+    @classmethod
+    def from_request(cls, request):
+        '''
+        Initialize a forest object from a client request.
+        '''
+        if 'use_forest' in request:
+            return cls.from_string(request['use_forest'])
+        elif 'parse_sentence' in request:
+            return cls.from_unparsed_sentence(request['parse_sentence'])
+        else:
+            raise ValueError('{} is not a valid request.'.format(request))
+
+    @classmethod
+    def from_string(cls, forest_string):
+        '''
+        Initialize a forest object from a long string formatted like a conll
+        file.
+        '''
+        forest = cls()
+        for tree_string in forest_string.split('\n\n'):
+            forest.add(Tree.from_string(tree_string))
+        return forest
+
+    @classmethod
+    def from_unparsed_sentence(cls, sentence):
+        '''
+        Initialize a forest object from a sentence by parsing it with an
+        external parser.
+        '''
+        raise NotImplementedError
+
+    @property
+    def solved(self):
+        '''
+        True if the forest clears and only one tree remains.
+        '''
+        return len(self.liste) == 1
 
     def add(self, finishedtree):
         '''
@@ -139,10 +196,29 @@ class Forest(object):
         self.liste = [tree for tree in self.liste if \
                           (tree.contains(asked_tuple)) == boolean]
 
+    def next_response(self):
+        '''
+        Format a response to the client conforming to the JSON API and return
+        it as a dictionary. The response can be a question or a solution.
+        '''
+        message = {}
+        if self.solved:
+            # Send response of type 'solution' holding the last remaining tree.
+            message = self.liste[0].as_dict()
+            message['type'] = 'solution'
+        else:
+            # Send response of type question.
+            message = {
+                    'type': 'question',
+                    'remaining_sentences': len(self.liste)
+                    }
+            message['question'] = self.question()
+        return message
+
 if __name__=="__main__":
     tree = Tree()
     forest = Forest()
-    for line in open("conll_for_micha.conll"):
+    for line in open(sys.argv[1]):
         if line == "\n":
             forest.add(tree)
             tree = Tree()
