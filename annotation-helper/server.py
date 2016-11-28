@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+'''
+This module provides a stream based server that interfaces between the tree
+module and a client wishing to use the tree module for help with annotating.
+'''
+
 import socket
 import argparse
 import asyncio
@@ -32,12 +37,20 @@ class AnnotationHelperProtocol(asyncio.Protocol):
     '''
 
     def connection_made(self, transport):
+        '''
+        Initialize the protocol object when a connection is made and log
+        connection information.
+        '''
         self.peername = transport.get_extra_info('peername')
         log('Connection from {}'.format(self.peername))
         self.transport = transport
         self.forest = None
 
     def data_received(self, data):
+        '''
+        Use received data to update the forest object and send a response to
+        the client to prompt them for further action.
+        '''
         received = unpack_received_data(data)
         log('Data received: {!r}'.format(received))
 
@@ -46,6 +59,10 @@ class AnnotationHelperProtocol(asyncio.Protocol):
         self.transport.write(pack_data_for_sending(to_be_sent))
 
     def interpret_data(self, data):
+        '''
+        Helper function used to decide what to with received data and to
+        interface with the forest.
+        '''
         response = {}
         if data['type'] == 'request':
             self.forest = tree.Forest.from_request(data)
@@ -59,9 +76,16 @@ class AnnotationHelperProtocol(asyncio.Protocol):
         return response
     
     def create_error(self, error_messsage):
+        '''
+        Create an error object to be sent to the client.
+        '''
+        # TODO: Maybe this function should not live in this class.
         return {'type': 'error', 'error_message': error_messsage}
 
     def connection_lost(self, exc):
+        '''
+        Log when a connection is terminated.
+        '''
         log('Connection to {} lost.'.format(self.peername))
 
 def main():
@@ -69,15 +93,12 @@ def main():
     parser = argparse.ArgumentParser(description=desc)
     parser.add_argument('-p', '--port', required=False, type=int,
             default=8080, help='The port that accepts TCP connections.')
-    parser.add_argument('-c', '--clients', required=False, type=int,
-            default=5, help='Maximum number of allowed clients.')
     args = parser.parse_args()
 
     incoming_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     incoming_socket.bind(('127.0.0.1', args.port))
 
     loop = asyncio.get_event_loop()
-    # Each client connection will create a new protocol instance
     coro = loop.create_server(AnnotationHelperProtocol, sock=incoming_socket)
     server = loop.run_until_complete(coro)
 
