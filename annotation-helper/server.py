@@ -1,24 +1,66 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 import socket
 import argparse
 import asyncio
+import json
 
+# annotation-helper modules
+import tree
+
+# Supposed to be replaced by an actual logger.
 def log(message):
-    """Supposed to be replaced by an actual logger."""
     print(message)
 
+def pack_data_for_sending(string):
+    '''
+    Prepare a string for being sent. This includes converting to json.
+    '''
+    return json.dumps(string).encode()
+
+def unpack_received_data(bytestring):
+    '''
+    Read a sent bytestring in as a json object.
+    '''
+    return json.loads(bytestring.decode())
+
 class AnnotationHelperProtocol(asyncio.Protocol):
+    '''
+    Serverside asyncio protocol that accepts connections from clients.
+    The client will request
+    '''
+
     def connection_made(self, transport):
         self.peername = transport.get_extra_info('peername')
         log('Connection from {}'.format(self.peername))
         self.transport = transport
+        self.forest = None
 
     def data_received(self, data):
-        message = data.decode()
-        log('Data received: {!r}'.format(message))
+        received = unpack_received_data(data)
+        log('Data received: {!r}'.format(received))
 
-        log('Send: {!r}'.format(message))
-        self.transport.write(data)
+        to_be_sent = self.interpret_data(received)
+        log('Sent: {!r}'.format(message))
+        self.transport.write(pack_data_for_sending(to_be_sent))
+
+    def interpret_data(self, data):
+        response = {}
+        if data['type'] == 'request':
+            self.forest = tree.Forest.from_request(data)
+            response = self.forest.format_question()
+        elif data['type'] == 'answer':
+            if not isinstance(self.forest, tree.Forest):
+                error_messsage = 'Create a forest before answering questions.'
+                response = self.create_error(error_messsage)
+            else:
+                response = self.forest.format_question()
+        return response
     
+    def create_error(self, error_messsage):
+        return {'type': 'error', 'error_message': error_messsage}
+
     def connection_lost(self, exc):
         log('Connection to {} lost.'.format(self.peername))
 
@@ -30,7 +72,7 @@ def main():
     parser.add_argument('-c', '--clients', required=False, type=int,
             default=5, help='Maximum number of allowed clients.')
     args = parser.parse_args()
-    
+
     incoming_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     incoming_socket.bind(('127.0.0.1', args.port))
 
