@@ -1,0 +1,20 @@
+{
+  "type": "question",
+  "question": {
+    "head" : "badet-3",
+    "dependent": "Lurch-6",
+    "relation": "SB"
+  },
+  "remaining_trees": 4,
+  "sentence": "Mit Bedacht badet heute ein Lurch in einem See.",
+  "fixed_edges":
+    [{
+    "head" : "badet-3",
+    "dependent": "Mit-1",
+    "relation": "MO"
+  }, {
+    "head" : "Mit-1",
+    "dependent": "Bedacht-2",
+    "relation": "NK"
+  }]
+}

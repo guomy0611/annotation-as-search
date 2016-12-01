@@ -1,0 +1,9 @@
+{
+  "type": "answer",
+  "question": {
+    "head" : "badet-3",
+    "dependent": "Lurch-6",
+    "relation": "SB"
+  },
+  "answer": true
+}

@@ -1,0 +1,5 @@
+{
+  "type": "error",
+  "error_message": "Received an answer, but no forest exists.",
+  "recommendation": "abort"
+}
