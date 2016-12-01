@@ -6,11 +6,11 @@ This module provides a stream based server that interfaces between the tree
 module and a client wishing to use the tree module for help with annotating.
 '''
 
-import socket
 import argparse
 import asyncio
 import json
 import logging
+import socket
 
 # annotation-helper modules
 import tree
@@ -63,14 +63,15 @@ class AnnotationHelperProtocol(asyncio.Protocol):
         response = {}
         if data['type'] == 'request':
             self.forest = tree.Forest.from_request(data)
-            response = self.forest.format_question()
+            response = self.forest.next_response()
         elif data['type'] == 'answer':
             if not isinstance(self.forest, tree.Forest):
                 error_messsage = 'Create a forest before answering questions.'
                 response = self.create_error(error_messsage)
                 logging.info('No-forest error with {}.'.format(self.peername))
             else:
-                response = self.forest.format_question()
+                self.forest.filter(tuple(data['question']), data['answer'])
+                response = self.forest.next_response()
         return response
     
     def create_error(self, error_messsage):
@@ -78,7 +79,12 @@ class AnnotationHelperProtocol(asyncio.Protocol):
         Create an error object to be sent to the client.
         '''
         # TODO: Maybe this function should not live in this class.
-        return {'type': 'error', 'error_message': error_messsage}
+        error = {
+                'type': 'error',
+                'error_message': error_messsage,
+                'recommendation': 'abort'
+                }
+        return error
 
     def connection_lost(self, exc):
         '''

@@ -155,7 +155,6 @@ class Forest(object):
         '''
         raise NotImplementedError
 
-    @property
     def solved(self):
         '''
         True if the forest clears and only one tree remains.
@@ -202,7 +201,7 @@ class Forest(object):
         it as a dictionary. The response can be a question or a solution.
         '''
         message = {}
-        if self.solved:
+        if self.solved():
             # Send response of type 'solution' holding the last remaining tree.
             message = self.liste[0].as_dict()
             message['type'] = 'solution'
