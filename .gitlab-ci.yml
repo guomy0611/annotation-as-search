@@ -2,6 +2,10 @@ before_script:
   - yum -y -q update && yum -y -q install python34
   - python3 --version
 
+test:
+  script:
+    - bash test/test.sh
+
 deploy:
   script:
     - pkill -f -u gitlab-runner annotation-helper && [ $? -le 1 ]
