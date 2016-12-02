@@ -1,10 +1,12 @@
 before_script:
   - yum -y -q update && yum -y -q install python34
   - python3 --version
+  - pip3 --version || (curl https://bootstrap.pypa.io/get-pip.py | python3.4)
 
 test:
   script:
-    - bash test/test.sh
+    - pip3 install pylint
+    - bash test/test.sh || true
 
 deploy:
   script:
