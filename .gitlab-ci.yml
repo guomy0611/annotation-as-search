@@ -1,16 +1,43 @@
-before_script:
-  - yum -y -q update && yum -y -q install python34
-  - python3 --version
-  - pip3 --version || (curl https://bootstrap.pypa.io/get-pip.py | python3.4)
+stages:
+  - prepare
+  - test
+  - deploy
 
-test:
+python3:
+  stage: prepare
+  script:
+    - yum -y -q update && yum -y -q install python34
+    - python3 --version
+    - pip3 --version || (curl https://bootstrap.pypa.io/get-pip.py | python3.4)
+
+venv:
+  stage: prepare
+  variables:
+    VIRTUALENV: '~/annotation-helper-env/'
+    REQUIREMENTS: 'requirements.txt'
+    TEST_REQUIREMENTS: 'test/requirements.txt'
+  script:
+    - source "$VIRTUALENV/bin/activate" || virtualenv "$VIRTUALENV" && source "$VIRTUALENV/bin/activate";
+    - [ -r REQUIREMENTS ] && pip install -r "$REQUIREMENTS"
+    - [ -r TEST_REQUIREMENTS ] && pip install -r "$TEST_REQUIREMENTS"
+
+pylint:
+  stage: test
+  variables:
+    MIN_PYLINT_RATING: 7
   script:
     - pip3 install pylint
-    - bash test/test.sh || true
+    - bash test/test.sh "$MIN_PYLINT_RATING" || true
 
 deploy:
+  stage: deploy
+  variables:
+    HOST: ''
+    PORT: 8000
+    LOGLEVEL: 'DEBUG'
+    LOGFILE: '~/annotation.log'
   script:
     - pkill -f -u gitlab-runner annotation-helper && [ $? -le 1 ]
-    - python3 annotation-helper/server.py -H '' -p 8000 -l ~/annotation.log --loglevel DEBUG </dev/null >/dev/null 2>&1 &
+    - python3 annotation-helper/server.py -H "$HOST" -p "$PORT" -l "$LOGFILE" --loglevel "$LOGLEVEL" </dev/null >/dev/null 2>&1 &
 
 # vim: sts=2 sw=2 et si
