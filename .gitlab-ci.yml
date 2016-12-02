@@ -27,7 +27,7 @@ pylint:
     MIN_PYLINT_RATING: '7'
   script:
     - 'pip3 install pylint'
-    - 'bash test/test.sh "$MIN_PYLINT_RATING" || true'
+    - 'bash test/pylint.sh "$MIN_PYLINT_RATING" || true'
 
 deploy:
   stage: deploy
