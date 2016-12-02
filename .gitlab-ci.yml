@@ -4,7 +4,7 @@ before_script:
 
 deploy:
   script:
-    - pkill --full annotation-helper && [ $? -le 1 ]
-    - python3 annotation-helper/server.py -H '' -p 8000 -l /tmp/annotation.log --loglevel DEBUG
+    - pkill -f -u gitlab-runner annotation-helper && [ $? -le 1 ]
+    - python3 annotation-helper/server.py -H '' -p 8000 -l ~/annotation.log --loglevel DEBUG </dev/null >/dev/null 2>&1 &
 
 # vim: sts=2 sw=2 et si
