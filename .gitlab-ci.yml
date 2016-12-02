@@ -24,7 +24,7 @@ venv:
 pylint:
   stage: test
   variables:
-    MIN_PYLINT_RATING: 7
+    MIN_PYLINT_RATING: '7'
   script:
     - 'pip3 install pylint'
     - 'bash test/test.sh "$MIN_PYLINT_RATING" || true'
@@ -33,7 +33,7 @@ deploy:
   stage: deploy
   variables:
     HOST: ''
-    PORT: 8000
+    PORT: '8000'
     LOGLEVEL: 'DEBUG'
     LOGFILE: '~/annotation.log'
   script:
