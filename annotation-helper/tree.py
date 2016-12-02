@@ -30,10 +30,10 @@ class Tree(object):
         '''
         tree = cls()
         lines = [
-                line.strip()
-                for line in tree_string.split('\n')
-                if not re.match(r'(^\s*$)|(^#.*$)', line)
-                ]
+            line.strip()
+            for line in tree_string.split('\n')
+            if not re.match(r'(^\s*$)|(^#.*$)', line)
+            ]
         for line in lines:
             tree.add(line)
 
@@ -90,10 +90,10 @@ class Tree(object):
         parse visualization from it.
         '''
         string = """\\documentclass[dvisgm]{minimal}
-		\\usepackage{tikz-dependency}
-		\\begin{document}
-		\\begin{dependency}
-		\\begin{deptext}[column sep=0.2cm]\n"""
+                \\usepackage{tikz-dependency}
+                \\begin{document}
+                \\begin{dependency}
+                \\begin{deptext}[column sep=0.2cm]\n"""
         string += " \\& ".join(self.dictio[str(key)] for key in \
                    sorted([int(x) for x in self.dictio.keys()]))+"\\\\ \n"
         string += "\\end{deptext}\n"
@@ -109,7 +109,7 @@ class Tree(object):
         print(string)
         call(["latex", "test10.tex"])
         call(["dvisvgm", "test10.dvi"])
-    
+
     def as_dict(self):
         return {'nodes': self.liste}
 
@@ -208,13 +208,13 @@ class Forest(object):
         else:
             # Send response of type question.
             message = {
-                    'type': 'question',
-                    'remaining_sentences': len(self.liste)
-                    }
+                'type': 'question',
+                'remaining_sentences': len(self.liste)
+                }
             message['question'] = self.question()
         return message
 
-if __name__=="__main__":
+if __name__ == "__main__":
     tree = Tree()
     forest = Forest()
     for line in open(sys.argv[1]):
