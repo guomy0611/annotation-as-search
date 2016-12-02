@@ -9,6 +9,7 @@ CLIENT_DIR="$TEST_DIR/../annotation-helper-client/"
 
 echo 'Assessing code quality with pylint ...'
 pylint --rcfile="$DIR/pylintrc" "$SERVER_DIR" "$CLIENT_DIR" >pylint_results || true
+cat pylint_results
 
 # Check if pylint rating is good enough.
 ACTUAL_PYLINT_RATING=$(grep -Po '(?<=Your code has been rated at )[^/]+(?=/10)' pylint_results)
