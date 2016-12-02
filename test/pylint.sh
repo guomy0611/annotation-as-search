@@ -8,7 +8,7 @@ SERVER_DIR="$TEST_DIR/../annotation-helper/"
 CLIENT_DIR="$TEST_DIR/../annotation-helper-client/"
 
 echo 'Assessing code quality with pylint ...'
-pylint --rcfile="$DIR/pylintrc" "$SERVER_DIR" "$CLIENT_DIR" >pylint_results || true
+pylint --rcfile="$TEST_DIR/pylintrc" "$SERVER_DIR" "$CLIENT_DIR" >pylint_results || true
 cat pylint_results
 
 # Check if pylint rating is good enough.
