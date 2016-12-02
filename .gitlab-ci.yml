@@ -13,13 +13,13 @@ python3:
 venv:
   stage: prepare
   variables:
-    VIRTUALENV: '~/annotation-helper-env/'
+    VIRTUALENV: '$HOME/annotation-helper-env/'
     REQUIREMENTS: 'requirements.txt'
     TEST_REQUIREMENTS: 'test/requirements.txt'
   script:
-    - 'source "$VIRTUALENV/bin/activate" || virtualenv "$VIRTUALENV" && source "$VIRTUALENV/bin/activate"'
-    - '[ -r REQUIREMENTS ] && pip install -r "$REQUIREMENTS"'
-    - '[ -r TEST_REQUIREMENTS ] && pip install -r "$TEST_REQUIREMENTS"'
+    - 'source "$VIRTUALENV/bin/activate" 2>/dev/null || virtualenv "$VIRTUALENV" && source "$VIRTUALENV/bin/activate"'
+    - '[ ! -r "$REQUIREMENTS" ] || pip install -r "$REQUIREMENTS"'
+    - '[ ! -r "$TEST_REQUIREMENTS" ] || pip install -r "$TEST_REQUIREMENTS"'
 
 pylint:
   stage: test
@@ -35,7 +35,7 @@ deploy:
     HOST: ''
     PORT: '8000'
     LOGLEVEL: 'DEBUG'
-    LOGFILE: '~/annotation.log'
+    LOGFILE: '$HOME/annotation.log'
   script:
     - 'pkill -f -u gitlab-runner annotation-helper && [ $? -le 1 ]'
     - 'python3 annotation-helper/server.py -H "$HOST" -p "$PORT" -l "$LOGFILE" --loglevel "$LOGLEVEL" </dev/null >/dev/null 2>&1 &'
