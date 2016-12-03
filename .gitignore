@@ -98,3 +98,15 @@ Thumbs.db
 # Editor swap and backup files #
 *.swp
 *~
+
+# TeX junk #
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.log
+*.nav
+*.out
+*.run.xml
+*.snm
+*.toc
