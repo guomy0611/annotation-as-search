@@ -39,7 +39,7 @@ class AnnotationHelperProtocol(asyncio.Protocol):
         connection information.
         '''
         self.peername = transport.get_extra_info('peername')
-        logging.info('Connection from {}'.format(self.peername))
+        logging.info('Connection from %s', self.peername)
         self.transport = transport
         self.forest = None
 
@@ -49,11 +49,11 @@ class AnnotationHelperProtocol(asyncio.Protocol):
         the client to prompt them for further action.
         '''
         received = unpack_received_data(data)
-        logging.debug('Received {} from {}.'.format(data, self.peername))
+        logging.debug('Received %s from %s.', data, self.peername)
 
         to_be_sent = pack_data_for_sending(self.interpret_data(received))
         self.transport.write(to_be_sent)
-        logging.debug('Sent {} to {}.'.format(to_be_sent, self.peername))
+        logging.debug('Sent %s to %s.', to_be_sent, self.peername)
 
     def interpret_data(self, data):
         '''
@@ -68,60 +68,82 @@ class AnnotationHelperProtocol(asyncio.Protocol):
             if not isinstance(self.forest, tree.Forest):
                 error_messsage = 'Create a forest before answering questions.'
                 response = self.create_error(error_messsage)
-                logging.info('No-forest error with {}.'.format(self.peername))
+                logging.info('No-forest error with %s.', self.peername)
             else:
                 self.forest.filter(tuple(data['question']), data['answer'])
                 response = self.forest.next_response()
         return response
-    
+
     def create_error(self, error_messsage):
         '''
         Create an error object to be sent to the client.
         '''
         # TODO: Maybe this function should not live in this class.
         error = {
-                'type': 'error',
-                'error_message': error_messsage,
-                'recommendation': 'abort'
-                }
+            'type': 'error',
+            'error_message': error_messsage,
+            'recommendation': 'abort'
+            }
         return error
 
     def connection_lost(self, exc):
         '''
         Log when a connection is terminated.
         '''
-        logging.info('Connection to {} lost.'.format(self.peername))
+        logging.info('Connection to %s lost.', self.peername)
 
 def setup_logging(logfile, loglevel):
     '''
     Set up logging for the server application.
-    
+
     Args:
         logfile: The name of the logfile.
         loglevel: String representation of one of the default loglevels:
                 DEBUG, INFO, WARNING, ERROR or CRITICAL.
     '''
     logging.basicConfig(
-            filename=logfile,
-            format='%(asctime)s|%(levelname)s: %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S',
-            level=getattr(logging, loglevel.upper(), logging.INFO)
-            )
+        filename=logfile,
+        format='%(asctime)s|%(levelname)s: %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S',
+        level=getattr(logging, loglevel.upper(), logging.INFO))
 
 def main():
     desc = 'Start a server that sends questions and accepts answers.'
     parser = argparse.ArgumentParser(description=desc)
-    parser.add_argument('-H', '--host', required=False, type=str,
-            default='127.0.0.1', help='The host that accepts TCP connections.')
-    parser.add_argument('-p', '--port', required=False, type=int,
-            default=8080, help='The port that accepts TCP connections.')
-    parser.add_argument('-s', '--unix_socket', required=False, type=str,
-            help='Unix socket file to use instead of host and port.')
-    parser.add_argument('-l', '--logfile', required=False, type=str,
-            default='', help='Name of the log file.')
-    parser.add_argument('--loglevel', required=False, type=str,
-            default='INFO', help='Log level',
-            choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'])
+    parser.add_argument(
+        '-H',
+        '--host',
+        required=False,
+        type=str,
+        default='127.0.0.1',
+        help='The host that accepts TCP connections.')
+    parser.add_argument(
+        '-p',
+        '--port',
+        required=False,
+        type=int,
+        default=8080,
+        help='The port that accepts TCP connections.')
+    parser.add_argument(
+        '-s',
+        '--unix_socket',
+        required=False,
+        type=str,
+        help='Unix socket file to use instead of host and port.')
+    parser.add_argument(
+        '-l',
+        '--logfile',
+        required=False,
+        type=str,
+        default='',
+        help='Name of the log file.')
+    parser.add_argument(
+        '--loglevel',
+        required=False,
+        type=str,
+        default='INFO',
+        help='Log level',
+        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'])
     args = parser.parse_args()
 
     setup_logging(args.logfile, args.loglevel)
@@ -130,14 +152,12 @@ def main():
         incoming_socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         incoming_socket.bind(args.unix_socket)
         logging.debug(
-                'Bound incoming unix socket to {}.'.format(args.unix_socket)
-                )
+            'Bound incoming unix socket to %s.', args.unix_socket)
     else:
         incoming_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         incoming_socket.bind((args.host, args.port))
         logging.debug(
-                'Bound incoming tcp socket to {}:{}.'.format(args.host, args.port)
-                )
+            'Bound incoming tcp socket to %s:%s.', args.host, args.port)
 
     loop = asyncio.get_event_loop()
     coro = loop.create_server(AnnotationHelperProtocol, sock=incoming_socket)
@@ -145,7 +165,7 @@ def main():
     logging.debug('Started event loop.')
 
     # Serve requests until Ctrl+C is pressed
-    logging.info('Serving on {}.'.format(server.sockets[0].getsockname()))
+    logging.info('Serving on %s.', server.sockets[0].getsockname())
     try:
         loop.run_forever()
     except KeyboardInterrupt:

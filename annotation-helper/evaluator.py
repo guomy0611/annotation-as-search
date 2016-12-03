@@ -14,8 +14,8 @@ class Evaluator(object):
         '''
         Initialize the object
         '''
-        self.file_with_kbest=file_with_kbest
-        self.goldfile=goldfile
+        self.file_with_kbest = file_with_kbest
+        self.goldfile = goldfile
         self.initialize()
     def initialize(self):
         '''
@@ -26,7 +26,7 @@ class Evaluator(object):
         for line in open(self.goldfile):
             if line == "\n":
                 self.goldtree.add(line)
-        self.forest=tree.Forest()
+        self.forest = tree.Forest()
         temptree = tree.Tree()
         for line in open(self.file_with_kbest):
             if line == "\n":
@@ -34,7 +34,7 @@ class Evaluator(object):
                 temptree = tree.Tree()
                 continue
             temptree.add(line)
-    def eval(self):
+    def evaluate(self):
         '''
         Evaluates a forest with the given goldparse and returns
         some statistics, like number of guesses needed, the number
@@ -42,9 +42,9 @@ class Evaluator(object):
         labelled attachment score when only 1 tree is left from
         forest and the minimum edit distance when only 1 tree is left.
         '''
-        count=0
-        while len(self.forest.liste)!=1:
-            count+=1
+        count = 0
+        while len(self.forest.liste) != 1:
+            count += 1
             print(count)
             question = self.forest.question()
             print(question)
@@ -58,6 +58,6 @@ class Evaluator(object):
         print(count)
 
 
-if __name__=="__main__":
-    eval=Evaluator("conll_for_micha.conll", "conll_gold.conll")
-    eval.eval()
+if __name__ == "__main__":
+    eval = Evaluator("conll_for_micha.conll", "conll_gold.conll")
+    eval.evaluate()
