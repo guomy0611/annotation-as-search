@@ -59,5 +59,5 @@ class Evaluator(object):
 
 
 if __name__ == "__main__":
-    eval = Evaluator("conll_for_micha.conll", "conll_gold.conll")
-    eval.evaluate()
+    evaluator = Evaluator("conll_for_micha.conll", "conll_gold.conll")
+    evaluator.evaluate()
