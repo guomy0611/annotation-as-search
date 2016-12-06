@@ -8,9 +8,10 @@
 \usepackage{graphicx}
 
 \usepackage{algorithm} % For the floating 'algorithm' environment.
+
 \title{AaS – Annotation als Suchproblem}
 \author{Rebekka Hubert \and Michael Staniek \and Simon Will}
-\date{December 6, 2016}
+\date{6. Dezember 2016}
 
 \begin{document}
 
@@ -18,17 +19,16 @@
 
 \section{Einführung}
 \label{sec:Einfuehrung}
-In diesem Dokument werden die Funktion, die Funktionsweise und die Systemvoraussetzungen der Software \enquote{Annotation als Suche} (AaS) beschrieben.
+In diesem Dokument werden die Funktion, die Funktionsweise und die Systemvoraussetzungen der Software \enquote{Annotation als Suchproblem} (AaS) beschrieben.
 
 \subsection{Motivation}
 \label{sub:Motivation}
 Bei AaS handelt es sich um eine Software zur Unterstützung von Annotatoren, die auf Basis eines Parseforest Fragen an den Annotator stellt und anhand dieser den optimalen Parsebaum auswählt. Dafür benötigt der Annotator zwingend Grunderfahrung im Annotieren, aber keinerlei Programmierkenntnisse. Dies beschleunigt den Vorgang der  menschlicher Dependenzannotation, die weiterhin die beste Qualität aufweist.
 
-\subsection{Architektur}
-\label{sub:Architektur}
 \section{System}
 \label{sec:System}
-Um die größtmögliche Kompatibilität und Flexibilität zu erreichen, besteht das System aus formal drei Teilbereichen, die durch Schnittstellen kommunizieren. Dies ermöglicht es, 
+Um die größtmögliche Kompatibilität und Flexibilität zu erreichen, besteht das System aus formal drei Teilbereichen, die durch Schnittstellen kommunizieren.
+Dies ermöglicht es, unabhängig von der Kernanwendung im Server verschiedene Clients zu entwickeln, die auch als Plugin bestehender Anwendungen realisiert werden können.
 Konkret handelt es sich um eine Server-Client-Konstruktion, die es dem User ermöglicht, sowohl das gesamte System als auch lediglich Teilbereiche zu installieren: So ist das Preprocessing optional und auch der Client kann für einen bereits installierten Server aufgesetzt werden.
 Im Folgenden ein Überblick über das gesamte System:
 \begin{center}
@@ -36,10 +36,10 @@ Im Folgenden ein Überblick über das gesamte System:
 \end{center}
 Das System besteht bekanntlich aus drei Teilbereichen, die durch Schnittstellen kommunizieren:
 \begin{itemize}
-\item Preprocessing\\Generieren der möglichen Parsebäume und Übergabe der $k$-besten an die Fragengenerierung über die Schnittstelle Preprocessing - Fragegenerierung
-\item Algorithmus zur Fragengenerierung auf einem Server\\erhält die $k$-besten Parsebäume 
+\item Preprocessing\\Generieren der möglichen Parsebäume und Übergabe der $k$ besten an die Fragengenerierung über die Schnittstelle Preprocessing – Fragegenerierung
+\item Algorithmus zur Fragengenerierung auf einem Server\\erhält die $k$ besten Parsebäume 
 \item Client\\Übermittlung der
-Fragen an den Annotator und der Antwort des Annotators an den Algorithmus über die Schnittstelle Client - Server sowie vom Prozess unabhängige Darstellung des Parsebaums 
+Fragen an den Annotator und der Antwort des Annotators an den Algorithmus über die Schnittstelle Client – Server sowie vom Prozess unabhängige Darstellung des Parsebaums 
 \end{itemize}
 
 \subsection{AaS-Server}
@@ -53,7 +53,7 @@ Der Server benötigt folgende Software um korrekt zu laufen:
     \begin{itemize}
         \item Python $\geq$ 3.4 
         \item Python3 packages: asyncio, Flask
-        \item Parser, der k-best Parses liefert (Anders Bjorkelunds transition-based parser )
+        \item Parser, der die $k$ besten Parses für einen Satz liefert (z.\,B. Anders Bjorkelunds übergangsbasierter Parser)
         \item TCP- oder UNIX-Sockets
         \item JSON
     \end{itemize}
@@ -75,35 +75,66 @@ Der Algorithmus folgt dabei folgendem Schema:
         \indent\indent\indent\indent\indent\indent End For
 
     \begin{itemize}
-        \item Nimm den Tupel als Frage
+        \item Nimm das Tupel als Frage
     \end{itemize}
 
 \subsection{AaS-CLI-Client}
 \label{sub:AaS-CLI-Client}
 
+Der AaS-CLI-Client ist ein textbasierter Client.
+Die Nachrichten des Servers werden vollständig aber visuell unaufwendig dargestellt.
+Nichtsdestoweniger implementiert der CLI-Client das AaS-Protokoll vollständig und unterstützt damit auch die Operationen \textit{undo} und \textit{abort}.
+Der Benutzer interagiert mit dem System durch einfache Befehle wie \enquote{y} oder \enquote{yes} für die bejahende Benantwortung einer Frage oder \enquote{undo 2}, um die letzten beiden Antworten zu widerrufen.
+Nach Abschluss der Annotation eines Satzes besteht die Möglichkeit den entstandenen Baum noch mithilfe eines externen Texteditors zu bearbeiten.
+
 \subsubsection{Abhängigkeiten}
 \label{ssub:CLI-Client-Abhaengigkeiten}
 
+Der CLI-Client hat folgende Abhängigkeiten:
+\begin{itemize}
+    \item Python $\geq$ 3.4 
+    \item TCP- oder UNIX-Sockets
+    \item JSON
+    \item Externer textbasierter Texteditor
+\end{itemize}
+
 \subsection{AaS-Web-Client}
 \label{sub:AaS-Web-Client}
-\textit{Anmerkung:Der AaS-Web-Client befindet sich zu diesem Zeitpunkt noch im frühen Entwicklungsstadium, folglich besteht keine Garantie, dass alle hier getroffen Aussagen fristgerecht umgesetzt werden können. Dementsprechend ist der folgende Abschnitt unterteilt: Zuerst werden die Features des Client aufgeführt, die in der finalen Version zur Verfügung stehen werden. Danach folgen jene Features, die je nach vorhandenen zeitlichen Rahmen noch folgen werden}.\\
-Der AaS-Web-Client ist eine interaktiven GUI und handhabt die Kommunikation Benutzer - Software. Über den Client werden sowohl die Benutzereingaben entgegengenommen und an den AaS-CLI-Client weitergeleitet als auch dessen Systemausgaben dem Benutzer zugeführt.
-Dabei werden dem Benutzer durch den Client mehrere Funktionen zur Verfügung gestellt, die die Annotationsaufgabe erleichtern:\\
-Zuerst einmal werden über den Client die Fragen des Algorithmus in menschenlesbarer Form ausgegeben und können vom Benutzer mit \glqq j \grqq~ oder \glqq nein\grqq~ beantwortet werden. Sobald der optimale Parsebaum ausgewählt wurde, wird dieser über den Web-Client ausgegeben. Dieser hat dann die Möglichkeit diesen abzuspeichern oder komplett zu verwerfen.\\
-Alle weiteren Features fallen in den optionalen Bereich.\\
+\textit{Anmerkung: Der AaS-Web-Client befindet sich zu diesem Zeitpunkt noch im frühen Entwicklungsstadium, folglich besteht keine Garantie, dass alle hier getroffen Aussagen fristgerecht umgesetzt werden können. Dementsprechend ist der folgende Abschnitt unterteilt: Zuerst werden die Features des Client aufgeführt, die in der finalen Version zur Verfügung stehen werden. Danach folgen jene Features, die je nach vorhandenen zeitlichen Rahmen noch folgen werden}.
+
+Der AaS-Web-Client ist eine interaktive GUI und handhabt die Kommunikation zwischen Benutzer und Software.
+Über den Client werden sowohl die Benutzereingaben entgegengenommen als auch die Antworten des Servers dem Benutzer zugeführt.
+Dabei werden dem Benutzer durch den Client mehrere Funktionen zur Verfügung gestellt, die die Annotationsaufgabe erleichtern:
+
+Zuerst einmal werden über den Client die Fragen des Algorithmus in menschenlesbarer Form ausgegeben und können vom Benutzer mit \enquote{ja} oder \enquote{nein} beantwortet werden.
+Sobald der optimale Parsebaum ausgewählt wurde, wird dieser über den Web-Client ausgegeben.
+Dieser hat dann die Möglichkeit diesen abzuspeichern oder komplett zu verwerfen.
+
+Alle weiteren Features fallen in den optionalen Bereich.
+Während der Annotation werden die bereits feststehenden Kanten angezeigt.
 Nachdem der optimale Baum ausgewählt wurde, erhält der Benutzer die Option diesen abzuändern.
-Des Weiteren sind noch weitere Benutzeraktionen geplant,  \textit{undo} und \textit{abort}. Wird \textit{undo} ausgeführt, wird die letzte Benutzeraktion rückgängig gemacht. Eine bereits beantwortete Frage kann somit ein weiteres Mal beantwortet und ein etwaiger Fehler behoben werden. \textit{abort} beendet den Hilfsvorgang, wobei die übrigen Bäume beibehalten werden. Der Benutzer hat dann die Möglichkeit sich entweder den zu diesem Zeitpunkt intern als optimal gekennzeichneten Baum anzeigen zu lassen oder sich die durch die zuvor beantworteten Fragen festgelegten Kanten anzusehen.
+Des Weiteren sind noch weitere Benutzeraktionen geplant, \textit{undo} und \textit{abort}.
+Wird \textit{undo} ausgeführt, wird die letzte Benutzeraktion rückgängig gemacht.
+Eine bereits beantwortete Frage kann somit ein weiteres Mal beantwortet und ein etwaiger Fehler behoben werden.
+\textit{abort} beendet den Hilfsvorgang und erfragt vom Server den besten Baum oder den Teilbaum, dessen Kanten feststehen.
+Bevor der Benutzer den Baum speichert, kann er noch Anpassungen am Baum vornehmen.
 
 \subsubsection{Abhängigkeiten}
 \label{ssub:Web-Client-Abhaengigkeiten}
-Der Web-Client hat bis auf weiteres folgende Abhängigkeit:
+Der Web-Client hat bis auf Weiteres folgende Abhängigkeit:
 \begin{itemize}
-    \item python-package \texttt{Flask}
+    \item Python $\geq$ 3.4 
+    \item Python-Paket \texttt{Flask}
+    \item TCP- oder UNIX-Sockets
+    \item JSON
 \end{itemize}
 
 \section{Evaluation}
-Die Evaluation erfolgt automatisch, da dadurch sowohl in der gleichen Zeitspanne mehr evaluiert werden kann als es von Hand möglich wäre als auch menschliche Fehler vermieden werden.\\ Der Goldparse eines Satzes wird hierbei als Ersatz für einen menschlichen Annotator benutzt. Jegliche Fragen des Servers werden an diesen Goldparse gestellt. Sobald der Algorithmus den optimalen Parse gewählt hat, wird dieser mit dem Goldparse verglichen.\\
-\subsection{Evaluationsma{\ss}e}
+Die Evaluation erfolgt automatisch, da dadurch sowohl in der gleichen Zeitspanne mehr evaluiert werden kann als es von Hand möglich wäre als auch menschliche Fehler vermieden werden.
+Der Goldparse eines Satzes wird hierbei als Ersatz für einen menschlichen Annotator benutzt. Jegliche Fragen des Servers werden an diesen Goldparse gestellt. Sobald der Algorithmus den optimalen Parse gewählt hat, wird dieser mit dem Goldparse verglichen.
+
+\subsection{Evaluationsmaße}
+
 Die Evaluation erfolgt über die Anzahl der korrekt gelabelten Kanten.
 Zur Bewertung der Ergebnisse werden insgesamt drei Evaluationsmaße benutzt:
 \begin{itemize}
@@ -115,4 +146,3 @@ Anzahl der gelabelten Kanten, die mit dem Goldstandard übereinstimmen
 Anzahl der nicht gefundenen Bäume (die Antworten auf die Fragen haben jede möglich Baum ausgeschlossen)
 \end{itemize}
 \end{document}
-
