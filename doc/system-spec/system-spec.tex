@@ -99,4 +99,18 @@ Der Web-Client hat bis auf weiteres folgende Abhängigkeit:
     \item python-package \texttt{Flask}
 \end{itemize}
 
+\section{Evaluation}
+Die Evaluation erfolgt automatisch, da dadurch sowohl in der gleichen Zeitspanne mehr evaluiert werden kann als es von Hand möglich wäre als auch menschliche Fehler vermieden werden.\\ Der Goldparse eines Satzes wird hierbei als Ersatz für einen menschlichen Annotator benutzt. Jegliche Fragen des Servers werden an diesen Goldparse gestellt. Sobald der Algorithmus den optimalen Parse gewählt hat, wird dieser mit dem Goldparse verglichen.\\
+\subsection{Evaluationsma{\ss}e}
+Die Evaluation erfolgt über die Anzahl der korrekt gelabelten Kanten.
+Zur Bewertung der Ergebnisse werden insgesamt drei Evaluationsmaße benutzt:
+\begin{itemize}
+\item Minimum Edit Distance\\
+Anzahl der nicht übereinstimmenden, gelabelten Kanten
+\item Labeled Attachment Score\\
+Anzahl der gelabelten Kanten, die mit dem Goldstandard übereinstimmen
+\item Error Counter\\
+Anzahl der nicht gefundenen Bäume (die Antworten auf die Fragen haben jede möglich Baum ausgeschlossen)
+\end{itemize}
 \end{document}
+
