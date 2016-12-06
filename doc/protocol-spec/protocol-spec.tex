@@ -1,0 +1,58 @@
+\documentclass{scrartcl}
+
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc} 
+\usepackage{lmodern}
+\usepackage{csquotes}
+
+\usepackage{hyperref}
+
+\newcommand{\messtype}[1]{\emph{#1}}
+
+\newcommand{\checkthis}[1]{#1}
+
+\title{AaS Protocol – AaSP}
+\author{Rebekka Hubert \and Michael Staniek \and Simon Will}
+\date{December 6, 2016}
+
+\begin{document}
+
+\maketitle
+
+\section[Introduction]{Introduction\footnote{This section heavily borrows from the Introduction to the specification of the HTTP as given in RFC~2616. \url{https://www.w3.org/Protocols/rfc2616/rfc2616-sec1.html}}}
+\label{sec:Introduction}
+
+\subsection{Purpose}
+\label{sub:Purpose}
+
+The Annotation as Search Protocol (AaSP) is an application-level protocol for communication of an AaS server and an AaS client.
+The purpose of this communication is described in \checkthis{the AaS specification}. % Provide a link here.
+
+\subsection{Protocol compliance}
+\label{sub:Protocol compliance}
+
+The key words \enquote{MUST}, \enquote{MUST NOT}, \enquote{REQUIRED}, \enquote{SHALL}, \enquote{SHALL NOT}, \enquote{SHOULD}, \enquote{SHOULD NOT}, \enquote{RECOMMENDED},  \enquote{MAY}, and \enquote{OPTIONAL} in this document are to be interpreted as described in RFC 2119.\footnote{\url{https://www.w3.org/Protocols/rfc2616/rfc2616-sec1.html}}
+
+An implementation of the AaSP is called compliant if and only if it satisfies all of the requirements marked by the key words \enquote{MUST}, \enquote{SHALL} or \enquote{REQUIRED}.
+Furthermore, implementations are encouraged to comply to the recommendations marked by the keywords \enquote{SHOULD} and \enquote{RECOMMENDED} if they are suitable to the respective application.
+
+\subsection{Overall Operation}
+\label{sub:Overall Operation}
+
+The client initiates the AaSP communication by sending a message of the type \messtype{request} to the server.
+The server then build a forest of annotated trees from the request, generates a question, and reponds to the client by sending a message of the type \messtype{question}.
+The client \checkthis{answers the question as true or false} and sends an \messtype{answer} message to the server.
+
+When receiving an \messtype{answer}, the server filters its forest to only retain the trees which satisfy the given answer.
+If only one tree remains, the server sends the remaining tree to the client in a \messtype{solution} message.
+Otherwise it sends a \messtype{question} message again.
+
+At any time, the client may send an \messtype{abort} message to end the communication prematurely, or it may send an \messtype{undo} message to revoke one or more of the answers given previously.
+
+If the server encounters an unexpected situation it may send an \messtype{error} message to the client.
+
+\section{AaSP Messages}
+\label{sec:AaSP Messages}
+
+\end{document}
