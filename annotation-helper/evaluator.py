@@ -7,7 +7,7 @@ import tree
 
 class Evaluator(object):
     '''
-    Class to automatically answer questions given a file with 
+    Class to automatically answer questions given a file with
     kbest parses and a file containing the goldparse.
     '''
     def __init__(self, file_with_kbest, goldfile):
@@ -22,7 +22,7 @@ class Evaluator(object):
         Read the files and construct Tree and Forest objects.
         Gets called by __init__
         '''
-        self.goldtree=tree.Tree()
+        self.goldtree = tree.Tree()
         for line in open(self.goldfile):
             if line == "\n":
                 self.goldtree.add(line)
@@ -59,5 +59,5 @@ class Evaluator(object):
 
 
 if __name__ == "__main__":
-    eval = Evaluator("conll_for_micha.conll", "conll_gold.conll")
-    eval.evaluate()
+    evaluator = Evaluator("conll_for_micha.conll", "conll_gold.conll")
+    evaluator.evaluate()
