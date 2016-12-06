@@ -22,18 +22,13 @@
 \label{sub:Motivation}
 \begin{itemize}
         \item Menschliche Annotation
-            \vspace{5pt}
             \begin{itemize}
                 \item dauert und kostet
-                    \vspace{5pt}
                 \item bei Dependenzparses immer noch ungeschlagen. % OK, aber es wird ja auch am Menschen evaluiert â€¦
             \end{itemize}
-            \vspace{10pt}
         \item Wir suchen eine Möglichkeit, Annotatoren zu unterstützen
-            \vspace{5pt}
             \begin{itemize}
                 \item Basierend auf vielen möglichen Parses für einen Satz Fragen an den Annotator stellen
-                    \vspace{5pt}
                 \item anhand der Fragen zum optimalen Parsebaum gelangen
             \end{itemize}
     \end{itemize}
@@ -41,10 +36,8 @@
     \begin{itemize}
         \item Das Programm soll für Annotatoren gedacht sein.
             \begin{itemize}
-                    \vspace{5pt}
                 \item Diese Userklasse hat nicht unbedingt viel Programmiererfahrung.
             \end{itemize}
-            \vspace{10pt}
         \item Eine gewisse Grunderfahrung im Annotieren wird vorausgesetzt.
     \end{itemize}
 
@@ -61,18 +54,15 @@
     \begin{itemize}
         \item Generiere aus Parseforest die Frage, welche bei ihrer Beantwortung die meisten Bäume rausfiltert.
             \begin{itemize}
-                    \vspace{5pt}
                 \item Suche des Tupels, das den Suchraum am ehesten halbiert:
             \end{itemize}
     \end{itemize}
-    \vspace{5pt}
 
         a $\gets$ len(parses) Anzahl der Parse-Bäume. \\
         For each tuple \\
         score $\gets$ $\mathrm{abs}(\mathrm{count(tuple)} - \frac{a}{2})$ \\
         End For
 
-    \vspace{5pt}
     \begin{itemize}
         \item Nimm den Tupel als Frage
     \end{itemize}
@@ -82,13 +72,9 @@
 \label{ssub:Server-Dependencies}
 
     \begin{itemize}
-            \vspace{10pt}
         \item Python 3.4 oder neuer (aufgrund des Pakets \texttt{asyncio})
-            \vspace{10pt}
         \item Parser, der k-best Parses liefert
-            \vspace{10pt}
         \item TCP- oder UNIX-Sockets
-        	\vspace{10pt}
         \item JSON
     \end{itemize}
 
