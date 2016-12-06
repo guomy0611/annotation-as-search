@@ -4,10 +4,11 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc} 
 \usepackage{lmodern}
+\usepackage{csquotes}
 \usepackage{graphicx}
 
 \usepackage{algorithm} % For the floating 'algorithm' environment.
-\title{AaS - Annotation als Suchproblem}
+\title{AaS – Annotation als Suchproblem}
 \author{Rebekka Hubert \and Michael Staniek \and Simon Will}
 \date{December 6, 2016}
 
@@ -15,23 +16,24 @@
 
 \maketitle
 
-\section{Introduction}
-\label{sec:Introduction}
-In diesem Dokument werden die Funktion, die Funktionsweise und die Systemvoraussetzungen der Software \glqq Annotation als Suche\grqq~ (AaS) beschrieben.
+\section{Einführung}
+\label{sec:Einfuehrung}
+In diesem Dokument werden die Funktion, die Funktionsweise und die Systemvoraussetzungen der Software \enquote{Annotation als Suche} (AaS) beschrieben.
+
 \subsection{Motivation}
 \label{sub:Motivation}
 Bei AaS handelt es sich um eine Software zur Unterstützung von Annotatoren, die auf Basis eines Parseforest Fragen an den Annotator stellt und anhand dieser den optimalen Parsebaum auswählt. Dafür benötigt der Annotator zwingend Grunderfahrung im Annotieren, aber keinerlei Programmierkenntnisse. Dies beschleunigt den Vorgang der  menschlicher Dependenzannotation, die weiterhin die beste Qualität aufweist.
 
-\subsection{Architecture}
-\label{sub:Architecture}
+\subsection{Architektur}
+\label{sub:Architektur}
 \section{System}
 \label{sec:System}
-Um die grö{\ss}tmögliche Kompatibilität und Flexibilität zu erreichen, besteht das System aus formal drei Teilbereichen, die durch Schnittstellen kommunizieren. Dies ermöglicht es, 
+Um die größtmögliche Kompatibilität und Flexibilität zu erreichen, besteht das System aus formal drei Teilbereichen, die durch Schnittstellen kommunizieren. Dies ermöglicht es, 
 Konkret handelt es sich um eine Server-Client-Konstruktion, die es dem User ermöglicht, sowohl das gesamte System als auch lediglich Teilbereiche zu installieren: So ist das Preprocessing optional und auch der Client kann für einen bereits installierten Server aufgesetzt werden.
 Im Folgenden ein Überblick über das gesamte System:
 \begin{center}
- \includegraphics[scale=0.4]{Grafik}
- \end{center}
+    \includegraphics[scale=0.4]{Grafik}
+\end{center}
 Das System besteht bekanntlich aus drei Teilbereichen, die durch Schnittstellen kommunizieren:
 \begin{itemize}
 \item Preprocessing\\Generieren der möglichen Parsebäume und Übergabe der $k$-besten an die Fragengenerierung über die Schnittstelle Preprocessing - Fragegenerierung
@@ -60,9 +62,9 @@ Der AaS-Server generiet die Fragen, nach welchen der optimale Parsebaum ausgeäh
     \end{itemize}
 Näheres im AaSP.
 
-\subsubsection{Dependencies}
-\label{ssub:Server-Dependencies}
-Der Algorithmus benötigt folgende Software um korrekt zu laufen:
+\subsubsection{Abhängigkeiten}
+\label{ssub:Server-Abhaengigkeiten}
+Der Server benötigt folgende Software um korrekt zu laufen:
     \begin{itemize}
         \item Python $\geq$ 3.4 
         \item Python3 packages: asyncio, Flask
@@ -71,14 +73,14 @@ Der Algorithmus benötigt folgende Software um korrekt zu laufen:
         \item JSON
     \end{itemize}
 
-\subsubsection{Algorithm}
-\label{ssub:Algorithm}
+\subsubsection{Algorithmus}
+\label{ssub:Algorithmus}
 
 \subsection{AaS-CLI-Client}
 \label{sub:AaS-CLI-Client}
 
-\subsubsection{Dependencies}
-\label{ssub:CLI-Client-Dependencies}
+\subsubsection{Abhängigkeiten}
+\label{ssub:CLI-Client-Abhaengigkeiten}
 
 \subsection{AaS-Web-Client}
 \label{sub:AaS-Web-Client}
@@ -90,11 +92,11 @@ Alle weiteren Features fallen in den optionalen Bereich.\\
 Nachdem der optimale Baum ausgewählt wurde, erhält der Benutzer die Option diesen abzuändern.
 Des Weiteren sind noch weitere Benutzeraktionen geplant,  \textit{undo} und \textit{abort}. Wird \textit{undo} ausgeführt, wird die letzte Benutzeraktion rückgängig gemacht. Eine bereits beantwortete Frage kann somit ein weiteres Mal beantwortet und ein etwaiger Fehler behoben werden. \textit{abort} beendet den Hilfsvorgang, wobei die übrigen Bäume beibehalten werden. Der Benutzer hat dann die Möglichkeit sich entweder den zu diesem Zeitpunkt intern als optimal gekennzeichneten Baum anzeigen zu lassen oder sich die durch die zuvor beantworteten Fragen festgelegten Kanten anzusehen.
 
-\subsubsection{Dependencies}
-\label{ssub:Web-Client-Dependencies}
-Der Web-Client hat bis auf weiteres folgende Dependency:
+\subsubsection{Abhängigkeiten}
+\label{ssub:Web-Client-Abhaengigkeiten}
+Der Web-Client hat bis auf weiteres folgende Abhängigkeit:
 \begin{itemize}
-\item python-package Flask
+    \item python-package \texttt{Flask}
 \end{itemize}
 
 \end{document}
