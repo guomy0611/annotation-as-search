@@ -17,40 +17,33 @@
 
 \section{Introduction}
 \label{sec:Introduction}
-
+In diesem Dokument werden die Funktion, die Funktionsweise und die Systemvoraussetzungen der Software \glqq Annotation als Suche\grqq~ (AaS) beschrieben.
 \subsection{Motivation}
 \label{sub:Motivation}
-\begin{itemize}
-        \item Menschliche Annotation
-            \begin{itemize}
-                \item dauert und kostet
-                \item bei Dependenzparses immer noch ungeschlagen. % OK, aber es wird ja auch am Menschen evaluiert â€¦
-            \end{itemize}
-        \item Wir suchen eine Möglichkeit, Annotatoren zu unterstützen
-            \begin{itemize}
-                \item Basierend auf vielen möglichen Parses für einen Satz Fragen an den Annotator stellen
-                \item anhand der Fragen zum optimalen Parsebaum gelangen
-            \end{itemize}
-    \end{itemize}
-
-    \begin{itemize}
-        \item Das Programm soll für Annotatoren gedacht sein.
-            \begin{itemize}
-                \item Diese Userklasse hat nicht unbedingt viel Programmiererfahrung.
-            \end{itemize}
-        \item Eine gewisse Grunderfahrung im Annotieren wird vorausgesetzt.
-    \end{itemize}
+Bei AaS handelt es sich um eine Software zur Unterstützung von Annotatoren, die auf Basis eines Parseforest Fragen an den Annotator stellt und anhand dieser den optimalen Parsebaum auswählt. Dafür benötigt der Annotator zwingend Grunderfahrung im Annotieren, aber keinerlei Programmierkenntnisse. Dies beschleunigt den Vorgang der  menschlicher Dependenzannotation, die weiterhin die beste Qualität aufweist.
 
 \subsection{Architecture}
 \label{sub:Architecture}
-
-\section{Systems}
-\label{sec:Systems}
+Um die größtmögliche Kompatibilität und Flexibilität zu erreichen, besteht das System aus formal drei Teilbereichen, die durch Schnittstellen kommunizieren. Dies ermöglicht es, 
+Konkret handelt es sich um eine Server-Client-Konstruktion, die es dem User ermöglicht, sowohl das gesamte System als auch lediglich Teilbereiche zu installieren: So ist das Preprocessing optional und auch der Client kann für einen bereits installierten Server aufgesetzt werden.
+\newpage
+\section{System}
+\label{sec:System}
+Im Folgenden ein Überblick über das gesamte System:
+\begin{center}
+ \includegraphics[scale=0.4]{Grafik}
+ \end{center}
+Das System besteht bekanntlich aus drei Teilbereichen, die durch Schnittstellen kommunizieren:
+\begin{itemize}
+\item Preprocessing\\Generieren der möglichen Parsebäume und Übergabe der $k$-besten an die Fragengenerierung über die Schnittstelle Preprocessing - Fragegenerierung
+\item Algorithmus zur Fragengenerierung auf einem Server\\erhält die $k$-besten Parsebäume 
+\item Client\\Übermittlung der
+Fragen an den Annotator und der Antwort des Annotators an den Algorithmus über die Schnittstelle Client - Server sowie vom Prozess unabhängige Darstellung des Parsebaums 
+\end{itemize}
 
 \subsection{AaS-Server}
 \label{sub:AaS-Server}
-
-    \includegraphics[scale=0.4]{Grafik}
+Der AaS-Server generiet die Fragen, nach welchen der optimale Parsebaum ausgeählt wird. Der Algorithmus folgt dabei folgendem Schema:
     \begin{itemize}
         \item Generiere aus Parseforest die Frage, welche bei ihrer Beantwortung die meisten Bäume rausfiltert.
             \begin{itemize}
@@ -58,22 +51,23 @@
             \end{itemize}
     \end{itemize}
 
-        a $\gets$ len(parses) Anzahl der Parse-Bäume. \\
-        For each tuple \\
-        score $\gets$ $\mathrm{abs}(\mathrm{count(tuple)} - \frac{a}{2})$ \\
-        End For
+        \indent\indent\indent\indent\indent\indent a $\gets$ len(parses) Anzahl der Parse-Bäume. \\
+        \indent\indent\indent\indent\indent\indent For each tuple \\
+       \indent\indent\indent\indent\indent\indent\indent score $\gets$ $\mathrm{abs}(\mathrm{count(tuple)} - \frac{a}{2})$ \\
+        \indent\indent\indent\indent\indent\indent End For
 
     \begin{itemize}
         \item Nimm den Tupel als Frage
     \end{itemize}
-
+Näheres im AaSP.
 
 \subsubsection{Dependencies}
 \label{ssub:Server-Dependencies}
-
+Der Algorithmus benötigt folgende Software um korrekt zu laufen:
     \begin{itemize}
-        \item Python 3.4 oder neuer (aufgrund des Pakets \texttt{asyncio})
-        \item Parser, der k-best Parses liefert
+        \item Python $\geq$ 3.4 
+        \item Python3 packages: asyncio, Flask
+        \item Parser, der k-best Parses liefert (Anders Bjorkelunds transition-based parser )
         \item TCP- oder UNIX-Sockets
         \item JSON
     \end{itemize}
