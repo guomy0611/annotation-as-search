@@ -13,15 +13,15 @@
 
 \lstdefinelanguage{JavaScript}{
   keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, if, in, while, do, else, case, break},
-  keywordstyle=\color{blue}\bfseries,
+  keywordstyle=\color{Blue}\bfseries,
   ndkeywords={class, export, boolean, throw, implements, import, this},
-  ndkeywordstyle=\color{darkgray}\bfseries,
-  identifierstyle=\color{black},
+  ndkeywordstyle=\color{Darkgray}\bfseries,
+  identifierstyle=\color{Black},
   sensitive=false,
   comment=[l]{//},
   morecomment=[s]{/*}{*/},
-  commentstyle=\color{purple}\ttfamily,
-  stringstyle=\color{red}\ttfamily,
+  commentstyle=\color{Purple}\ttfamily,
+  stringstyle=\color{OrangeRed}\ttfamily,
   morestring=[b]',
   morestring=[b]"
 }
@@ -55,6 +55,7 @@
 \newcommand{\jsstring}[1]{\texttt{\color{OrangeRed}"#1"}}
 \newcommand{\js}[1]{\lstinline[style=JSONInputStyle];#1;}
 \newcommand{\optional}{\textbf{Optional.}}
+\newcommand{\Examples}{\noindent\textbf{Examples:}}
 
 \newcommand{\checkthis}[1]{#1}
 
@@ -167,6 +168,12 @@ The client shall provide two additional pairs:
     \item[\jsstring{answer}] A boolean value providing an answer to the question.
 \end{description}
 
+\Examples
+
+\lstinputlisting[basicstyle=\footnotesize\ttfamily]{request_parse_sentence.json}
+
+\lstinputlisting[basicstyle=\footnotesize\ttfamily]{request_use_forest.json}
+
 \subsubsection{Abort}
 \label{ssub:Abort}
 
@@ -181,6 +188,10 @@ The client shall provide one additional pair:
         Servers may, however, support additional options of their own.
 \end{description}
 
+\Examples
+
+\lstinputlisting[basicstyle=\footnotesize\ttfamily]{abort.json}
+
 \subsubsection{Undo}
 \label{ssub:Undo}
 
@@ -192,6 +203,10 @@ The client can provide one additional pair:
     \item[\jsstring{answers}] \optional\ An integer value between zero and the number of given answers (both inclusive) specifying how many answers are revoked.
         If \jsstring{answers} is not specified, servers should assume \js{1} as the default value.
 \end{description}
+
+\Examples
+
+\lstinputlisting[basicstyle=\footnotesize\ttfamily]{undo.json}
 
 \subsubsection{Question}
 \label{ssub:Question}
@@ -208,6 +223,10 @@ The server shall provide four additional pairs:
     \item[\jsstring{fixed\_edges}] A \hyperref[ssub:Tree object]{tree object} containing the fixed edges, i.e. the edges present in every tree in the forest.
 \end{description}
 
+\Examples
+
+\lstinputlisting[basicstyle=\footnotesize\ttfamily]{question.json}
+
 \subsubsection{Solution}
 \label{ssub:Solution}
 
@@ -221,6 +240,10 @@ The server shall provide two additional pairs:
         Servers should support the values \jsstring{real} for a tree which is the only remaining tree in the forest, \jsstring{best} for a tree which is the server’s best guess at the correct tree, and \jsstring{fixed} for an incomplete tree only containing the edges present in every tree in the forest.
 \end{description}
 
+\Examples
+
+\lstinputlisting[basicstyle=\footnotesize\ttfamily]{solution.json}
+
 \subsubsection{Error}
 \label{ssub:Error}
 
@@ -232,6 +255,10 @@ The server shall provide two additional pairs:
     \item[\jsstring{recommendation}] A string specifying how the client should handle the error.
         Possible values are \jsstring{abort} for recommending to abort the annotation helping process and \jsstring{retry} for recommending to send the previous message again.
 \end{description}
+
+\Examples
+
+\lstinputlisting[basicstyle=\footnotesize\ttfamily]{error.json}
 
 \subsection{Custom objects}
 \label{sub:Custom objects}
@@ -265,6 +292,12 @@ It asks if a dependent node and a head node are connected by a specific relation
         A possible value is \jsstring{deprel}.
 \end{description}
 
+\Examples
+
+\lstinputlisting[basicstyle=\footnotesize\ttfamily]{node_question_object.json}
+
+\lstinputlisting[basicstyle=\footnotesize\ttfamily]{relation_question_object.json}
+
 \subsubsection{Tree object}
 \label{ssub:Tree object}
 
@@ -277,5 +310,9 @@ It contains two pairs:
         Each inner array represents a node.
         Each element of a node array is a string representing one of the values of the respective CoNLL format.
 \end{description}
+
+\Examples
+
+\lstinputlisting[basicstyle=\footnotesize\ttfamily]{tree_object.json}
 
 \end{document}

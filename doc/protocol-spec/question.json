@@ -1,0 +1,22 @@
+{
+  "type": "question",
+  "question": {
+    "head" : "badet-3",
+    "dependent": "Lurch-6",
+    "relation": "SB",
+    "relation_type": "deprel"
+  },
+  "remaining_trees": 4,
+  "sentence": "Mit Bedacht badet heute ein Lurch in einem See.",
+  "fixed_edges": {
+    "tree_format": "conll09",
+    "nodes": [
+      ["1","Mit","mit","_","ADP","APPR","_","_","3","_","MO","_","_"],
+      ["2","Bedacht","bedacht","_","NOUN","NN","_","_","1","_","NK","_","_"],
+      ["6","Lurch","lurch","_","NOUN","NN","_","_","3","_","SB","_","_"],
+      ["7","in","in","_","ADP","APPR","_","_","3","_","MO","_","_"],
+      ["8","einem","in","_","ART","DET","_","_","9","_","NK","_","_"],
+      ["9","See","see","_","NOUN","NN","_","_","7","_","NK","_","_"]
+    ]
+  }
+}
