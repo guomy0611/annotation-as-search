@@ -8,7 +8,53 @@
 
 \usepackage{hyperref}
 
+\usepackage[dvipsnames]{xcolor} % For using colors
+\usepackage{listings} % For displaying code.
+
+\lstdefinelanguage{JavaScript}{
+  keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, if, in, while, do, else, case, break},
+  keywordstyle=\color{blue}\bfseries,
+  ndkeywords={class, export, boolean, throw, implements, import, this},
+  ndkeywordstyle=\color{darkgray}\bfseries,
+  identifierstyle=\color{black},
+  sensitive=false,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{purple}\ttfamily,
+  stringstyle=\color{red}\ttfamily,
+  morestring=[b]',
+  morestring=[b]"
+}
+
+\lstset{
+    %basicstyle=\footnotesize\ttfamily,
+    basicstyle=\ttfamily,
+    language=JavaScript,
+    breaklines=true,
+    showtabs=true,
+    showspaces=false,
+    showstringspaces=false,
+    tabsize=4,
+    inputencoding=utf8,
+    literate={ä}{{\"a}}1 {ö}{{\"o}}1 {ü}{{\"u}}1 {ß}{{\ss}}1 {²}{{$^2$}}1 {ð}{{\dh}}1 {ó}{{\'o}}1 {á}{{\'a}}1
+}
+
+\lstdefinestyle{JSONInputStyle}{
+	language=JavaScript,
+	numbers=left,
+	numberstyle=\tiny,
+	numbersep=3pt,
+	frame=tb,
+	columns=fullflexible,
+	linewidth=0.9\linewidth,
+	xleftmargin=0.1\linewidth
+}
+
 \newcommand{\messtype}[1]{\emph{#1}}
+%\newcommand{\jsstring}[1]{\lstinline[style=JSONInputStyle];"#1";}
+\newcommand{\jsstring}[1]{\texttt{\color{OrangeRed}"#1"}}
+\newcommand{\js}[1]{\lstinline[style=JSONInputStyle];#1;}
+\newcommand{\optional}{\textbf{Optional.}}
 
 \newcommand{\checkthis}[1]{#1}
 
@@ -32,7 +78,7 @@ The purpose of this communication is described in \checkthis{the AaS specificati
 \subsection{Protocol compliance}
 \label{sub:Protocol compliance}
 
-The key words \enquote{MUST}, \enquote{MUST NOT}, \enquote{REQUIRED}, \enquote{SHALL}, \enquote{SHALL NOT}, \enquote{SHOULD}, \enquote{SHOULD NOT}, \enquote{RECOMMENDED},  \enquote{MAY}, and \enquote{OPTIONAL} in this document are to be interpreted as described in RFC 2119.\footnote{\url{https://www.w3.org/Protocols/rfc2616/rfc2616-sec1.html}}
+The key words \enquote{MUST}, \enquote{MUST NOT}, \enquote{REQUIRED}, \enquote{SHALL}, \enquote{SHALL NOT}, \enquote{SHOULD}, \enquote{SHOULD NOT}, \enquote{RECOMMENDED},  \enquote{MAY}, and \enquote{OPTIONAL} in this document are to be interpreted as described in RFC 2119.\footnote{\url{https://www.ietf.org/rfc/rfc2119.txt}}
 
 An implementation of the AaSP is called compliant if and only if it satisfies all of the requirements marked by the key words \enquote{MUST}, \enquote{SHALL} or \enquote{REQUIRED}.
 Furthermore, implementations are encouraged to comply to the recommendations marked by the keywords \enquote{SHOULD} and \enquote{RECOMMENDED} if they are suitable to the respective application.
@@ -54,5 +100,182 @@ If the server encounters an unexpected situation it may send an \messtype{error}
 
 \section{AaSP Messages}
 \label{sec:AaSP Messages}
+
+\subsection{Message format}
+\label{sub:Message format}
+
+AaSP messages are UTF-8-encoded\footnote{https://tools.ietf.org/html/rfc3629}
+JSON-formatted\footnote{https://tools.ietf.org/html/rfc7159}
+strings.
+Every message must consist of exactly one JSON object, which must contain a pair with the key \jsstring{type} specifying the type of the message.
+The value of the \jsstring{type} key shall be a string.
+
+All other pairs in the message object depend on the type of the message.
+The available types are:
+
+\begin{itemize}
+    \item \jsstring{request} (sent by the client)
+    \item \jsstring{answer} (sent by the client)
+    \item \jsstring{abort} (sent by the client)
+    \item \jsstring{undo} (sent by the client)
+    \item \jsstring{question} (sent by the server)
+    \item \jsstring{solution} (sent by the server)
+    \item \jsstring{error} (sent by the server)
+\end{itemize}
+
+\subsection{Message types}
+\label{sub:Message types}
+
+The following sections describe the purpose and semantics of the different message types,
+and specify what pairs a message has to contain in addition to the pair identified by the \jsstring{type} key,
+which has to be present in every message.
+
+\subsubsection{Request}
+\label{ssub:Request}
+
+The client sends this message to initiate the communication between server and client,
+and the content of this message should be used by the server to build a forest of trees.
+However, there are two ways for the client to provide the necessary information:
+Either it supplies the whole forest or it supplies a sentence and tells the server to parse the sentence itself.
+
+In the case of supplying the whole forest, the client shall provide two additional pairs:
+\begin{description}
+    \item[\jsstring{use\_forest}] A representation of the forest the server should use.
+        The value should be a string.
+        Servers may only accept different values – such as an array – of strings if the representation as a single string is not suitable.
+    \item[\jsstring{forest\_format}] A string specifying the format the forest is provided as.
+        Servers should at least accept the format \jsstring{conllu}\footnote{http://universaldependencies.org/docs/format.html}.
+\end{description}
+In the case of supplying only the sentence, the client shall provide a \jsstring{parse\_sentence} field and may also provide a \jsstring{parser} field:
+\begin{description}
+    \item[\jsstring{parse\_sentence}] A string representing the sentence the server is to parse.
+    \item[\jsstring{parser}] \optional\ A string specifying which parser the server is to use.
+        If no \jsstring{parser} is specified, servers should use their default parser.
+\end{description}
+
+\subsubsection{Answer}
+\label{ssub:Answer}
+
+The client sends this message after receiving a \jsstring{question} message from the server,
+and the content of this message shall be used by the server to filter the forest for trees satisfying
+the condition inferred from the answer.
+
+The client shall provide two additional pairs:
+\begin{description}
+    \item[\jsstring{question}] The question wo which this message provides an answer.
+        The value should be a \checkthis{question object}.
+    \item[\jsstring{answer}] A boolean value providing an answer to the question.
+\end{description}
+
+\subsubsection{Abort}
+\label{ssub:Abort}
+
+The client sends this message if it wants to terminate the annotation helping process,
+and the content of this message shall be used by the server to generate a mock \jsstring{solution} to return to the client.
+The client can request the tree the server judges as being the best candidate for the correct tree or an incomplete tree containing only the edges that are present in all trees.
+
+The client shall provide one additional pair:
+\begin{description}
+    \item[\jsstring{wanted}] A string specifying what tree the client wants to have.
+        Servers should support the options \jsstring{wanted} for the best guess at the correct tree and \jsstring{fixed} for the incomplete tree containing only fixed edges.
+        Servers may, however, support additional options of their own.
+\end{description}
+
+\subsubsection{Undo}
+\label{ssub:Undo}
+
+The client sends this message if it wants to revoke previously sent \jsstring{answer} messages,
+and the content of this message shall be used by the server to restore the state of the forest as it was before the answers had been processed.
+
+The client can provide one additional pair:
+\begin{description}
+    \item[\jsstring{answers}] \optional\ An integer value between zero and the number of given answers (both inclusive) specifying how many answers are revoked.
+        If \jsstring{answers} is not specified, servers should assume \js{1} as the default value.
+\end{description}
+
+\subsubsection{Question}
+\label{ssub:Question}
+
+The server sends this message if there is more than one tree left in the forest and the client has not sent an \jsstring{abort} message,
+and the content of this message shall be used by the client to provide the question to the user and prompt them for an answer.
+The question shall also provide futher information about the state of the annotation process for the client to display to the user.
+
+The server shall provide four additional pairs:
+\begin{description}
+    \item[\jsstring{sentence}] A string representing the sentence that is being annotated.
+    \item[\jsstring{question}] A question object representing the question the user is to be asked.
+    \item[\jsstring{remaining\_trees}] An integer value specifying how many trees currently remain in the forest.
+    \item[\jsstring{fixed\_edges}] A tree object containing the fixed edges, i.e. the edges present in every tree in the forest.
+\end{description}
+
+\subsubsection{Solution}
+\label{ssub:Solution}
+
+The server sends this message either if only one tree remains in the forest or the client has sent an \jsstring{abort} message.
+This message is supposed to be the last message in the annoation helping process, but the client shall still be able to send an \jsstring{undo} message revoking previous answers leading to a reentry of the question-answer-cycle.
+
+The server shall provide two additional pairs:
+\begin{description}
+    \item[\jsstring{solution}] A tree object.
+    \item[\jsstring{solution\_type}] A string specifying what kind of tree is sent as the solution.
+        Servers should support the values \jsstring{real} for a tree which is the only remaining tree in the forest, \jsstring{best} for a tree which is the server’s best guess at the correct tree, and \jsstring{fixed} for an incomplete tree only containing the edges present in every tree in the forest.
+\end{description}
+
+\subsubsection{Error}
+\label{ssub:Error}
+
+The server sends this message if it encounters an unexpected situation.
+
+The server shall provide two additional pairs:
+\begin{description}
+    \item[\jsstring{error\_message}] A string containing a human-readable message telling the user what went wrong.
+    \item[\jsstring{recommendation}] A string specifying how the client should handle the error.
+        Possible values are \jsstring{abort} for recommending to abort the annotation helping process and \jsstring{retry} for recommending to send the previous message again.
+\end{description}
+
+\subsection{Custom objects}
+\label{sub:Custom objects}
+
+There are two custom JSON objects that are used in messages of more than one type.
+These are the question object and the tree object which are described in the following sections:
+
+\subsubsection{Question object}
+\label{ssub:Question object}
+
+A question object represents a question the client can put to the user.
+There are two types of question objects, which are implicitly identified by the keys of the pairs present in the object.
+
+The first type is the node question object.
+It asks if a given label is correct for a given node.
+A question object contains the following pairs:
+\begin{description}
+    \item[\jsstring{node}] A string of the form \jsstring{token-index} specifying the name of the token and the position in the sentence to identify the node.
+    \item[\jsstring{label}] A string specifying a label.
+    \item[\jsstring{label\_type}] A string specifying the type of the label.
+        Possible values are \jsstring{pos} or \jsstring{morph}.
+\end{description}
+
+The second type is the relation question object.
+It asks if a dependent node and a head node are connected by a specific relation.
+\begin{description}
+    \item[\jsstring{head}] A string of the form \jsstring{token-index} specifying the name of the token and the position in the sentence to identify the head node.
+    \item[\jsstring{dependent}] A string of the form \jsstring{token-index} specifying the name of the token and the position in the sentence to identify the dependent node.
+    \item[\jsstring{relation}] A string specifying a relation.
+    \item[\jsstring{relation\_type}] A string specifying the type of the relation.
+        A possible value is \jsstring{deprel}.
+\end{description}
+
+\subsubsection{Tree object}
+\label{ssub:Tree object}
+
+A tree object represents a complete tree or an incomplete tree.
+It contains two pairs:
+\begin{description}
+    \item[\jsstring{tree\_format}] A string specifying the format the tree represenation adheres to.
+        Servers and clients should at least support the format \jsstring{conllu}\footnote{http://universaldependencies.org/docs/format.html}.
+    \item[\jsstring{nodes}] An array of arrays.
+        Each inner array represents a node.
+        Each element of a node array is a string representing one of the values of the respective CoNLL format.
+\end{description}
 
 \end{document}
