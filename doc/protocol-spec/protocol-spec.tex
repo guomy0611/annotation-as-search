@@ -163,7 +163,7 @@ the condition inferred from the answer.
 The client shall provide two additional pairs:
 \begin{description}
     \item[\jsstring{question}] The question wo which this message provides an answer.
-        The value should be a \checkthis{question object}.
+        The value should be a \hyperref[ssub:Question object]{question object}.
     \item[\jsstring{answer}] A boolean value providing an answer to the question.
 \end{description}
 
@@ -203,9 +203,9 @@ The question shall also provide futher information about the state of the annota
 The server shall provide four additional pairs:
 \begin{description}
     \item[\jsstring{sentence}] A string representing the sentence that is being annotated.
-    \item[\jsstring{question}] A question object representing the question the user is to be asked.
+    \item[\jsstring{question}] A \hyperref[ssub:Question object]{question object} representing the question the user is to be asked.
     \item[\jsstring{remaining\_trees}] An integer value specifying how many trees currently remain in the forest.
-    \item[\jsstring{fixed\_edges}] A tree object containing the fixed edges, i.e. the edges present in every tree in the forest.
+    \item[\jsstring{fixed\_edges}] A \hyperref[ssub:Tree object]{tree object} containing the fixed edges, i.e. the edges present in every tree in the forest.
 \end{description}
 
 \subsubsection{Solution}
@@ -216,7 +216,7 @@ This message is supposed to be the last message in the annoation helping process
 
 The server shall provide two additional pairs:
 \begin{description}
-    \item[\jsstring{solution}] A tree object.
+    \item[\jsstring{solution}] A \hyperref[ssub:Tree object]{tree object}.
     \item[\jsstring{solution\_type}] A string specifying what kind of tree is sent as the solution.
         Servers should support the values \jsstring{real} for a tree which is the only remaining tree in the forest, \jsstring{best} for a tree which is the server’s best guess at the correct tree, and \jsstring{fixed} for an incomplete tree only containing the edges present in every tree in the forest.
 \end{description}
