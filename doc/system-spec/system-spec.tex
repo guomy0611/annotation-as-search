@@ -1,6 +1,6 @@
 \documentclass{scrartcl}
 
-\usepackage[english]{babel}
+\usepackage[ngerman]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc} 
 \usepackage{lmodern}
@@ -26,7 +26,7 @@ Bei AaS handelt es sich um eine Software zur Unterstützung von Annotatoren, die
 \label{sub:Architecture}
 \section{System}
 \label{sec:System}
-Um die größtmögliche Kompatibilität und Flexibilität zu erreichen, besteht das System aus formal drei Teilbereichen, die durch Schnittstellen kommunizieren. Dies ermöglicht es, 
+Um die grö{\ss}tmögliche Kompatibilität und Flexibilität zu erreichen, besteht das System aus formal drei Teilbereichen, die durch Schnittstellen kommunizieren. Dies ermöglicht es, 
 Konkret handelt es sich um eine Server-Client-Konstruktion, die es dem User ermöglicht, sowohl das gesamte System als auch lediglich Teilbereiche zu installieren: So ist das Preprocessing optional und auch der Client kann für einen bereits installierten Server aufgesetzt werden.
 Im Folgenden ein Überblick über das gesamte System:
 \begin{center}
@@ -82,8 +82,19 @@ Der Algorithmus benötigt folgende Software um korrekt zu laufen:
 
 \subsection{AaS-Web-Client}
 \label{sub:AaS-Web-Client}
+\textit{Anmerkung:Der AaS-Web-Client befindet sich zu diesem Zeitpunkt noch im frühen Entwicklungsstadium, folglich besteht keine Garantie, dass alle hier getroffen Aussagen fristgerecht umgesetzt werden können. Dementsprechend ist der folgende Abschnitt unterteilt: Zuerst werden die Features des Client aufgeführt, die in der finalen Version zur Verfügung stehen werden. Danach folgen jene Features, die je nach vorhandenen zeitlichen Rahmen noch folgen werden}.\\
+Der AaS-Web-Client ist eine interaktiven GUI und handhabt die Kommunikation Benutzer - Software. Über den Client werden sowohl die Benutzereingaben entgegengenommen und an den AaS-CLI-Client weitergeleitet als auch dessen Systemausgaben dem Benutzer zugeführt.
+Dabei werden dem Benutzer durch den Client mehrere Funktionen zur Verfügung gestellt, die die Annotationsaufgabe erleichtern:\\
+Zuerst einmal werden über den Client die Fragen des Algorithmus in menschenlesbarer Form ausgegeben und können vom Benutzer mit \glqq j \grqq~ oder \glqq nein\grqq~ beantwortet werden. Sobald der optimale Parsebaum ausgewählt wurde, wird dieser über den Web-Client ausgegeben. Dieser hat dann die Möglichkeit diesen abzuspeichern oder komplett zu verwerfen.\\
+Alle weiteren Features fallen in den optionalen Bereich.\\
+Nachdem der optimale Baum ausgewählt wurde, erhält der Benutzer die Option diesen abzuändern.
+Des Weiteren sind noch weitere Benutzeraktionen geplant,  \textit{undo} und \textit{abort}. Wird \textit{undo} ausgeführt, wird die letzte Benutzeraktion rückgängig gemacht. Eine bereits beantwortete Frage kann somit ein weiteres Mal beantwortet und ein etwaiger Fehler behoben werden. \textit{abort} beendet den Hilfsvorgang, wobei die übrigen Bäume beibehalten werden. Der Benutzer hat dann die Möglichkeit sich entweder den zu diesem Zeitpunkt intern als optimal gekennzeichneten Baum anzeigen zu lassen oder sich die durch die zuvor beantworteten Fragen festgelegten Kanten anzusehen.
 
 \subsubsection{Dependencies}
 \label{ssub:Web-Client-Dependencies}
+Der Web-Client hat bis auf weiteres folgende Dependency:
+\begin{itemize}
+\item python-package Flask
+\end{itemize}
 
 \end{document}
