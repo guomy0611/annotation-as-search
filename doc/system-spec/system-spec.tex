@@ -44,22 +44,7 @@ Fragen an den Annotator und der Antwort des Annotators an den Algorithmus über 
 
 \subsection{AaS-Server}
 \label{sub:AaS-Server}
-Der AaS-Server generiet die Fragen, nach welchen der optimale Parsebaum ausgeählt wird. Der Algorithmus folgt dabei folgendem Schema:
-    \begin{itemize}
-        \item Generiere aus Parseforest die Frage, welche bei ihrer Beantwortung die meisten Bäume rausfiltert.
-            \begin{itemize}
-                \item Suche des Tupels, das den Suchraum am ehesten halbiert:
-            \end{itemize}
-    \end{itemize}
-
-        \indent\indent\indent\indent\indent\indent a $\gets$ len(parses) Anzahl der Parse-Bäume. \\
-        \indent\indent\indent\indent\indent\indent For each tuple \\
-       \indent\indent\indent\indent\indent\indent\indent score $\gets$ $\mathrm{abs}(\mathrm{count(tuple)} - \frac{a}{2})$ \\
-        \indent\indent\indent\indent\indent\indent End For
-
-    \begin{itemize}
-        \item Nimm den Tupel als Frage
-    \end{itemize}
+Der AaS-Server generiet die Fragen, nach welchen der optimale Parsebaum ausgewählt wird. 
 Näheres im AaSP.
 
 \subsubsection{Abhängigkeiten}
@@ -75,6 +60,23 @@ Der Server benötigt folgende Software um korrekt zu laufen:
 
 \subsubsection{Algorithmus}
 \label{ssub:Algorithmus}
+
+Der Algorithmus folgt dabei folgendem Schema:
+    \begin{itemize}
+        \item Generiere aus Parseforest die Frage, welche bei ihrer Beantwortung die meisten Bäume rausfiltert.
+            \begin{itemize}
+                \item Suche des Tupels, das den Suchraum am ehesten halbiert:
+            \end{itemize}
+    \end{itemize}
+
+        \indent\indent\indent\indent\indent\indent a $\gets$ len(parses) Anzahl der Parse-Bäume. \\
+        \indent\indent\indent\indent\indent\indent For each tuple \\
+       \indent\indent\indent\indent\indent\indent\indent score $\gets$ $\mathrm{abs}(\mathrm{count(tuple)} - \frac{a}{2})$ \\
+        \indent\indent\indent\indent\indent\indent End For
+
+    \begin{itemize}
+        \item Nimm den Tupel als Frage
+    \end{itemize}
 
 \subsection{AaS-CLI-Client}
 \label{sub:AaS-CLI-Client}
