@@ -174,7 +174,7 @@ class Forest(object):
         Returns a list containing 3-tuples and their counts.
         Example: ('Es1', 'ist2', 'SB'): 540
         '''
-        print(len(self.liste))
+        #print(len(self.liste))
         return Counter([x for tree in self.liste for x \
                            in tree.get()]).most_common()
 
