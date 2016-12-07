@@ -43,22 +43,22 @@ class Evaluator(object):
         forest and the minimum edit distance when only 1 tree is left.
         '''
         count = 0
-        while len(self.forest.liste) != 1:
+        while len(self.forest.trees) != 1:
             count += 1
             question = self.forest.question()
             if question in self.goldtree.get():
                 self.forest.filter(question, True)
             else:
                 self.forest.filter(question, False)
-            if len(self.forest.liste) == 1:
+            if len(self.forest.trees) == 1:
                 break
-            if len(self.forest.liste)==0:
+            if len(self.forest.trees)==0:
                 print(len(self.goldtree.get()), #Number of tokens 
 		      count, 0, len(self.goldtree.get()), 1, 1) 
 		#how many guesses, Labeled attachment count, number of edits, countvariable, error
         print(len(self.goldtree.get()), count, #Tokennumber and number of guesses
-                self.forest.liste[0].overlap(self.goldtree), #Labaled Attachment Count
-                len(self.goldtree.get())-self.forest.liste[0].overlap(self.goldtree), #Minimum Edit Distance
+                self.forest.trees[0].overlap(self.goldtree), #Labaled Attachment Count
+                len(self.goldtree.get())-self.forest.trees[0].overlap(self.goldtree), #Minimum Edit Distance
                 1, 0) #1 to later know the length, 0 meaning 0 errors
 
 

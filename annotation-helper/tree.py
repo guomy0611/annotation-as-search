@@ -20,7 +20,7 @@ class Tree(object):
         Initialize the Tree with an empty list later containing the CONLL-Tuples
         and an empty dictionary later containing the position -> word mapping.
         '''
-        self.liste = []
+        self.nodes = []
         self.dictio = dict()
         self.head=head
         self.dep=dep
@@ -48,7 +48,7 @@ class Tree(object):
         containing the position -> word mapping of this line.
         '''
         tuple1 = sentence.strip().split()
-        self.liste.append(tuple(tuple1))
+        self.nodes.append(tuple(tuple1))
         self.dictio[tuple1[0]] = tuple1[1] #fills mapping position -> word
 
     def contains(self, tup):
@@ -76,7 +76,7 @@ class Tree(object):
                  self.dictio[x[self.head]]+"-"+x[self.head] if x[self.head] != "0" else "Root-0",
                  #Look up the index of the target word in the dictionary
                  #take the word and add the index to it.
-                 x[self.dep]) for x in self.liste]
+                 x[self.dep]) for x in self.nodes]
                  #Last element of the tuple is the relation type.
 
     def to_conll(self):
@@ -84,7 +84,7 @@ class Tree(object):
         Returns a complete CONLL Representation of the parse contained
         in this object.
         '''
-        return "\n".join("\t".join(x) for x in self.liste)
+        return "\n".join("\t".join(x) for x in self.nodes)
 
     def to_latex(self):
         '''
@@ -99,7 +99,7 @@ class Tree(object):
         string += " \\& ".join(self.dictio[str(key)] for key in \
                    sorted([int(x) for x in self.dictio.keys()]))+"\\\\ \n"
         string += "\\end{deptext}\n"
-        for value in self.liste:
+        for value in self.nodes:
             if value[8] == "0":
                 string += "\\deproot{"+str(value[0])+"}{root}\n"
             else:
@@ -113,7 +113,7 @@ class Tree(object):
         call(["dvisvgm", "test10.dvi"])
 
     def as_dict(self):
-        return {'nodes': self.liste}
+        return {'nodes': self.nodes}
 
 class Forest(object):
     '''
@@ -124,7 +124,7 @@ class Forest(object):
         '''
         Forest is there to contain many tree objects.
         '''
-        self.liste = []
+        self.trees = []
 
     @classmethod
     def from_request(cls, request):
@@ -161,21 +161,21 @@ class Forest(object):
         '''
         True if the forest clears and only one tree remains.
         '''
-        return len(self.liste) == 1
+        return len(self.trees) == 1
 
     def add(self, finishedtree):
         '''
         Adds a filled tree into the parse forest.
         '''
-        self.liste.append(finishedtree)
+        self.trees.append(finishedtree)
 
     def get_dict(self):
         '''
         Returns a list containing 3-tuples and their counts.
         Example: ('Es1', 'ist2', 'SB'): 540
         '''
-        #print(len(self.liste))
-        return Counter([x for tree in self.liste for x \
+        #print(len(self.trees))
+        return Counter([x for tree in self.trees for x \
                            in tree.get()]).most_common()
 
     def question(self):
@@ -185,7 +185,7 @@ class Forest(object):
         This is the tuple having the best chance to halve
         the search space.
         '''
-        length = len(self.liste)
+        length = len(self.trees)
         return min(self.get_dict(), key=lambda x: abs(x[1]-length/2))[0]
 
     def filter(self, asked_tuple, boolean):
@@ -194,7 +194,7 @@ class Forest(object):
         if True: keeps all the lists where the tuple is contained.
         if False: keeps all the list where the tuple isnt.
         '''
-        self.liste = [tree for tree in self.liste if \
+        self.trees = [tree for tree in self.trees if \
                           (tree.contains(asked_tuple)) == boolean]
 
     def next_response(self):
@@ -205,13 +205,13 @@ class Forest(object):
         message = {}
         if self.solved():
             # Send response of type 'solution' holding the last remaining tree.
-            message = self.liste[0].as_dict()
+            message = self.trees[0].as_dict()
             message['type'] = 'solution'
         else:
             # Send response of type question.
             message = {
                 'type': 'question',
-                'remaining_sentences': len(self.liste)
+                'remaining_sentences': len(self.trees)
                 }
             message['question'] = self.question()
         return message
@@ -225,14 +225,14 @@ if __name__ == "__main__":
             tree = Tree()
             continue
         tree.add(line)
-    while len(forest.liste) != 1:
+    while len(forest.trees) != 1:
         question = forest.question()
-        print(" ".join(x[1] for x in forest.liste[0].liste))
+        print(" ".join(x[1] for x in forest.trees[0].nodes))
         answer = input(question)
         if answer == "j":
             forest.filter(question, True)
         else:
             forest.filter(question, False)
-        if len(forest.liste) == 1:
-            forest.liste[0].to_latex()
-            print(forest.liste[0].to_conll())
+        if len(forest.trees) == 1:
+            forest.trees[0].to_latex()
+            print(forest.trees[0].to_conll())
