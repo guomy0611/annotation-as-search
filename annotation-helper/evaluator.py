@@ -10,12 +10,13 @@ class Evaluator(object):
     Class to automatically answer questions given a file with
     kbest parses and a file containing the goldparse.
     '''
-    def __init__(self, file_with_kbest, goldfile):
+    def __init__(self, file_with_kbest, goldfile, nbest=1000):
         '''
         Initialize the object
         '''
         self.file_with_kbest = file_with_kbest
         self.goldfile = goldfile
+        self.nbest=nbest
         self.initialize()
     def initialize(self):
         '''
@@ -28,10 +29,13 @@ class Evaluator(object):
                 self.goldtree.add(line)
         self.forest = tree.Forest()
         temptree = tree.Tree(9, 11)
+        count=0
         for line in open(self.file_with_kbest):
             if line == "\n":
                 self.forest.add(temptree)
+                count+=1
                 temptree = tree.Tree(9, 11)
+                if count > self.nbest: break
                 continue
             temptree.add(line)
     def evaluate(self):
@@ -53,10 +57,10 @@ class Evaluator(object):
             if len(self.forest.trees) == 1:
                 break
             if len(self.forest.trees)==0:
-                print(len(self.goldtree.get()), #Number of tokens 
+                print(self.nbest, len(self.goldtree.get()), #Number of tokens 
 		      count, 0, len(self.goldtree.get()), 1, 1) 
 		#how many guesses, Labeled attachment count, number of edits, countvariable, error
-        print(len(self.goldtree.get()), count, #Tokennumber and number of guesses
+        print(self.nbest, len(self.goldtree.get()), count, #Tokennumber and number of guesses
                 self.forest.trees[0].overlap(self.goldtree), #Labaled Attachment Count
                 len(self.goldtree.get())-self.forest.trees[0].overlap(self.goldtree), #Minimum Edit Distance
                 1, 0) #1 to later know the length, 0 meaning 0 errors
