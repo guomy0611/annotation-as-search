@@ -15,13 +15,15 @@ class Tree(object):
     to work with it.
     '''
 
-    def __init__(self):
+    def __init__(self, head=8, dep=10):
         '''
         Initialize the Tree with an empty list later containing the CONLL-Tuples
         and an empty dictionary later containing the position -> word mapping.
         '''
         self.liste = []
         self.dictio = dict()
+        self.head=head
+        self.dep=dep
 
     @classmethod
     def from_string(cls, tree_string):
@@ -68,13 +70,13 @@ class Tree(object):
         Gets a list of 3-tuples from the list containing the CONLL-tuples.
         '''
         #print(self.dictio)
-        return [(self.dictio[x[0]]+x[0], #Look up the index
+        return [(self.dictio[x[0]]+"-"+x[0], #Look up the index
                  #in the dictionary, take the word and add the
                  #the index to the word.
-                 self.dictio[x[8]]+x[8] if x[8] != "0" else "Root0",
+                 self.dictio[x[self.head]]+"-"+x[self.head] if x[self.head] != "0" else "Root-0",
                  #Look up the index of the target word in the dictionary
                  #take the word and add the index to it.
-                 x[10]) for x in self.liste]
+                 x[self.dep]) for x in self.liste]
                  #Last element of the tuple is the relation type.
 
     def to_conll(self):
