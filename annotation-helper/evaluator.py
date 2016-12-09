@@ -58,12 +58,12 @@ class Evaluator(object):
                 break
             if len(self.forest.trees)==0:
                 print(self.nbest, len(self.goldtree.get()), #Number of tokens 
-		      count, 0, len(self.goldtree.get()), 1, 1) 
+		      count, 0, len(self.goldtree.get()), 1, 1, self.goldfile.split(".")[0].split("/")[-1]) 
 		#how many guesses, Labeled attachment count, number of edits, countvariable, error
         print(self.nbest, len(self.goldtree.get()), count, #Tokennumber and number of guesses
                 self.forest.trees[0].overlap(self.goldtree), #Labaled Attachment Count
                 len(self.goldtree.get())-self.forest.trees[0].overlap(self.goldtree), #Minimum Edit Distance
-                1, 0) #1 to later know the length, 0 meaning 0 errors
+                1, 0, self.goldfile.split(".")[0].split("/")[-1]) #1 to later know the length, 0 meaning 0 errors
 
 
 if __name__ == "__main__":
