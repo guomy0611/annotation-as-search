@@ -22,6 +22,7 @@ class Tree(object):
         '''
         self.nodes = []
         self.dictio = dict()
+        self.tuples=None
         self.head=head
         self.dep=dep
 
@@ -70,14 +71,16 @@ class Tree(object):
         Gets a list of 3-tuples from the list containing the CONLL-tuples.
         '''
         #print(self.dictio)
-        return [(self.dictio[x[0]]+"-"+x[0], #Look up the index
+        if self.tuples!=None: return self.tuples
+        self.tuples={(self.dictio[x[0]]+"-"+x[0], #Look up the index
                  #in the dictionary, take the word and add the
                  #the index to the word.
                  self.dictio[x[self.head]]+"-"+x[self.head] if x[self.head] != "0" else "Root-0",
                  #Look up the index of the target word in the dictionary
                  #take the word and add the index to it.
-                 x[self.dep]) for x in self.nodes]
+                 x[self.dep]) for x in self.nodes}
                  #Last element of the tuple is the relation type.
+        return self.tuples
 
     def to_conll(self):
         '''
