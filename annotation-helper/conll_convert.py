@@ -9,7 +9,7 @@ def conll06_to_conll09(filename):
     convert input file to a 'pseudo' conll09-file and save conll09-file as
     {filename}_converted.conll
     arguments:
-        filename: name of the input conll06-file if file is 
+        filename: name of the input conll06-file if file is
             in the same folder, path+filename otherwise
     returns:
         None
