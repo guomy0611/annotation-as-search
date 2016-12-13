@@ -29,9 +29,9 @@ def conll06_to_conll09(filename):
                 # write conll09-line to output-file, '_' is unknown information, 
 		# lines[4] is not part of conll09 
 		# ugly but fast!
-		new_line = lines[0] + "\t" + lines[1] + "\t" + lines[2] + "\t"
-                             + "_" + "\t" + lines[3] + "\t" + "_" + "\t" + lines[5]
-                             + "\t" + "_\t" + lines[6] + "\t" + "_\t" + lines[7]
+                new_line = lines[0] + "\t" + lines[1] + "\t" + lines[2] + "\t" \
+                             + "_" + "\t" + lines[3] + "\t" + "_" + "\t" + lines[5] \
+                             + "\t" + "_\t" + lines[6] + "\t" + "_\t" + lines[7] \
                              + "\t_\t_\t_\t_\n"
                 output.write(new_line)
         output.close()
