@@ -219,6 +219,14 @@ class Forest(object):
             message['question'] = self.question()
         return message
 
+    def get_fixed_edges(self):
+        '''
+        Function that returns the tuples that are fixed (additional
+        answers wont change them).
+        '''
+        length = len(self.trees)
+        return [x for x,y in self.get_dict() if y==length]
+
 if __name__ == "__main__":
     tree = Tree()
     forest = Forest()
