@@ -50,7 +50,7 @@ def conll09_to_conll06(filename):
     {filename}_converted_converted_to_06.conll
 
     arguments:
-        filename: name of the input conll09-file if file is 
+        filename: name of the input conll09-file if file is
             in the same folder, path+filename otherwise
     returns:
         None
