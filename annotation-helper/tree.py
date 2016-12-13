@@ -128,6 +128,8 @@ class Forest(object):
         Forest is there to contain many tree objects.
         '''
         self.trees = []
+        self.originaltrees = None
+        self.answeredtuples=[]
 
     @classmethod
     def from_request(cls, request):
@@ -192,6 +194,12 @@ class Forest(object):
         return min(self.get_dict(), key=lambda x: abs(x[1]-length/2))[0]
 
     def filter(self, asked_tuple, boolean):
+        if self.originaltrees==None:
+            self.originaltrees=self.trees[:]
+        self.answeredtuples.append((asked_tuple, boolean))
+        self._filter(asked_tuple, boolean)
+
+    def _filter(self, asked_tuple, boolean):
         '''
         Filters the treelist based on a tuple and a boolean value.
         if True: keeps all the lists where the tuple is contained.
@@ -199,6 +207,12 @@ class Forest(object):
         '''
         self.trees = [tree for tree in self.trees if \
                           (tree.contains(asked_tuple)) == boolean]
+
+    def undo(self, n):
+        self.answeredtuples=self.answeredtuples[:-n]
+        self.trees=self.originaltrees[:] if self.originaltrees!=None else self.trees[:]
+        for question, answer in self.answeredtuples:
+            self._filter(question, answer)
 
     def next_response(self):
         '''
