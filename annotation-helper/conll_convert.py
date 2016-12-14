@@ -17,7 +17,7 @@ def conll06_to_conll09(filename):
     # check if file exists
     file = Path("./" + filename)
     if file.is_file():
-        output = open(filename[:-6] + "_converted.conll", "w")
+        output = open(filename[:-7] + "_converted.conll", "w")
         with file.open() as f:
             for line in f:
                 line = line.strip()
@@ -59,7 +59,7 @@ def conll09_to_conll06(filename):
     #check if file exists
     file = Path("./" + filename)
     if file.is_file():
-        output = open(filename[:-6] + "_converted_to_06.conll", "w")
+        output = open(filename[:-7] + "_converted_to_06.conll", "w")
 
         with file.open() as f:
 
@@ -86,5 +86,5 @@ def conll09_to_conll06(filename):
 
 
 if __name__ == '__main__':
-    conll06_to_conll09("test.German.gold.conll")
-    conll09_to_conll06("test.German.gold_converted.conll")
+    conll06_to_conll09("../test/badender_lurch.conll06")
+    conll09_to_conll06("../test/badender_lurch.conll09")
