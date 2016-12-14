@@ -72,7 +72,7 @@ def conll09_to_conll06(filename):
                 lines = line.split()
                 new_line = "\t".join(lines[:3])
                 last = "\t".join(lines[10:13]) + "\n"
-                new_line += "\t" + lines[4] + "\t" + lines[4] + "\t" \
+                new_line += "\t" + lines[4] + "\t" + "_" + "\t" \
                             + lines[6] + "\t" + lines[8] + "\t"
                 # write conll09-line to output-file
                 output.write(new_line+last)
