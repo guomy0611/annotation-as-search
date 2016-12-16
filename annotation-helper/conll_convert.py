@@ -1,5 +1,7 @@
+#!/usr/bin/env python3
+
 from pathlib import Path
-from sys import exit
+import sys
 
 
 def conll06_to_conll09(filename):
@@ -26,8 +28,8 @@ def conll06_to_conll09(filename):
                     output.write("\n")
                     continue
                 lines = line.split()
-                # write conll09-line to output-file, '_' is unknown information, 
-		# lines[4] is not part of conll09 
+                # write conll09-line to output-file, '_' is unknown information,
+		# lines[4] is not part of conll09
 		# ugly but fast!
                 new_line = lines[0] + "\t" + lines[1] + "\t" + lines[2] + "\t" \
                              + "_" + "\t" + lines[3] + "\t" + "_" + "\t" + lines[5] \
@@ -39,7 +41,7 @@ def conll06_to_conll09(filename):
     # file does nox exist -> exit
     else:
         print("File does not exist. Abort")
-        exit()
+        sys.exit()
 
 
 def conll09_to_conll06(filename):
@@ -81,7 +83,7 @@ def conll09_to_conll06(filename):
     # file does nox exist -> exit
     else:
         print("File does not exist. Abort.")
-        exit()
+        sys.exit()
 
 
 
