@@ -7,9 +7,6 @@ import sys
 import os
 import collections
 
-# own import
-from pathlib import Path
-
 
 try:
     import argparse
