@@ -22,6 +22,7 @@ def prompt_for_answer(question):
 def display_solution(tree):
     print('Solution:')
     print(tree)
+    # create html-version of tree and save it in gui/visualized_tree.html
     gui.visualizer.visualize_solution(tree)
 
 
