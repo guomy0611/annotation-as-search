@@ -4,12 +4,15 @@
 import argparse
 import asyncio
 import socket
+import gui.visualizer
 
 from common import (
     unpack_received_data,
     pack_data_for_sending,
     AnnotationHelperClientProtocol
     )
+
+
 
 def prompt_for_answer(question):
     print(question['question'])
@@ -19,6 +22,8 @@ def prompt_for_answer(question):
 def display_solution(tree):
     print('Solution:')
     print(tree)
+    gui.visualizer.visualize_solution(tree)
+
 
 def handle_solution(self, solution):
     display_solution(solution['nodes'])
@@ -51,6 +56,7 @@ def main():
         help='Unix socket file to use instead of host and port.')
     parser.add_argument('-f', '--conll_file', required=True, type=str,
         help='Path of a file containing a forest.')
+
     args = parser.parse_args()
 
     if args.unix_socket:
