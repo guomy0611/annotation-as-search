@@ -1,0 +1,30 @@
+{
+  "host": "127.0.0.1",
+  "port": "8080",
+  "default_format": "conll09",
+  "processors": [{
+    "name": "UCTO",
+    "type": "tokenizer",
+    "command": ["/usr/bin/ucto", "{infile}", "{outfile}"],
+    "source_format": "raw",
+    "target_format": "newline_separated"
+  },{
+    "name": "LEMMING",
+    "type": "lemmatizer",
+    "command": ["/usr/bin/lemming", "{infile}", "-o", "{outfile}"],
+    "source_format": "conll09",
+    "target_format": "conll09"
+  },{
+    "name": "RBG",
+    "type": "parser",
+    "command": ["/usr/bin/rbg", "{infile}", "{outfile}"],
+    "source_format": "conll09",
+    "target_format": "conll09"
+  },{
+    "name": "Θεός",
+    "type": "parser",
+    "command": ["/home/me/bin/parse", "{infile}", "{outfile}"],
+    "source_format": "raw",
+    "target_format": "conll09"
+  }]
+}

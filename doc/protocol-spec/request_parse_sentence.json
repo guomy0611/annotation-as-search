@@ -1,4 +1,6 @@
 {
   "type": "request",
-  "parse_sentence": "Mit Bedacht badet heute ein Lurch in einem See."
+  "parse_sentence": "Mit Bedacht badet heute ein Lurch in einem See.",
+  "given_format": "raw",
+  "wanted_format": "conll09"
 }

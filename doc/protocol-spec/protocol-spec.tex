@@ -147,12 +147,22 @@ In the case of supplying the whole forest, the client shall provide two addition
     \item[\jsstring{forest\_format}] A string specifying the format the forest is provided as.
         Servers should at least accept the format \jsstring{conllu}\footnote{http://universaldependencies.org/docs/format.html}.
 \end{description}
-In the case of supplying only the sentence, the client shall provide a \jsstring{parse\_sentence} field and may also provide a \jsstring{parser} field:
+In the case of supplying only the sentence, the client shall provide a \jsstring{parse\_sentence} field and \jsstring{given\_format} field and may also provide a \jsstring{parser} field and  a \jsstring{wanted\_format} field:
 \begin{description}
     \item[\jsstring{parse\_sentence}] A string representing the sentence the server is to parse.
+    \item[\jsstring{given\_format}] A string specifying the format the sentence is given as.
     \item[\jsstring{parser}] \optional\ A string specifying which parser the server is to use.
         If no \jsstring{parser} is specified, servers should use their default parser.
+    \item[\jsstring{wanted\_format}] \optional\ A string specifying the format the server should use.
+        Servers may ignore this client request if they do not support the requested format.
+        If no \jsstring{wanted\_format} is given, servers should use their default format.
 \end{description}
+
+\Examples
+
+\lstinputlisting[basicstyle=\footnotesize\ttfamily]{request_parse_sentence.json}
+
+\lstinputlisting[basicstyle=\footnotesize\ttfamily]{request_use_forest.json}
 
 \subsubsection{Answer}
 \label{ssub:Answer}
@@ -163,16 +173,14 @@ the condition inferred from the answer.
 
 The client shall provide two additional pairs:
 \begin{description}
-    \item[\jsstring{question}] The question wo which this message provides an answer.
+    \item[\jsstring{question}] The question to which this message provides an answer.
         The value should be a \hyperref[ssub:Question object]{question object}.
     \item[\jsstring{answer}] A boolean value providing an answer to the question.
 \end{description}
 
 \Examples
 
-\lstinputlisting[basicstyle=\footnotesize\ttfamily]{request_parse_sentence.json}
-
-\lstinputlisting[basicstyle=\footnotesize\ttfamily]{request_use_forest.json}
+\lstinputlisting[basicstyle=\footnotesize\ttfamily]{answer.json}
 
 \subsubsection{Abort}
 \label{ssub:Abort}
