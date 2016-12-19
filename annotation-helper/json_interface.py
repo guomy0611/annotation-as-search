@@ -1,16 +1,36 @@
 # -*- coding: utf-8 -*-
 
+'''
+This module serves as an interface between the annotation helper server
+and the forest the server uses. It primarily provides functions for
+creating and interpreting AaSP messages.
+'''
+
 import logging
 from enum import Enum
 from subprocess import call
 import tempfile
 
 class Recommendation(Enum):
-    abort = 1,
+    '''
+    A recommendation that the server sends to the client when an error
+    is encountered.
+    '''
+    abort = 1
     retry = 2
 
 class SolutionType(Enum):
-    real = 1,
+    '''
+    A type of solution.
+    'real' is an actual solution and is to be used if only one tree
+    remains in a forest.
+    'fixed' is not an actual solution and is to be used for labeling an
+    incomplete tree consisting of nodes appearing in every tree of the
+    forest.
+    'best' is not an actual solution and is to be used for labeling a
+    complete tree that is the guess at the correct tree in the forest.
+    '''
+    real = 1
     fixed = 2
     best = 3
 
@@ -65,7 +85,7 @@ def create_solution(forest, solution_type=SolutionType.real):
         tree_format = forest.trees[0].format
 
     elif solution_type == SolutionType.best:
-        best_tree = forest.best_tree()
+        best_tree = forest.get_best_tree()
         nodes = best_tree.nodes
         tree_format = best_tree.format
 
@@ -113,13 +133,47 @@ def create_forest(request, config):
         return Forest.from_string(forest_string)
 
 def choose_processor(processors, source_format, target_format):
-    for p in processcors:
+    '''
+    Choose a processor that can transduce text in a source_format into the
+    target_format.
+
+    Args:
+        processors: A list of dicts containing at least the keys
+            'source_format' and 'target_format'. They should also contain
+            the keys 'name', 'command' and 'type'.
+        source_format: A string specifying the source format.
+        target_format: A string specifying the target format.
+    '''
+    for p in processors:
         if (p['source_format'] == source_format
                 and p['target_format'] == target_format):
             return p
     else:
-        msg = 'Cannot find processor for source_format %s and target_format %s.'
+        (msg =
+            'Cannot find processor for source_format %s and target_format %s.')
         logging.error(msg, source_format, target_format)
+
+def call_processor(processor, infile):
+    '''
+    Call a processor that processes the infile and writes to an outfile.
+
+    Args:
+        processor: A dict containing the key 'command' with an args list
+            as value. A proper processor also contains the keys 'name', 'type',
+            'source_format' and 'target_format'.
+        infile: A filename that is to be used as the input to the processor
+            command.
+
+    Returns:
+        outfile: The name of the file the output of the processor is written to.
+    '''
+    outfile = tempfile.mkstemp()
+    cmd_args = [
+        arg.format(infile=infile, outfile=outfile)
+        for arg in processor['command']
+        ]
+    call(cmd_args)
+    return outfile
 
 def process_sentence(request, config):
     '''
@@ -148,13 +202,7 @@ def process_sentence(request, config):
 
     infile = tempfile.mkstemp()
     open(infile, 'w').write(request['process_sentence'])
-    outfile = tempfile.mkstemp()
-
-    cmd_args = [
-        arg.format(infile=infile, outfile=outfile)
-        for arg in processor['command']
-        ]
-    call(cmd_args)
+    outfile = call_processor(processor, infile)
 
     forest = Forest.from_string(open(outfile).read())
     return forest
