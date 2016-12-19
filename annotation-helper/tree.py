@@ -22,9 +22,10 @@ class Tree(object):
         '''
         self.nodes = []
         self.dictio = dict()
-        self.tuples=None
-        self.head=head
-        self.dep=dep
+        self.tuples = None
+        self.head = head
+        self.dep = dep
+        self.format = None
 
     @classmethod
     def from_string(cls, tree_string):
@@ -35,6 +36,7 @@ class Tree(object):
         lines = [
             line.strip()
             for line in tree_string.split('\n')
+            # Ignore empty lines and lines starting with '#'
             if not re.match(r'(^\s*$)|(^#.*$)', line)
             ]
         for line in lines:
@@ -42,15 +44,17 @@ class Tree(object):
 
         return tree
 
-    def add(self, sentence):
+    def add(self, conll_line):
         '''
         Gets a CONLL-Line, splits it and then converts it into a tuple to
         be added into the list. Also puts a new entry into the dictionary
         containing the position -> word mapping of this line.
         '''
-        tuple1 = sentence.strip().split()
-        self.nodes.append(tuple(tuple1))
-        self.dictio[tuple1[0]] = tuple1[1] #fills mapping position -> word
+        conll_parts = conll_line.strip().split('\t')
+        self.nodes.append(tuple(conll_parts))
+
+        # fills mapping position -> word
+        self.dictio[conll_parts[0]] = conll_parts[1]
 
     def contains(self, tup):
         '''
@@ -71,7 +75,7 @@ class Tree(object):
         Gets a list of 3-tuples from the list containing the CONLL-tuples.
         '''
         #print(self.dictio)
-        if self.tuples!=None: return self.tuples
+        if self.tuples is not None: return self.tuples
         self.tuples={(self.dictio[x[0]]+"-"+x[0], #Look up the index
                  #in the dictionary, take the word and add the
                  #the index to the word.
@@ -132,18 +136,6 @@ class Forest(object):
         self.answeredtuples=[]
 
     @classmethod
-    def from_request(cls, request):
-        '''
-        Initialize a forest object from a client request.
-        '''
-        if 'use_forest' in request:
-            return cls.from_string(request['use_forest'])
-        elif 'parse_sentence' in request:
-            return cls.from_unparsed_sentence(request['parse_sentence'])
-        else:
-            raise ValueError('{} is not a valid request.'.format(request))
-
-    @classmethod
     def from_string(cls, forest_string):
         '''
         Initialize a forest object from a long string formatted like a conll
@@ -153,14 +145,6 @@ class Forest(object):
         for tree_string in forest_string.split('\n\n'):
             forest.add(Tree.from_string(tree_string))
         return forest
-
-    @classmethod
-    def from_unparsed_sentence(cls, sentence):
-        '''
-        Initialize a forest object from a sentence by parsing it with an
-        external parser.
-        '''
-        raise NotImplementedError
 
     def solved(self):
         '''
@@ -179,7 +163,6 @@ class Forest(object):
         Returns a list containing 3-tuples and their counts.
         Example: ('Es1', 'ist2', 'SB'): 540
         '''
-        #print(len(self.trees))
         return Counter([x for tree in self.trees for x \
                            in tree.get()]).most_common()
 
@@ -194,8 +177,13 @@ class Forest(object):
         return min(self.get_dict(), key=lambda x: abs(x[1]-length/2))[0]
 
     def filter(self, asked_tuple, boolean):
-        if self.originaltrees==None:
-            self.originaltrees=self.trees[:]
+        '''
+        Wrapper around the _filter method that adds asked_tuples to a
+        list of answered tuples. This list can then be used by the undo
+        method.
+        '''
+        if self.originaltrees is None:
+            self.originaltrees = self.trees[:]
         self.answeredtuples.append((asked_tuple, boolean))
         self._filter(asked_tuple, boolean)
 
@@ -205,33 +193,21 @@ class Forest(object):
         if True: keeps all the lists where the tuple is contained.
         if False: keeps all the list where the tuple isnt.
         '''
-        self.trees = [tree for tree in self.trees if \
-                          (tree.contains(asked_tuple)) == boolean]
+        self.trees = [tree for tree in self.trees
+            if tree.contains(asked_tuple) == boolean]
 
     def undo(self, n):
-        self.answeredtuples=self.answeredtuples[:-n]
-        self.trees=self.originaltrees[:] if self.originaltrees!=None else self.trees[:]
+        '''
+        Restore the state the forest was in n questions earlier.
+        '''
+        self.answeredtuples = self.answeredtuples[:-n]
+        self.trees = (
+            self.originaltrees[:]
+            if self.originaltrees is not None
+            else self.trees[:]
+            )
         for question, answer in self.answeredtuples:
             self._filter(question, answer)
-
-    def next_response(self):
-        '''
-        Format a response to the client conforming to the JSON API and return
-        it as a dictionary. The response can be a question or a solution.
-        '''
-        message = {}
-        if self.solved():
-            # Send response of type 'solution' holding the last remaining tree.
-            message = self.trees[0].as_dict()
-            message['type'] = 'solution'
-        else:
-            # Send response of type question.
-            message = {
-                'type': 'question',
-                'remaining_sentences': len(self.trees)
-                }
-            message['question'] = self.question()
-        return message
 
     def get_fixed_edges(self):
         '''
@@ -240,6 +216,25 @@ class Forest(object):
         '''
         length = len(self.trees)
         return [x for x,y in self.get_dict() if y==length]
+
+    def get_fixed_nodes(self):
+        '''
+        Find the nodes that exist in every tree and return them as a list.
+        This method assumes that all trees in the forest have the same number
+        of nodes.
+        '''
+        fixed_nodes = []
+        if len(self.trees) == 0:
+            return fixed_nodes
+
+        for node_index in range(len(self.trees[0])):
+            for tree in self.trees:
+                if tree[node_index] != self.trees[0][node_index]:
+                    break
+            else:
+                fixed_nodes.append(self.trees[0])
+
+        return fixed_nodes
 
 if __name__ == "__main__":
     tree = Tree()
