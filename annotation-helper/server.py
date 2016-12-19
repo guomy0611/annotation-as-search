@@ -75,9 +75,14 @@ class AnnotationHelperProtocol(asyncio.Protocol):
         interface with the forest.
         '''
         response = {}
-        if data['type'] == 'request':
+        if 'type' not in data:
+            reponse = create_error('No message type')
+            logging.info('No-message-type error with %s.', self.peername)
+
+        elif data['type'] == 'request':
             self.forest = create_forest(data, self.config)
             response = create_question_or_solution(self.forest)
+
         elif data['type'] == 'answer':
             if not isinstance(self.forest, tree.Forest):
                 error_messsage = 'Create a forest before answering questions.'
@@ -86,6 +91,17 @@ class AnnotationHelperProtocol(asyncio.Protocol):
             else:
                 self.forest.filter(tuple(data['question']), data['answer'])
                 response = create_question_or_solution(self.forest)
+
+        elif data['type'] == 'undo':
+            self.forest.undo(data['answers'] if 'answers' in data else 1)
+            response = create_question_or_solution(self.forest)
+
+        else:
+            reponse = create_error(
+                'Unknown message type: {}'.format(data['type'])
+                )
+            logging.info('Unknown-message-type error with %s.', self.peername)
+
         return response
 
     def connection_lost(self, exc):

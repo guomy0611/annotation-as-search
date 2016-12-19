@@ -196,7 +196,7 @@ class Forest(object):
         self.trees = [tree for tree in self.trees
             if tree.contains(asked_tuple) == boolean]
 
-    def undo(self, n):
+    def undo(self, n=1):
         '''
         Restore the state the forest was in n questions earlier.
         '''
