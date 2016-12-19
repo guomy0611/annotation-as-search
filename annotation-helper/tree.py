@@ -227,12 +227,12 @@ class Forest(object):
         if len(self.trees) == 0:
             return fixed_nodes
 
-        for node_index in range(len(self.trees[0])):
+        for node_index in range(len(self.trees[0].nodes)):
             for tree in self.trees:
-                if tree[node_index] != self.trees[0][node_index]:
+                if tree.nodes[node_index] != self.trees[0].nodes[node_index]:
                     break
             else:
-                fixed_nodes.append(self.trees[0])
+                fixed_nodes.append(self.trees[0].nodes[node_index])
 
         return fixed_nodes
 

@@ -11,6 +11,8 @@ from enum import Enum
 from subprocess import call
 import tempfile
 
+from tree import Forest
+
 class Recommendation(Enum):
     '''
     A recommendation that the server sends to the client when an error
@@ -63,6 +65,7 @@ def create_question(forest):
         'fixed_nodes': {
             'tree_format': forest.trees[0].format,
             'nodes': forest.get_fixed_nodes()
+            }
         }
     return question
 
@@ -105,6 +108,7 @@ def create_solution(forest, solution_type=SolutionType.real):
             'nodes': nodes
             }
         }
+    return solution
 
 def create_question_or_solution(forest):
     '''
@@ -149,9 +153,9 @@ def choose_processor(processors, source_format, target_format):
                 and p['target_format'] == target_format):
             return p
     else:
-        (msg =
-            'Cannot find processor for source_format %s and target_format %s.')
-        logging.error(msg, source_format, target_format)
+        msg1 = 'Cannot find processor for '
+        msg2 = 'source_format %s and target_format %s.'
+        logging.error(''.join([msg1, msg2]), source_format, target_format)
 
 def call_processor(processor, infile):
     '''

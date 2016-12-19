@@ -18,6 +18,9 @@ import tree
 from json_interface import (
     create_error,
     create_question_or_solution,
+    create_forest,
+    Recommendation,
+    SolutionType
     )
 
 def pack_data_for_sending(string):
@@ -38,6 +41,13 @@ class AnnotationHelperProtocol(asyncio.Protocol):
     The client will request
     '''
 
+    def __init__(self, config, forest=None):
+        '''
+        Initialize the protocol object with the config dict.
+        '''
+        self.config = config
+        self.forest = forest
+
     def connection_made(self, transport):
         '''
         Initialize the protocol object when a connection is made and log
@@ -46,7 +56,6 @@ class AnnotationHelperProtocol(asyncio.Protocol):
         self.peername = transport.get_extra_info('peername')
         logging.info('Connection from %s', self.peername)
         self.transport = transport
-        self.forest = None
 
     def data_received(self, data):
         '''
@@ -67,8 +76,8 @@ class AnnotationHelperProtocol(asyncio.Protocol):
         '''
         response = {}
         if data['type'] == 'request':
-            self.forest = tree.Forest.from_request(data)
-            response = self.forest.next_response()
+            self.forest = create_forest(data, self.config)
+            response = create_question_or_solution(self.forest)
         elif data['type'] == 'answer':
             if not isinstance(self.forest, tree.Forest):
                 error_messsage = 'Create a forest before answering questions.'
@@ -76,7 +85,7 @@ class AnnotationHelperProtocol(asyncio.Protocol):
                 logging.info('No-forest error with %s.', self.peername)
             else:
                 self.forest.filter(tuple(data['question']), data['answer'])
-                response = self.forest.next_response()
+                response = create_question_or_solution(self.forest)
         return response
 
     def connection_lost(self, exc):
@@ -193,7 +202,10 @@ def main():
             'Bound incoming tcp socket to %s:%s.', args['host'], args['port'])
 
     loop = asyncio.get_event_loop()
-    coro = loop.create_server(AnnotationHelperProtocol, sock=incoming_socket)
+    coro = loop.create_server(
+        lambda : AnnotationHelperProtocol(config),
+        sock=incoming_socket
+        )
     server = loop.run_until_complete(coro)
     logging.debug('Started event loop.')
 
