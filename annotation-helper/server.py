@@ -11,9 +11,14 @@ import asyncio
 import json
 import logging
 import socket
+import os
 
 # annotation-helper modules
 import tree
+from json_interface import (
+    create_error,
+    create_question_or_solution,
+    )
 
 def pack_data_for_sending(string):
     '''
@@ -67,24 +72,12 @@ class AnnotationHelperProtocol(asyncio.Protocol):
         elif data['type'] == 'answer':
             if not isinstance(self.forest, tree.Forest):
                 error_messsage = 'Create a forest before answering questions.'
-                response = self.create_error(error_messsage)
+                response = create_error(error_messsage)
                 logging.info('No-forest error with %s.', self.peername)
             else:
                 self.forest.filter(tuple(data['question']), data['answer'])
                 response = self.forest.next_response()
         return response
-
-    def create_error(self, error_messsage):
-        '''
-        Create an error object to be sent to the client.
-        '''
-        # TODO: Maybe this function should not live in this class.
-        error = {
-            'type': 'error',
-            'error_message': error_messsage,
-            'recommendation': 'abort'
-            }
-        return error
 
     def connection_lost(self, exc):
         '''
@@ -107,6 +100,33 @@ def setup_logging(logfile, loglevel):
         datefmt='%Y-%m-%d %H:%M:%S',
         level=getattr(logging, loglevel.upper(), logging.INFO))
 
+def read_configfile(configfile):
+    '''
+    Read a json-formatted configuration file and return the resulting dict.
+    '''
+    return json.load(open(configfile))
+
+def update_config(config, new_pairs):
+    '''
+    Update the config dict with the key-value-pairs in new_data.
+
+    Args:
+        config: The current configuration dict.
+        new_pairs: A dict or an argparse.Namespace containing the
+            key-value-pairs that are to be inserted. In the case of a
+            namespace, only names not starting with an underscore are added to
+            the config.
+    '''
+    if isinstance(new_pairs, dict):
+        config.update(new_pairs)
+    elif isinstance(new_pairs, argparse.Namespace):
+        for key in dir(new_pairs):
+            if not key.startswith('_'):
+                config[key] = getattr(new_pairs, key)
+    else:
+        msg = '{} is neither a dict nor an argparse.Namespace.'
+        raise TypeError(msg.format(new_pairs))
+
 def main():
     desc = 'Start a server that sends questions and accepts answers.'
     parser = argparse.ArgumentParser(description=desc)
@@ -126,7 +146,7 @@ def main():
         help='The port that accepts TCP connections.')
     parser.add_argument(
         '-s',
-        '--unix_socket',
+        '--unixsocket',
         required=False,
         type=str,
         help='Unix socket file to use instead of host and port.')
@@ -144,20 +164,33 @@ def main():
         default='INFO',
         help='Log level',
         choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'])
+    parser.add_argument(
+        '-c',
+        '--configfile',
+        required=False,
+        type=str,
+        default=os.path.join(os.environ['HOME'], '.aas-server.json'),
+        help='Name of the config file.')
     args = parser.parse_args()
 
     setup_logging(args.logfile, args.loglevel)
+    config = read_configfile(args.configfile)
+    update_config(config, args)
+    logging.debug('Read configuration from %s', args.configfile)
 
-    if args.unix_socket:
+    # Determine socket to bind to.
+    # TODO: Don't use unixsocket from configfile, if host and port were
+    # specified using commandline options.
+    if 'unixsocket' in config:
         incoming_socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        incoming_socket.bind(args.unix_socket)
+        incoming_socket.bind(config['unixsocket'])
         logging.debug(
-            'Bound incoming unix socket to %s.', args.unix_socket)
+            'Bound incoming unix socket to %s.', config['unixsocket'])
     else:
         incoming_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        incoming_socket.bind((args.host, args.port))
+        incoming_socket.bind((args['host'], args['port']))
         logging.debug(
-            'Bound incoming tcp socket to %s:%s.', args.host, args.port)
+            'Bound incoming tcp socket to %s:%s.', args['host'], args['port'])
 
     loop = asyncio.get_event_loop()
     coro = loop.create_server(AnnotationHelperProtocol, sock=incoming_socket)
