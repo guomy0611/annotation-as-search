@@ -109,3 +109,17 @@ class AnnotationHelperClientProtocol(asyncio.Protocol):
         self.transport.close()
         self.inform('Closed connection to {}'.format(self.peername))
         self.loop.stop()
+
+def format_tree(tree):
+    '''
+    Format a tree object as described in the AaSP specification.
+    '''
+    if tree['tree_format'] in ('conll09', 'conllu'):
+        return '\n'.join(
+            '\t'.join(elm for elm in node)
+            for node
+            in tree['nodes']
+            ) + '\n'
+    else:
+        msg_template = 'Cannot format tree with unknown tree_format: {}.'
+        raise ValueError(msg_template.format(tree['tree_format']))

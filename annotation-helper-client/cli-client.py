@@ -3,34 +3,154 @@
 
 import argparse
 import asyncio
+from enum import Enum
 import socket
+import sys
 
 from common import (
     unpack_received_data,
     pack_data_for_sending,
-    AnnotationHelperClientProtocol
+    AnnotationHelperClientProtocol,
+    format_tree
     )
 
-def prompt_for_answer(question):
-    print(question['question'])
-    answer = input('Correct? (y/n) ')
-    return answer.startswith('y')
+class UserAction(Enum):
+    yes = 1
+    no = 2
+    undo = 3
+    save = 4
+    exit = 5
+
+def perform_yes(question):
+    return {
+        'type': 'answer',
+        'answer': True,
+        'question': question
+        }
+
+def perform_no(question):
+    return {
+        'type': 'answer',
+        'answer': False,
+        'question': question
+        }
+
+def perform_undo(answers):
+    return {
+        'type': 'undo',
+        'answers': int(answers.split()[0])
+        }
+
+def perform_save(filename, tree):
+    open(filename, 'w').write(format_tree(tree))
+    print('Saved tree to {}'.format(filename))
+
+def perform_exit(exit_code=0):
+    sys.exit(exit_code)
+
+def perform_user_action(user_action, argument=None, **message_properties):
+    if user_action is UserAction.yes:
+        return perform_yes(message_properties['question'])
+    elif user_action is UserAction.no:
+        return perform_no(message_properties['question'])
+    elif user_action is UserAction.undo:
+        return perform_undo(argument or 1)
+    elif user_action is UserAction.save:
+        return perform_save(argument, message_properties['tree'])
+    elif user_action is UserAction.exit:
+        return perform_exit()
+    else:
+        raise ValueError('{} is not a valid UserAction.'.format(user_action))
+
+def format_user_action_hint(user_action):
+    first_letter = user_action.name[0]
+    rest = user_action.name[1:]
+
+    if user_action is UserAction.undo:
+        description = 'undo n answers'
+        argument = ' [n]'
+    elif user_action is UserAction.save:
+        description = 'save to file'
+        argument = ' file'
+    else:
+        description = user_action.name
+        argument = ''
+
+    formatted = '{first_letter}[{rest}]{argument} = {description}'.format(
+        first_letter=first_letter,
+        rest=rest,
+        argument=argument,
+        description=description
+        )
+    return formatted
+
+def prompt_for_user_action(*user_actions):
+    '''
+    Prompt the user for an action. Only actions in user_actions are accepted.
+    '''
+    assert(all(isinstance(ua, UserAction) for ua in user_actions))
+    hints = ', '.join(format_user_action_hint(ua) for ua in user_actions)
+    prompt = '({})\n> '.format(hints)
+    action = None
+    while action is None:
+        user_input = input(prompt).strip()
+
+        user_input_parts = user_input.split(maxsplit=1)
+        action_string = user_input_parts[0]
+        argument = user_input_parts[1] if len(user_input_parts) > 1 else None
+        for ua in user_actions:
+            if ua.name.startswith(action_string):
+                action = ua
+                if action is UserAction.save and argument is None:
+                    action = None
+                else:
+                    return action, argument
+        else:
+            print('Invalid input.')
 
 def display_solution(tree):
     print('Solution:')
-    print(tree)
+    print(format_tree(tree))
 
 def handle_solution(self, solution):
     display_solution(solution['tree'])
 
+    action, argument = prompt_for_user_action(
+        UserAction.undo,
+        UserAction.save,
+        UserAction.exit
+        )
+    response = perform_user_action(
+        action,
+        argument,
+        tree=solution['tree']
+        )
+
+    if response:
+        return response
+    else:
+        self.end_conversation()
+
+def display_question(question_tuple):
+    print('Question: {}'.format(question_tuple))
+
 def handle_question(self, question):
-    answer = prompt_for_answer(question)
-    response = {
-        'type': 'answer',
-        'answer': answer,
-        'question': question['question']
-        }
-    return response
+    display_question(question['question'])
+
+    # UserAction is an iterable yielding all UserAction singletons.
+    # This means, all user actions are allowed here.
+    action, argument = prompt_for_user_action(*UserAction)
+    response = perform_user_action(
+        action,
+        argument,
+        question=question['question'],
+        tree=question['fixed_nodes']
+        )
+
+    if response:
+        return response
+    else:
+        self.end_conversation()
 
 def create_request_from_file(conll_file):
     request = {

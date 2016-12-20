@@ -25,7 +25,7 @@ class Tree(object):
         self.tuples = None
         self.head = head
         self.dep = dep
-        self.format = None
+        self.format = 'conll09'
 
     @classmethod
     def from_string(cls, tree_string):
