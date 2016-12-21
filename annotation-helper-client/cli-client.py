@@ -20,6 +20,14 @@ class UserAction(Enum):
     undo = 3
     save = 4
     exit = 5
+    process_request = 7
+    forest_request = 8
+
+ARGUMENT_OBLIGATORY_ACTIONS = (
+        UserAction.save,
+        UserAction.process_request,
+        UserAction.forest_request
+        )
 
 def perform_yes(question):
     return {
@@ -48,6 +56,21 @@ def perform_save(filename, tree):
 def perform_exit(exit_code=0):
     sys.exit(exit_code)
 
+def perform_process_request(sentence):
+    return {
+        'type': 'request',
+        'process': sentence,
+        'source_format': 'raw',
+        'target_format': 'conll09'
+        }
+
+def perform_forest_request(forest_filename):
+    return {
+        'type': 'request',
+        'use_forest': open(forest_filename).read(),
+        'forest_format': 'conll09'
+        }
+
 def perform_user_action(user_action, argument=None, **message_properties):
     if user_action is UserAction.yes:
         return perform_yes(message_properties['question'])
@@ -57,6 +80,10 @@ def perform_user_action(user_action, argument=None, **message_properties):
         return perform_undo(argument or 1)
     elif user_action is UserAction.save:
         return perform_save(argument, message_properties['tree'])
+    elif user_action is UserAction.process_request:
+        return perform_process_request(argument)
+    elif user_action is UserAction.forest_request:
+        return perform_forest_request(argument)
     elif user_action is UserAction.exit:
         return perform_exit()
     else:
@@ -72,6 +99,12 @@ def format_user_action_hint(user_action):
     elif user_action is UserAction.save:
         description = 'save to file'
         argument = ' file'
+    elif user_action is UserAction.process_request:
+        description = 'send process request'
+        argument = ' sentence'
+    elif user_action is UserAction.forest_request:
+        description = 'send use_forest request'
+        argument = ' forest_file'
     else:
         description = user_action.name
         argument = ''
@@ -101,7 +134,7 @@ def prompt_for_user_action(*user_actions):
         for ua in user_actions:
             if ua.name.startswith(action_string):
                 action = ua
-                if action is UserAction.save and argument is None:
+                if action in ARGUMENT_OBLIGATORY_ACTIONS and argument is None:
                     action = None
                 else:
                     return action, argument
@@ -152,11 +185,15 @@ def handle_question(self, question):
     else:
         self.end_conversation()
 
-def create_request_from_file(conll_file):
-    request = {
-        'type': 'request',
-        'use_forest': open(conll_file).read()
-        }
+def create_request(forest_file=None):
+    if forest_file:
+        request = perform_forest_request(forest_file)
+    else:
+        action, argument = prompt_for_user_action(
+                UserAction.forest_request,
+                UserAction.process_request
+                )
+        request = perform_user_action(action, argument)
     return request
 
 def main():
@@ -169,7 +206,7 @@ def main():
         default=8080, help='The port that accepts TCP connections.')
     parser.add_argument('-s', '--unix_socket', required=False, type=str,
         help='Unix socket file to use instead of host and port.')
-    parser.add_argument('-f', '--conll_file', required=True, type=str,
+    parser.add_argument('-f', '--conll_file', required=False, default=None,
         help='Path of a file containing a forest.')
 
     args = parser.parse_args()
@@ -182,7 +219,7 @@ def main():
         socket_to_server.connect((args.host, args.port))
 
     loop = asyncio.get_event_loop()
-    request_creator = lambda : create_request_from_file(args.conll_file)
+    request_creator = lambda : create_request(args.conll_file)
     coro = loop.create_connection(
         lambda : AnnotationHelperClientProtocol(
             loop,

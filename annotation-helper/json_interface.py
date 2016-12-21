@@ -132,8 +132,8 @@ def create_forest(request, config):
     '''
     if 'use_forest' in request:
         return Forest.from_string(request['use_forest'])
-    elif 'process_sentence' in request:
-        forest_string = process_sentence(request, config)
+    elif 'process' in request:
+        forest_string = process(request, config)
         return Forest.from_string(forest_string)
 
 def choose_processor(processors, source_format, target_format):
@@ -171,7 +171,7 @@ def call_processor(processor, infile):
     Returns:
         outfile: The name of the file the output of the processor is written to.
     '''
-    outfile = tempfile.mkstemp()
+    outfile = tempfile.mktemp()
     cmd_args = [
         arg.format(infile=infile, outfile=outfile)
         for arg in processor['command']
@@ -179,7 +179,7 @@ def call_processor(processor, infile):
     call(cmd_args)
     return outfile
 
-def process_sentence(request, config):
+def process(request, config):
     '''
     Process a sentence using the processors described in the config.
 
@@ -200,12 +200,12 @@ def process_sentence(request, config):
     
     processor = choose_processor(
         config['processors'],
-        source_format,
+        request['source_format'],
         target_format
         )
 
-    infile = tempfile.mkstemp()
-    open(infile, 'w').write(request['process_sentence'])
+    infile = tempfile.mktemp()
+    open(infile, 'w').write(request['process'])
     outfile = call_processor(processor, infile)
 
     forest = Forest.from_string(open(outfile).read())
