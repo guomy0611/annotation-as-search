@@ -14,12 +14,17 @@ from common import (
     format_tree
     )
 
+class Wanted(Enum):
+    best = 1
+    fixed = 2
+
 class UserAction(Enum):
     yes = 1
     no = 2
     undo = 3
-    save = 4
-    exit = 5
+    abort = 4
+    save = 5
+    exit = 6
 
 def perform_yes(question):
     return {
@@ -48,13 +53,21 @@ def perform_save(filename, tree):
 def perform_exit(exit_code=0):
     sys.exit(exit_code)
 
+def perform_abort(wanted):
+    return {
+        'type': 'abort',
+        'wanted': wanted.name
+        }
+
 def perform_user_action(user_action, argument=None, **message_properties):
     if user_action is UserAction.yes:
         return perform_yes(message_properties['question'])
     elif user_action is UserAction.no:
         return perform_no(message_properties['question'])
     elif user_action is UserAction.undo:
-        return perform_undo(argument or 1)
+        return perform_undo(argument or '1')
+    elif user_action is UserAction.abort:
+        return perform_abort(Wanted[argument])
     elif user_action is UserAction.save:
         return perform_save(argument, message_properties['tree'])
     elif user_action is UserAction.exit:
@@ -72,6 +85,9 @@ def format_user_action_hint(user_action):
     elif user_action is UserAction.save:
         description = 'save to file'
         argument = ' file'
+    elif user_action is UserAction.abort:
+        description = 'abort annotation'
+        argument = ' {best,fixed}'
     else:
         description = user_action.name
         argument = ''
@@ -102,6 +118,9 @@ def prompt_for_user_action(*user_actions):
             if ua.name.startswith(action_string):
                 action = ua
                 if action is UserAction.save and argument is None:
+                    action = None
+                elif (action is UserAction.abort
+                        and argument not in ('best', 'fixed')):
                     action = None
                 else:
                     return action, argument
