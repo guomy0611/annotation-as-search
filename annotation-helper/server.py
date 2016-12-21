@@ -18,6 +18,7 @@ import tree
 from json_interface import (
     create_error,
     create_question_or_solution,
+    create_solution,
     create_forest,
     Recommendation,
     SolutionType
@@ -95,6 +96,12 @@ class AnnotationHelperProtocol(asyncio.Protocol):
         elif data['type'] == 'undo':
             self.forest.undo(data['answers'] if 'answers' in data else 1)
             response = create_question_or_solution(self.forest)
+
+        elif data['type'] == 'abort':
+            response = create_solution(
+                    self.forest,
+                    SolutionType[data['wanted']]
+                    )
 
         else:
             reponse = create_error(

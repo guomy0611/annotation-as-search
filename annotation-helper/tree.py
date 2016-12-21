@@ -236,6 +236,17 @@ class Forest(object):
 
         return fixed_nodes
 
+    def get_best_tree(self):
+        #TODO: Implement this.
+        '''
+        Find the best guess for the correct tree.
+        '''
+        if len(self.trees) > 0:
+            return self.trees[0]
+        else:
+            raise ValueError('This forest contains no trees.')
+
+
 if __name__ == "__main__":
     tree = Tree()
     forest = Forest()
