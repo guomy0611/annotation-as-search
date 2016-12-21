@@ -189,9 +189,14 @@ def display_question(question_tuple):
 def handle_question(self, question):
     display_question(question['question'])
 
-    # UserAction is an iterable yielding all UserAction singletons.
-    # This means, all user actions are allowed here.
-    action, argument = prompt_for_user_action(*UserAction)
+    action, argument = prompt_for_user_action(
+            UserAction.yes,
+            UserAction.no,
+            UserAction.undo,
+            UserAction.abort,
+            UserAction.save,
+            UserAction.exit
+            )
     response = perform_user_action(
         action,
         argument,
