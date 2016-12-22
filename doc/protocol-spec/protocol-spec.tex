@@ -137,7 +137,7 @@ which has to be present in every message.
 The client sends this message to initiate the communication between server and client,
 and the content of this message should be used by the server to build a forest of trees.
 However, there are two ways for the client to provide the necessary information:
-Either it supplies the whole forest or it supplies a sentence and tells the server to parse the sentence itself.
+Either it supplies the whole forest or it supplies a sentence in a specified format and tells the server to process the sentence yielding a forest.
 
 In the case of supplying the whole forest, the client shall provide two additional pairs:
 \begin{description}
@@ -147,20 +147,20 @@ In the case of supplying the whole forest, the client shall provide two addition
     \item[\jsstring{forest\_format}] A string specifying the format the forest is provided as.
         Servers should at least accept the format \jsstring{conllu}\footnote{http://universaldependencies.org/docs/format.html}.
 \end{description}
-In the case of supplying only the sentence, the client shall provide a \jsstring{parse\_sentence} field and \jsstring{given\_format} field and may also provide a \jsstring{parser} field and  a \jsstring{wanted\_format} field:
+In the case of supplying only the sentence, the client shall provide a \jsstring{process} field and \jsstring{source\_format} field and may also provide a \jsstring{processor} field and a \jsstring{target\_format} field:
 \begin{description}
-    \item[\jsstring{parse\_sentence}] A string representing the sentence the server is to parse.
-    \item[\jsstring{given\_format}] A string specifying the format the sentence is given as.
-    \item[\jsstring{parser}] \optional\ A string specifying which parser the server is to use.
+    \item[\jsstring{process}] A string representing the sentence the server is to parse.
+    \item[\jsstring{source\_format}] A string specifying the format the sentence is given as.
+    \item[\jsstring{processor}] \optional\ A string specifying which parser the server is to use.
         If no \jsstring{parser} is specified, servers should use their default parser.
-    \item[\jsstring{wanted\_format}] \optional\ A string specifying the format the server should use.
+    \item[\jsstring{target\_format}] \optional\ A string specifying the format the server should use.
         Servers may ignore this client request if they do not support the requested format.
-        If no \jsstring{wanted\_format} is given, servers should use their default format.
+        If no \jsstring{target\_format} is given, servers should use their default format.
 \end{description}
 
 \Examples
 
-\lstinputlisting[basicstyle=\footnotesize\ttfamily]{request_parse_sentence.json}
+\lstinputlisting[basicstyle=\footnotesize\ttfamily]{request_process.json}
 
 \lstinputlisting[basicstyle=\footnotesize\ttfamily]{request_use_forest.json}
 
@@ -192,7 +192,7 @@ The client can request the tree the server judges as being the best candidate fo
 The client shall provide one additional pair:
 \begin{description}
     \item[\jsstring{wanted}] A string specifying what tree the client wants to have.
-        Servers should support the options \jsstring{wanted} for the best guess at the correct tree and \jsstring{fixed} for the incomplete tree containing only fixed edges.
+        Servers should support the options \jsstring{best} for the best guess at the correct tree and \jsstring{fixed} for the incomplete tree containing only fixed edges.
         Servers may, however, support additional options of their own.
 \end{description}
 

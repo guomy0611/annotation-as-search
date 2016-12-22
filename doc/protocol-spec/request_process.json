@@ -1,0 +1,6 @@
+{
+  "type": "request",
+  "process": "Mit Bedacht badet heute ein Lurch in einem See.",
+  "source_format": "raw",
+  "target_format": "conll09"
+}
