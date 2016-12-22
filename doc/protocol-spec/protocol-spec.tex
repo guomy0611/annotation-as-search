@@ -149,10 +149,10 @@ In the case of supplying the whole forest, the client shall provide two addition
 \end{description}
 In the case of supplying only the sentence, the client shall provide a \jsstring{process} field and \jsstring{source\_format} field and may also provide a \jsstring{processor} field and a \jsstring{target\_format} field:
 \begin{description}
-    \item[\jsstring{process}] A string representing the sentence the server is to parse.
+    \item[\jsstring{process}] A string representing the sentence the server is to process.
     \item[\jsstring{source\_format}] A string specifying the format the sentence is given as.
-    \item[\jsstring{processor}] \optional\ A string specifying which parser the server is to use.
-        If no \jsstring{parser} is specified, servers should use their default parser.
+    \item[\jsstring{processor}] \optional\ A string specifying which processor the server is to use.
+        If no \jsstring{processor} is specified, servers should use their default processor.
     \item[\jsstring{target\_format}] \optional\ A string specifying the format the server should use.
         Servers may ignore this client request if they do not support the requested format.
         If no \jsstring{target\_format} is given, servers should use their default format.
