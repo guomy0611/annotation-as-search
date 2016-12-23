@@ -46,36 +46,36 @@ def read_conll(inp,maxsent=1):
                     break
                 sent=[]
                 comments=[]
-        elif line.startswith(u"#"):
+        elif line.startswith("#"):
             if sent:
                 raise ValueError("Missing newline after sentence")
             comments.append(line)
             continue
         else:
-            sent.append(line.split(u"\t"))
+            sent.append(line.split("\t"))
     else:
         if sent:
             yield sent, comments
 
 
-header=u'<div class="conllu-parse">\n'
-footer=u'</div>\n'
+header='<div class="conllu-parse">\n'
+footer='</div>\n'
 
 def sort_feat(f):
     #CoNLL-U requirement -> turn off when no longer required by the visualizer
-    if f==u"_":
+    if f=="_":
         return f
     new_list=[]
-    for attr_val in f.split(u"|"):
-        if u"=" in attr_val:
-            attr,val=attr_val.split(u"=",1)
+    for attr_val in f.split("|"):
+        if "=" in attr_val:
+            attr,val=attr_val.split("=",1)
         else:
-            attr,val=attr_val.split(u"_",1)
+            attr,val=attr_val.split("_",1)
         attr=attr.capitalize()
         val=val.capitalize()
-        val=val.replace(u"_",u"")
-        new_list.append(attr+u"="+val)
-    return u"|".join(sorted(new_list))
+        val=val.replace("_","")
+        new_list.append(attr+"="+val)
+    return "|".join(sorted(new_list))
 
 Format=collections.namedtuple(
                             'Format',
@@ -91,17 +91,17 @@ f_u=Format(0,1,2,3,4,5,6,7,8,9)
 
 def get_col(cols,idx):
     if idx is None:
-        return u"_"
+        return "_"
     else:
         return cols[idx]
 
 def visualize(args, complete=0):
     ''' visualise tree in html '''
-    data_to_print=u""
+    data_to_print=""
     for sent,comments in read_conll(args.input,args.max_sent):
         tree=header
         if comments:
-            tree+=u"\n".join(comments)+u"\n"
+            tree+="\n".join(comments)+"\n"
         for line in sent:
             if len(line)==10: #conll-u
                 f=f_u
@@ -109,20 +109,38 @@ def visualize(args, complete=0):
                 f=f_09
             line[f.FEAT]=sort_feat(line[f.FEAT])
             # take idx,token,lemma,pos,pos,feat,deprel,head
-            l=u"\t".join(get_col(line,idx) for idx in [f.ID, f.FORM, f.LEMMA, f.CPOS, f.POS, f.FEAT, f.HEAD, f.DEPREL, f.DEPS, f.MISC])
-            tree+=l+u"\n"
-        tree+=u"\n" #conll-u expects an empty line at the end of every tree
+            l="\t".join(get_col(line,idx) for idx in [
+                                            f.ID, f.FORM, f.LEMMA, f.CPOS,
+                                            f.POS, f.FEAT, f.HEAD, f.DEPREL,
+                                            f.DEPS, f.MISC
+                                            ])
+            tree+=l+"\n"
+        tree+="\n" #conll-u expects an empty line at the end of every tree
         tree+=footer
         data_to_print+=tree
     with open("templates/options.html") as options:
         final_part = options.read()
     if not complete:
-        with codecs.open(os.path.join(SCRIPTDIR,u"templates","simple_brat_viz.html"),u"r",u"utf-8") as template:
-            data=template.read().replace(u"CONTENTGOESHERE",data_to_print,1)
+        with codecs.open(os.path.join(
+                                SCRIPTDIR,
+                                "templates",
+                                "simple_brat_viz.html"
+                                ),
+                                "r",
+                                "utf-8"
+                        ) as template:
+            data=template.read().replace("CONTENTGOESHERE",data_to_print,1)
     else:
         print("complete")
-        with codecs.open(os.path.join(SCRIPTDIR,u"templates","simple_brat_viz_complete_sentence.html"),u"r",u"utf-8") as template:
-            data=template.read().replace(u"CONTENTGOESHERE",data_to_print,1)
+        with codecs.open(os.path.join(
+                                SCRIPTDIR,
+                                "templates",
+                                "simple_brat_viz_complete_sentence.html"
+                                ),
+                                "r",
+                                "utf-8"
+                        ) as template:
+            data=template.read().replace("CONTENTGOESHERE",data_to_print,1)
     data = data.replace("OPTIONSGOHERE", final_part)
     return data
  
@@ -130,10 +148,20 @@ def visualize(args, complete=0):
 
 if __name__==u"__main__":
 
-    parser = argparse.ArgumentParser(description='Trains the parser in a multi-core setting.')
+    description = 'Trains the parser in a multi-core setting.'
+    parser = argparse.ArgumentParser(description)
     g=parser.add_argument_group("Input/Output")
-    g.add_argument('input', nargs='?', help='Parser output file name, or nothing for reading on stdin')
-    g.add_argument('--max_sent', type=int, default=0, help='How many trees to show? 0 for all. (default %(default)d)')
+    g.add_argument(
+                    'input',
+                    nargs='?',
+                    help='Parser output file name, or nothing for reading on stdin'
+                )
+    g.add_argument(
+                    '--max_sent',
+                    type=int,
+                    default=0,
+                    help='How many trees to show? 0 for all. (default %(default)d)'
+                )
     args = parser.parse_args()
     visualize(args)
 

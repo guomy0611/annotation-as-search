@@ -5,13 +5,40 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
     <title>Tree visualization</title>
 
-    <link rel="stylesheet" type="text/css" href="http://universaldependencies.github.io/docs/css/jquery-ui-redmond.css"/>
-    <link rel="stylesheet" type="text/css" href="http://universaldependencies.github.io/docs/css/style.css"/>
-    <link rel="stylesheet" type="text/css" href="http://universaldependencies.github.io/docs/css/style-vis.css"/>
+    <link rel="stylesheet" type="text/css"
+    href="http://universaldependencies.github.io/docs/css/jquery-ui-redmond.css"/>
+    <link rel="stylesheet" type="text/css"
+    href="http://universaldependencies.github.io/docs/css/style.css"/>
+    <link rel="stylesheet" type="text/css"
+    href="http://universaldependencies.github.io/docs/css/style-vis.css"/>
 
-    <script type="text/javascript" src="http://universaldependencies.github.io/docs/lib/ext/head.load.min.js"></script>
-<!--     <link rel="shortcut icon" href="favicon.ico"/> -->
+    <script type="text/javascript" 
+    src="http://universaldependencies.github.io/docs/lib/ext/head.load.min.js"></script>
   </head>
+    <header>
+    <div class="container">
+        <nav>
+          <ul class="nav nav-pills pull-right">
+            <li role="presentation" class="active"><a href="/">Home</a></li>
+            <li role="presentation"><a href="/about/">About</a></li>
+            <li role="presentation"><a href="/contact/">Contact</a></li>
+            <li role="presentation" class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" role="button"
+            aria-haspopup="true" aria-expanded="true">Optionen<span class="caret">
+            </span></a>
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                <li><a href="/loadSentence/">annotate a new sentence</a></li>
+                <li><a href="/loadForest">load a new forest</a></li>
+                <li class="disabled"><a href="/savefile">save annotation</a></li>
+                <li role="separator" class="divider"></li>
+                <li><a href="/exit">End Annotation Helper</a></li>
+            </ul>
+            </li>
+        </ul>
+        </nav>
+    </div>
+</header>
+ 
   <body>
     <div id="main" class="center">
 
@@ -126,7 +153,9 @@
 </script>
 
       <div id="footer">
-          <p class="footer-text">embedded brat &copy; 2010- the <a href="http://brat.nlplab.org/about.html" style="color:gray">brat contributors</a></p>
+          <p class="footer-text">embedded brat &copy; 2010- the
+          <a href="http://brat.nlplab.org/about.html"
+          style="color:gray">brat contributors</a></p>
       </div>
     </div>
   </body>
