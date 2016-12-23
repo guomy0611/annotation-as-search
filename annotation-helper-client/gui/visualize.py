@@ -95,7 +95,7 @@ def get_col(cols,idx):
     else:
         return cols[idx]
 
-def visualize(args):
+def visualize(args, complete=0):
     ''' visualise tree in html '''
     data_to_print=u""
     for sent,comments in read_conll(args.input,args.max_sent):
@@ -114,9 +114,18 @@ def visualize(args):
         tree+=u"\n" #conll-u expects an empty line at the end of every tree
         tree+=footer
         data_to_print+=tree
-    with codecs.open(os.path.join(SCRIPTDIR,u"templates","simple_brat_viz.html"),u"r",u"utf-8") as template:
-        data=template.read().replace(u"CONTENTGOESHERE",data_to_print,1)
-        return data
+    with open("templates/options.html") as options:
+        final_part = options.read()
+    if not complete:
+        with codecs.open(os.path.join(SCRIPTDIR,u"templates","simple_brat_viz.html"),u"r",u"utf-8") as template:
+            data=template.read().replace(u"CONTENTGOESHERE",data_to_print,1)
+    else:
+        print("complete")
+        with codecs.open(os.path.join(SCRIPTDIR,u"templates","simple_brat_viz_complete_sentence.html"),u"r",u"utf-8") as template:
+            data=template.read().replace(u"CONTENTGOESHERE",data_to_print,1)
+    data = data.replace("OPTIONSGOHERE", final_part)
+    return data
+ 
 
 
 if __name__==u"__main__":

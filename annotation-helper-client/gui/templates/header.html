@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="graphical user interface" 
+        content="width=device-width, initial-scale=1"/>
+        <title>Annotation Helper</title>
+        <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" 
+        rel="stylesheet" >
+        <link href="{{ url_for('static', filename='css/jumbotron-narrow.css') }}" 
+        rel="stylesheet">
+        <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    </head>
+
+    <header>
+    <div class="container">
+      <div class="header clearfix">
+        <nav>
+          <ul class="nav nav-pills pull-right">
+            <li role="presentation" class="active"><a href="/">Home</a></li>
+            <li role="presentation"><a href="/about/">About</a></li>
+            <li role="presentation"><a href="/contact/">Contact</a></li>
+            <li role="presentation" class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+            aria-expanded="true">Optionen<span class="caret"></span></a>
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                <li><a href="/loadSentence/">annotate a new sentence</a></li>
+                <li><a href="/loadForest">load a new forest</a></li>
+                <li class=disabled><a href="/savefile">save annotation</a></li>
+                <li role="separator" class="divider"></li>
+                <li><a href="/exit">End Annotation Helper</a></li>
+            </ul>
+            </li>
+        </ul>
+        </nav>
+      </div>
+    </div>
+</header>
+   {% block body %}
+   {% endblock %}
+

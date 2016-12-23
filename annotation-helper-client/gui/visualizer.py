@@ -10,7 +10,7 @@ except ImportError:
 
 
 
-def visualize_solution(solution):
+def visualize_solution(solution, complete=0):
     ''' visualise tree in html '''
     solution_strings = ['\t'.join(part) for part in solution]
     solution_string = '\n'.join(solution_strings)
@@ -28,16 +28,16 @@ def visualize_solution(solution):
             help='How many trees to show? )0 for all. (default %(default)d)'
             )
     args = parser.parse_args([solution_string])
-    html_tree = visualize.visualize(args)
+    html_tree = visualize.visualize(args, complete)
     # save in html-file for now
-    with open("visualized_tree.html", "w") as f:
+    with open("templates/visualized_tree.html", "w") as f:
         f.write(html_tree)
 
 
 def main():
     with open('../../test/badender_lurch.conll09', 'r') as f:
         content = [token.strip().split('\t') for token in f.readlines()]
-        visualize_solution(content)
+        visualize_solution(content, 1)
 
 
 if __name__ == '__main__':
