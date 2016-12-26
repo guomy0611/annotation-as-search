@@ -31,14 +31,7 @@ def close_annotator():
 
 @app.route('/save_file/', methods = ["POST", "GET"])
 def saveFile():
-    if request.method == "POST":
-        if request.form["saveFile"]:
-            return send_file(
-                "templates/visualized_tree.html",
-                 attachment_filename="annotated_sentence.conll09"
-                 )
-
-    return render_template("save_file.html")
+   return render_template("save_file.html")
 
 def allowed_file(filename):
     return '.' in filename and \
