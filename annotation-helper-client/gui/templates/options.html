@@ -1,8 +1,11 @@
 <div class="jumbotron">
   <div class="container">
   <h1>{{ question }}</h1>
-    <p>Is this tuple correct?</p>
-    <button type="button" class="btn btn-success btn-lg">Yes</button>
-    <button type="button" class="btn btn-danger btn-lg">No</button>
-    </div>
+    <h4>Is this correct?</p>
+  </div>
+  <br>
+    <form method="post">
+    <input type="submit" class="btn btn-success btn-lg" name="answer" value="Yes">
+    <input type="submit" class="btn btn-danger btn-lg" name="answer" value="No">
+    </form>
 </div>

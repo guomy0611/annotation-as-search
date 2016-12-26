@@ -1,0 +1,12 @@
+{% extends "header.html" %}
+
+{% block body %}
+
+<div class="jumbotron">
+    <h2>Save Result</h2>
+    <form method="get" action="/static/annotated_sentence.conll09">
+        <button type="submit">Download annotated sentence</button>
+    </form>
+</div>
+
+{% endblock %}
