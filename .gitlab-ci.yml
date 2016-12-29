@@ -19,7 +19,8 @@ venv:
     REQUIREMENTS: 'requirements.txt'
     TEST_REQUIREMENTS: 'test/requirements.txt'
   script:
-    - 'source "$HOME/$VIRTUALENV/bin/activate" 2>/dev/null || virtualenv "$HOME/$VIRTUALENV" && source "$HOME/$VIRTUALENV/bin/activate"'
+    - 'virtualenv --version || pip3 install virtualenv'
+    - 'source "$HOME/$VIRTUALENV/bin/activate" 2>/dev/null || virtualenv -p python3 "$HOME/$VIRTUALENV" && source "$HOME/$VIRTUALENV/bin/activate"'
     - '[ ! -r "$REQUIREMENTS" ] || pip3 install -r "$REQUIREMENTS"'
     - '[ ! -r "$TEST_REQUIREMENTS" ] || pip3 install -r "$TEST_REQUIREMENTS"'
 
