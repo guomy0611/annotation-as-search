@@ -43,6 +43,6 @@ deploy:
     CONFIGFILE: '.aas-server.json'
   script:
     - 'source "$HOME/$VIRTUALENV/bin/activate" 2>/dev/null'
-    - 'pkill -f -u gitlab-runner annotation-helper && [ $? -le 1 ]'
+    - 'pkill -f -u gitlab-runner server.py && [ $? -le 1 ] && sleep 3'
     - '[ -r "$HOME/$CONFIGFILE" ] || cp annotation-helper/config.json "$HOME/$CONFIGFILE"'
     - 'python3 annotation-helper/server.py -H "$HOST" -p "$PORT" -l "$HOME/$LOGFILE" --loglevel "$LOGLEVEL" &'
