@@ -8,9 +8,7 @@ stages:
 python3:
   stage: prepare
   script:
-    - 'yum -y -q update && yum -y -q install python34 python34-pip'
-    - 'python3 --version'
-    - 'pip3 --version'
+    - 'python3 --version && python3 -m ensurepip'
 
 venv:
   stage: prepare
@@ -41,8 +39,10 @@ deploy:
     HOST: ''
     PORT: '8000'
     LOGLEVEL: 'DEBUG'
-    LOGFILE: '$HOME/annotation.log'
+    LOGFILE: 'annotation.log'
+    CONFIGFILE: '.aas-server.json'
   script:
     - 'source "$HOME/$VIRTUALENV/bin/activate" 2>/dev/null'
     - 'pkill -f -u gitlab-runner annotation-helper && [ $? -le 1 ]'
+    - '[ -r "$HOME/$CONFIGFILE" ] || cp annotation-helper/config.json "$HOME/$CONFIGFILE"
     - 'python3 annotation-helper/server.py -H "$HOST" -p "$PORT" -l "$HOME/$LOGFILE" --loglevel "$LOGLEVEL" &'
