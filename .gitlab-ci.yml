@@ -10,7 +10,7 @@ python3:
   script:
     - 'yum -y -q update && yum -y -q install python34'
     - 'python3 --version'
-    - 'pip3 --version || (curl https://bootstrap.pypa.io/get-pip.py | python3.4)'
+    - 'pip3 --version || (curl https://bootstrap.pypa.io/get-pip.py | python3)'
 
 venv:
   stage: prepare
@@ -19,7 +19,9 @@ venv:
     REQUIREMENTS: 'requirements.txt'
     TEST_REQUIREMENTS: 'test/requirements.txt'
   script:
+    - 'echo PIP: $(which pip3)'
     - 'source "$HOME/$VIRTUALENV/bin/activate" 2>/dev/null || python3 -m venv "$HOME/$VIRTUALENV" && source "$HOME/$VIRTUALENV/bin/activate"'
+    - 'echo PIP: $(which pip3)'
     - '[ ! -r "$REQUIREMENTS" ] || pip3 install -r "$REQUIREMENTS"'
     - '[ ! -r "$TEST_REQUIREMENTS" ] || pip3 install -r "$TEST_REQUIREMENTS"'
 
@@ -28,6 +30,9 @@ pylint:
   variables:
     MIN_PYLINT_RATING: '7'
   script:
+    - 'echo PIP: $(which pip3)'
+    - 'source "$HOME/$VIRTUALENV/bin/activate" 2>/dev/null || python3 -m venv "$HOME/$VIRTUALENV" && source "$HOME/$VIRTUALENV/bin/activate"'
+    - 'echo PIP: $(which pip3)'
     - 'pip3 install pylint'
     - 'bash test/pylint.sh "$MIN_PYLINT_RATING" || true'
 
@@ -39,5 +44,8 @@ deploy:
     LOGLEVEL: 'DEBUG'
     LOGFILE: '$HOME/annotation.log'
   script:
+    - 'echo PIP: $(which pip3)'
+    - 'source "$HOME/$VIRTUALENV/bin/activate" 2>/dev/null || python3 -m venv "$HOME/$VIRTUALENV" && source "$HOME/$VIRTUALENV/bin/activate"'
+    - 'echo PIP: $(which pip3)'
     - 'pkill -f -u gitlab-runner annotation-helper && [ $? -le 1 ]'
     - 'python3 annotation-helper/server.py -H "$HOST" -p "$PORT" -l "$HOME/$LOGFILE" --loglevel "$LOGLEVEL" </dev/null >/dev/null 2>&1 &'
