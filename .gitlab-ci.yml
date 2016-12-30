@@ -30,9 +30,7 @@ pylint:
   variables:
     MIN_PYLINT_RATING: '7'
   script:
-    - 'echo PIP: $(which pip3)'
-    - 'source "$HOME/$VIRTUALENV/bin/activate" 2>/dev/null || python3 -m venv "$HOME/$VIRTUALENV" && source "$HOME/$VIRTUALENV/bin/activate"'
-    - 'echo PIP: $(which pip3)'
+    - 'source "$HOME/$VIRTUALENV/bin/activate" 2>/dev/null'
     - 'pip3 install pylint'
     - 'bash test/pylint.sh "$MIN_PYLINT_RATING" || true'
 
@@ -44,8 +42,6 @@ deploy:
     LOGLEVEL: 'DEBUG'
     LOGFILE: '$HOME/annotation.log'
   script:
-    - 'echo PIP: $(which pip3)'
-    - 'source "$HOME/$VIRTUALENV/bin/activate" 2>/dev/null || python3 -m venv "$HOME/$VIRTUALENV" && source "$HOME/$VIRTUALENV/bin/activate"'
-    - 'echo PIP: $(which pip3)'
+    - 'source "$HOME/$VIRTUALENV/bin/activate" 2>/dev/null'
     - 'pkill -f -u gitlab-runner annotation-helper && [ $? -le 1 ]'
     - 'python3 annotation-helper/server.py -H "$HOST" -p "$PORT" -l "$HOME/$LOGFILE" --loglevel "$LOGLEVEL" </dev/null >/dev/null 2>&1 &'
