@@ -28,6 +28,7 @@ venv:
 pylint:
   stage: test
   variables:
+    VIRTUALENV: 'annotation-helper-env/'
     MIN_PYLINT_RATING: '7'
   script:
     - 'source "$HOME/$VIRTUALENV/bin/activate" 2>/dev/null'
@@ -37,6 +38,7 @@ pylint:
 deploy:
   stage: deploy
   variables:
+    VIRTUALENV: 'annotation-helper-env/'
     HOST: ''
     PORT: '8000'
     LOGLEVEL: 'DEBUG'
