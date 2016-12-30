@@ -213,16 +213,16 @@ def main():
     # Determine socket to bind to.
     # TODO: Don't use unixsocket from configfile, if host and port were
     # specified using commandline options.
-    if 'unixsocket' in config:
+    if 'unixsocket' in config and config['unixsocket']:
         incoming_socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         incoming_socket.bind(config['unixsocket'])
         logging.debug(
             'Bound incoming unix socket to %s.', config['unixsocket'])
     else:
         incoming_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        incoming_socket.bind((args['host'], args['port']))
+        incoming_socket.bind((config['host'], config['port']))
         logging.debug(
-            'Bound incoming tcp socket to %s:%s.', args['host'], args['port'])
+            'Bound incoming tcp socket to %s:%s.', config['host'], config['port'])
 
     loop = asyncio.get_event_loop()
     coro = loop.create_server(

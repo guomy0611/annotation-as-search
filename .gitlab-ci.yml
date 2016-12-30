@@ -8,9 +8,9 @@ stages:
 python3:
   stage: prepare
   script:
-    - 'yum -y -q update && yum -y -q install python34'
+    - 'yum -y -q update && yum -y -q install python34 python34-pip'
     - 'python3 --version'
-    - 'pip3 --version || (curl https://bootstrap.pypa.io/get-pip.py | python3)'
+    - 'pip3 --version'
 
 venv:
   stage: prepare
@@ -32,7 +32,6 @@ pylint:
     MIN_PYLINT_RATING: '7'
   script:
     - 'source "$HOME/$VIRTUALENV/bin/activate" 2>/dev/null'
-    - 'pip3 install pylint'
     - 'bash test/pylint.sh "$MIN_PYLINT_RATING" || true'
 
 deploy:
@@ -46,4 +45,4 @@ deploy:
   script:
     - 'source "$HOME/$VIRTUALENV/bin/activate" 2>/dev/null'
     - 'pkill -f -u gitlab-runner annotation-helper && [ $? -le 1 ]'
-    - 'python3 annotation-helper/server.py -H "$HOST" -p "$PORT" -l "$HOME/$LOGFILE" --loglevel "$LOGLEVEL" </dev/null >/dev/null 2>&1 &'
+    - 'python3 annotation-helper/server.py -H "$HOST" -p "$PORT" -l "$HOME/$LOGFILE" --loglevel "$LOGLEVEL" &'
