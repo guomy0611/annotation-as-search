@@ -1,25 +1,24 @@
-{% extends "header.html" %}
-
+{% extends "header.html"  %}
 {% block body %}
-
 <div class="jumbotron">
-    <h2>Load File</h2>
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <ul class=flashes>  
-            {% for msg in messages %}
-            <li>{{ msg }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %}
-        {% endwith %}
-    <p>Load a .txt-file to start annotation process</p>
-    <br>
-    <form method=post enctype=multipart/form-data>
+    <form method="POST" enctype="multipart/form-data">
+        <h3>Load a forest from a file</h3>
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <ul class=flashes>  
+                        {% for msg in messages %}
+                            <li>{{ msg }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+        <br>
         <p><input type=file name=file>
         <input type=submit value=Upload>
         </p>
     </form>
-
 </div>
+
+
+
 {% endblock %}
