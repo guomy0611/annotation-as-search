@@ -45,4 +45,4 @@ deploy:
     - 'source "$HOME/$VIRTUALENV/bin/activate" 2>/dev/null'
     - 'pkill -f -u gitlab-runner server.py && [ $? -le 1 ] && sleep 3'
     - '[ -r "$HOME/$CONFIGFILE" ] || cp annotation-helper/config.json "$HOME/$CONFIGFILE"'
-    - 'python3 annotation-helper/server.py -H "$HOST" -p "$PORT" -l "$HOME/$LOGFILE" --loglevel "$LOGLEVEL" </dev/null 2>&1 1>/dev/null &'
+    - 'python3 annotation-helper/server.py -H "$HOST" -p "$PORT" -l "$HOME/$LOGFILE" --loglevel "$LOGLEVEL" </dev/null 1>/dev/null 2>&1 &'
