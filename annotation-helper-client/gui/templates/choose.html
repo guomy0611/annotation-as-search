@@ -5,13 +5,52 @@
     <h1>Choose input</h1>
     <h3>You can</h3>
     <p>
-        <a class="btn btn-lg btn-default" href="/input_sentence" 
+        <a class="btn btn-lg btn-default" id='inputSentence'
         role="button">Enter a sentence</a>
-        <a class="btn btn-lg btn-default" href="/load_file" 
+        <a class="btn btn-lg btn-default" id='loadForest'
         role="button">Load a forest from a conll-file</a>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul class=flashes>  
+                    {% for msg in messages %}
+                        <li>{{ msg }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+ 
+        <form method="POST" id='getInputSentence' action="/input_sentence" hidden>
+            <h3>Enter the sentence to be parsed</h3>
+            <br>
+            <input type="text" name="sentence">
+            <br>
+            <input type=submit value=Upload>
+        </form>;
+        <form method="POST" enctype="multipart/form-data" id='getForest' 
+        action="/load_file" hidden>
+            <h3>Load a forest from a file</h3>
+            <p>
+                <input type=file name=file>
+                <input type=submit value=Upload>
+            </p>
+        </form>
+ 
+
+
     </p>
 </div>
 
+<script>
+$(document).ready(function(){
+    
+    $("a#inputSentence").click(function() {
+        $("#getInputSentence").show();
+    });
+    $("a#loadForest").click(function() {
+        $("#getForest").show();
+    });
+});
+</script>
 
 
 {% endblock %}
