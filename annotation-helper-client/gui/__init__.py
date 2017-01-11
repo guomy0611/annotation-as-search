@@ -6,7 +6,7 @@ import argparse
 import socket
 import asyncio
 
-from common import (
+from protocoll_gui import (
     unpack_received_data,
     pack_data_for_sending,
     AnnotationHelperClientProtocol,
@@ -29,12 +29,6 @@ def request_creator(requests):
             'use_forest': open(UPLOAD_FOLDER +'/' + requests[0]).read(),
             'forest_format': 'conll09'
             }
-
-    elif requests == "yes":
-        return get_yes(requests)
-
-    elif requests == "no":
-        return get_no(requests)
 
     else:
         return {
@@ -101,12 +95,6 @@ def load_file():
 @app.route('/annotate', methods = ["GET", "POST"])
 def annotate():
     global requests
-    print(requests)
-    if request.method == "POST":
-        if request.form["choice"] == "Yes":
-            requests = "yes"
-        elif request.form["choice"] == "No":
-            requests = "no"
     create_requests = lambda : request_creator(requests)
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
@@ -123,6 +111,18 @@ def annotate():
     loop.run_until_complete(coro)
 
     return render_template("visualized_tree.html")
+
+def find_response(self, server_data):
+    if server_data['type'] == 'question':
+        return redirect(url_for('handle_question', question=server_data))
+    elif server_data['type'] == 'solution':
+        return redirect(url_for('handle_solution', data=server_data))
+    elif server_data['type'] == 'error':
+        return redirect(url_for('handle_error', data=server_data))
+    else:
+        return url_for('handle_default', data=server_data)
+
+
 
 
 def get_yes(question):
@@ -149,27 +149,25 @@ def handle_solution(self, solution):
             else:
                 return render_template("visualized_tree.html",
                                         message="Please correct the tree")
-
         else:
             return render_template("visualized_tree.html")
     # Debugging, remove later
     except Exception as e:
         return render_template("visualized_tree.html", message=e)
 
-
-
-
-
+@app.route('/handle_question', methods = ["GET", "POST"])
 def handle_question(self, question):
     q = question['question']
-    parts = ["\t".join(word) for word in question['fixed_nodes']['nodes']]
-    tree = "\n".join(parts)
-    visualize_solution(tree)
-    return {
-        'type': 'answer',
-        'answer': True,
-        'question': question
-        }
+    if request.method == "POST":
+        answer = request.form["choice"]
+        if answer == "Yes":
+            self.response = get_yes(q)
+        elif answer == "No":
+            self.response = get_no(q)
+    else:
+        self.end_conversation()
+
+    self.send_response()
 
 
 @app.route('/endResult/', methods=["GET", "POST"])
@@ -194,6 +192,18 @@ def annotation_finished():
 def page_not_found(e):
     return render_template("404.html")
 
+def visualize(self, data):
+    if server_data['type'] == 'question':
+        q = data['question']['question']
+        parts = ["\t".join(word) for word in data['question']['fixed_nodes']['nodes']]
+        tree = "\n".join(parts)
+        visualize_solution(tree)
+    else:
+        q = "Final tree"
+        parts = ["\t".join(word) for word in data['tree']['nodes']]
+        tree = "\n".join(parts)
+        visualize_solution(tree, 1)
+
 if __name__ == '__main__':
     HOST = os.environ.get('SERVER_HOST', 'localhost')
     try:
@@ -209,3 +219,4 @@ if __name__ == '__main__':
     asyncio.set_event_loop(eventloop)
     eventloop.run_until_complete(start_server)
     eventloop.run_forever()
+
