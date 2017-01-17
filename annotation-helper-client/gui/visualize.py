@@ -118,8 +118,6 @@ def visualize(args, complete=0):
         tree+="\n" #conll-u expects an empty line at the end of every tree
         tree+=footer
         data_to_print+=tree
-    with open("templates/options.html") as options:
-        final_part = options.read()
     if not complete:
         with codecs.open(os.path.join(
                                 SCRIPTDIR,
@@ -130,6 +128,8 @@ def visualize(args, complete=0):
                                 "utf-8"
                         ) as template:
             data=template.read().replace("CONTENTGOESHERE",data_to_print,1)
+            with open("templates/options.html") as options:
+                final_part = options.read()
     else:
         print("complete")
         with codecs.open(os.path.join(
@@ -141,6 +141,8 @@ def visualize(args, complete=0):
                                 "utf-8"
                         ) as template:
             data=template.read().replace("CONTENTGOESHERE",data_to_print,1)
+            with open("templates/options_final.html") as options:
+                final_part = options.read()
     data = data.replace("OPTIONSGOHERE", final_part)
     return data
  

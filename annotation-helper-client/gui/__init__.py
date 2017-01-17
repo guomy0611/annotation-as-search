@@ -9,7 +9,6 @@ import asyncio
 from protocoll_gui import (
     unpack_received_data,
     pack_data_for_sending,
-    AnnotationHelperClientProtocol,
     )
 
 from visualizer import visualize_solution
@@ -78,6 +77,7 @@ def input_sentence():
 
 @app.route('/load_file', methods=["GET", "POST"])
 def load_file():
+    global socket_to_server
     if request.method == "POST":
         if request.files:
             data_file = request.files['file']
@@ -89,85 +89,71 @@ def load_file():
                 data_file.save(os.path.join(app.config['UPLOAD_FOLDER'], data))
                 global requests
                 requests = data, "file"
+                requests = request_creator(requests)
+                socket_to_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                socket_to_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                socket_to_server.connect((HOST, 8080))
+
+
                 return redirect(url_for('annotate'))
     return redirect(url_for('choose_input'))
 
 @app.route('/annotate', methods = ["GET", "POST"])
 def annotate():
-    global requests
-    create_requests = lambda : request_creator(requests)
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    loop = asyncio.get_event_loop()
-    coro = loop.create_connection(
-    lambda : AnnotationHelperClientProtocol(
-        loop,
-        create_requests,
-        handle_question=handle_question,
-        handle_solution=handle_solution
-        ),
-        sock=socket_to_server
-        )
-    loop.run_until_complete(coro)
+    global requests, question, socket_to_server
+    print(requests)
+    socket_to_server.send(pack_data_for_sending(requests))
+    data = unpack_received_data(socket_to_server.recv(1024))
+    find_response(data)
+    if 'question' in data.keys():
+        question = data['question']
+        return render_template("visualized_tree.html", question = data['question'])
+    return redirect(url_for('annotation_finished'))
 
-    return render_template("visualized_tree.html")
-
-def find_response(self, server_data):
+def find_response(server_data):
     if server_data['type'] == 'question':
-        return redirect(url_for('handle_question', question=server_data))
+        handle_question(server_data)
     elif server_data['type'] == 'solution':
-        return redirect(url_for('handle_solution', data=server_data))
+        handle_solution(server_data)
     elif server_data['type'] == 'error':
-        return redirect(url_for('handle_error', data=server_data))
+        handle_error(server_data)
     else:
-        return url_for('handle_default', data=server_data)
+        handle_default(server_data)
 
-
-
+@app.route('/get_answer', methods = ["GET", "POST"])
+def get_answer():
+    global requests, question
+    if request.method == "POST":
+        answer = request.form["choice"]
+        if answer == "Yes":
+            requests = get_yes(question)
+        elif answer == "No":
+            requests = get_no(question)
+    return redirect(url_for('annotate'))
 
 def get_yes(question):
     return {
-        'type': 'answer',
         'answer': True,
-        'question': question
+        'question': question,
+        'type': 'answer'
         }
 
 def get_no(question):
     return {
-        'type': 'answer',
         'answer': False,
-        'question': question
+        'question': question,
+        'type': 'answer',
         }
 
-def handle_solution(self, solution):
-    visualize_solution(solution, 1)
-    try:
-        if request.method == "POST":
-            answer = request.form["answer"]
-            if answer == "Yes":
-                return redirect(url_for("saveFile"))
-            else:
-                return render_template("visualized_tree.html",
-                                        message="Please correct the tree")
-        else:
-            return render_template("visualized_tree.html")
-    # Debugging, remove later
-    except Exception as e:
-        return render_template("visualized_tree.html", message=e)
+def handle_solution(data):
+    solution = data['tree']['nodes']
+    words = ["\t".join(word) for word in solution]
+    tree = "\n".join(words)
+    visualize_solution(tree, 1)
 
-@app.route('/handle_question', methods = ["GET", "POST"])
-def handle_question(self, question):
+def handle_question(question):
     q = question['question']
-    if request.method == "POST":
-        answer = request.form["choice"]
-        if answer == "Yes":
-            self.response = get_yes(q)
-        elif answer == "No":
-            self.response = get_no(q)
-    else:
-        self.end_conversation()
-
-    self.send_response()
+    visualize(question)
 
 
 @app.route('/endResult/', methods=["GET", "POST"])
@@ -192,10 +178,10 @@ def annotation_finished():
 def page_not_found(e):
     return render_template("404.html")
 
-def visualize(self, data):
-    if server_data['type'] == 'question':
-        q = data['question']['question']
-        parts = ["\t".join(word) for word in data['question']['fixed_nodes']['nodes']]
+def visualize(data):
+    if data['type'] == 'question':
+        q = data['question']
+        parts = ["\t".join(word) for word in data['fixed_nodes']['nodes']]
         tree = "\n".join(parts)
         visualize_solution(tree)
     else:
@@ -204,19 +190,27 @@ def visualize(self, data):
         tree = "\n".join(parts)
         visualize_solution(tree, 1)
 
+class Protocol:
+    def __init__(self, requests):
+        HOST = os.environ.get('SERVER_HOST', 'localhost')
+        try:
+            PORT = int(os.environ.get('SERVER_PORT', '5000'))
+        except ValueError:
+            PORT = 5000
+        socket_to_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        socket_to_server.connect((HOST, 8080))
+        socket_to_server.send(requests.encode())
+        data = socket_to_server.recv(1024).decode()
+        socket_to_server.close()
+
+
 if __name__ == '__main__':
+    app.debug = True
     HOST = os.environ.get('SERVER_HOST', 'localhost')
     try:
         PORT = int(os.environ.get('SERVER_PORT', '5000'))
     except ValueError:
         PORT = 5000
 
-    socket_to_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    socket_to_server.connect((HOST, 8080))
-    app.debug = True
-    start_server = app.run(HOST, PORT)
-    eventloop = asyncio.new_event_loop()
-    asyncio.set_event_loop(eventloop)
-    eventloop.run_until_complete(start_server)
-    eventloop.run_forever()
+    app.run(HOST, PORT)
 
