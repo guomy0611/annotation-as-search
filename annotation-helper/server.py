@@ -136,7 +136,10 @@ def read_configfile(configfile):
     '''
     Read a json-formatted configuration file and return the resulting dict.
     '''
-    return json.load(open(configfile))
+    try:
+        return json.load(open(configfile))
+    except FileNotFoundError as e:
+        return dict()
 
 def update_config(config, new_pairs):
     '''
@@ -147,14 +150,16 @@ def update_config(config, new_pairs):
         new_pairs: A dict or an argparse.Namespace containing the
             key-value-pairs that are to be inserted. In the case of a
             namespace, only names not starting with an underscore are added to
-            the config.
+            the config. If a vale is None, the pair is ignored.
     '''
     if isinstance(new_pairs, dict):
-        config.update(new_pairs)
+        config.update({k: v for k, v in new_pairs.items() if v is not None})
     elif isinstance(new_pairs, argparse.Namespace):
         for key in dir(new_pairs):
             if not key.startswith('_'):
-                config[key] = getattr(new_pairs, key)
+                value = getattr(new_pairs, key)
+                if value is not None:
+                    config[key] = value
     else:
         msg = '{} is neither a dict nor an argparse.Namespace.'
         raise TypeError(msg.format(new_pairs))
@@ -167,14 +172,12 @@ def main():
         '--host',
         required=False,
         type=str,
-        default='127.0.0.1',
         help='The host that accepts TCP connections.')
     parser.add_argument(
         '-p',
         '--port',
         required=False,
         type=int,
-        default=8080,
         help='The port that accepts TCP connections.')
     parser.add_argument(
         '-s',
@@ -187,13 +190,11 @@ def main():
         '--logfile',
         required=False,
         type=str,
-        default='',
         help='Name of the log file.')
     parser.add_argument(
         '--loglevel',
         required=False,
         type=str,
-        default='INFO',
         help='Log level',
         choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'])
     parser.add_argument(
@@ -201,11 +202,22 @@ def main():
         '--configfile',
         required=False,
         type=str,
-        default=os.path.join(os.environ['HOME'], '.aas-server.json'),
         help='Name of the config file.')
     args = parser.parse_args()
 
-    config = read_configfile(args.configfile)
+    # Default configuration
+    config = {
+        'host': '0.0.0.0',
+        'port': 8080,
+        'logfile': '',
+        'loglevel': 'INFO',
+        'configfile': os.path.join(os.environ['HOME'], '.aas-server.json')
+        }
+
+    config_from_file = read_configfile(
+        args.configfile if 'configfile' in args else arg_defaults['configfile']
+        )
+    update_config(config, config_from_file)
     update_config(config, args)
     setup_logging(config['logfile'], config['loglevel'])
 
