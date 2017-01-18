@@ -6,7 +6,7 @@ import argparse
 import socket
 import asyncio
 
-from protocoll_gui import (
+from common import (
     unpack_received_data,
     pack_data_for_sending,
     )
@@ -194,20 +194,6 @@ def visualize(data):
         parts = ["\t".join(word) for word in data['tree']['nodes']]
         tree = "\n".join(parts)
         visualize_solution(tree, 1)
-
-class Protocol:
-    def __init__(self, requests):
-        HOST = os.environ.get('SERVER_HOST', 'localhost')
-        try:
-            PORT = int(os.environ.get('SERVER_PORT', '5000'))
-        except ValueError:
-            PORT = 5000
-        socket_to_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        socket_to_server.connect((HOST, 8080))
-        socket_to_server.send(requests.encode())
-        data = socket_to_server.recv(1024).decode()
-        socket_to_server.close()
-
 
 if __name__ == '__main__':
     app.debug = True
