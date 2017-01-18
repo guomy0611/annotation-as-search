@@ -71,13 +71,19 @@ def input_sentence():
     # ugly, need to find a way to get rid of it
     if request.method == "POST":
         if request.form["sentence"]:
-            requests = request.form["sentence"]
+            requests = request_creator(request.form["sentence"])
+            create_connection()
             return redirect(url_for('annotate'))
     return redirect(url_for('choose_input'))
 
+def create_connection():
+    global socket_to_server
+    socket_to_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    socket_to_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    socket_to_server.connect((HOST, 8080))
+
 @app.route('/load_file', methods=["GET", "POST"])
 def load_file():
-    global socket_to_server
     if request.method == "POST":
         if request.files:
             data_file = request.files['file']
@@ -86,15 +92,12 @@ def load_file():
                 return redirect(url_for('choose_input'))
             if allowed_file(data_file.filename):
                 data = secure_filename(data_file.filename)
+                print(data_file)
                 data_file.save(os.path.join(app.config['UPLOAD_FOLDER'], data))
                 global requests
                 requests = data, "file"
                 requests = request_creator(requests)
-                socket_to_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                socket_to_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                socket_to_server.connect((HOST, 8080))
-
-
+                create_connection()
                 return redirect(url_for('annotate'))
     return redirect(url_for('choose_input'))
 
