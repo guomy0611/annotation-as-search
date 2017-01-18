@@ -207,7 +207,7 @@ def main():
 
     config = read_configfile(args.configfile)
     update_config(config, args)
-    setup_logging(config.logfile, config.loglevel)
+    setup_logging(config['logfile'], config['loglevel'])
 
     # Determine socket to bind to.
     # TODO: Don't use unixsocket from configfile, if host and port were
