@@ -1,0 +1,43 @@
+1	Mit	mit	_	ADP	_	_	_	3	_	MO	_	_	_	_
+2	Bedacht	bedacht	_	NOUN	_	_	_	1	_	NK	_	_	_	_
+3	badet	baden	_	VERB	_	_	_	0	_	--	_	_	_	_
+4	heute	heute	_	ADV	_	_	_	3	_	MO	_	_	_	_
+5	ein	ein	_	DET	_	_	_	6	_	NK	_	_	_	_
+6	Lurch	lurch	_	NOUN	_	_	_	3	_	SB	_	_	_	_
+7	in	in	_	ADP	_	_	_	3	_	MO	_	_	_	_
+8	einem	in	_	ART	_	_	_	9	_	NK	_	_	_	_
+9	See	see	_	NOUN	_	_	_	7	_	NK	_	_	_	_
+10	.	--	_	.	_	_	_	3	_	--	_	_	_	_
+
+1	Mit	mit	_	ADP	_	_	_	3	_	MO	_	_	_	_
+2	Bedacht	bedacht	_	NOUN	_	_	_	1	_	NK	_	_	_	_
+3	badet	baden	_	VERB	_	_	_	0	_	--	_	_	_	_
+4	heute	heute	_	ADV	_	_	_	6	_	MO	_	_	_	_
+5	ein	ein	_	DET	_	_	_	6	_	NK	_	_	_	_
+6	Lurch	lurch	_	NOUN	_	_	_	3	_	SB	_	_	_	_
+7	in	in	_	ADP	_	_	_	3	_	MO	_	_	_	_
+8	einem	in	_	ART	_	_	_	7	_	NK	_	_	_	_
+9	See	see	_	NOUN	_	_	_	7	_	NK	_	_	_	_
+10	.	--	_	.	_	_	_	3	_	--	_	_	_	_
+
+1	Mit	mit	_	ADP	_	_	_	3	_	MO	_	_	_	_
+2	Bedacht	bedacht	_	NOUN	_	_	_	1	_	NK	_	_	_	_
+3	badet	baden	_	VERB	_	_	_	0	_	--	_	_	_	_
+4	heute	heute	_	ADV	_	_	_	3	_	MO	_	_	_	_
+5	ein	ein	_	DET	_	_	_	6	_	NK	_	_	_	_
+6	Lurch	lurch	_	NOUN	_	_	_	3	_	MO	_	_	_	_
+7	in	in	_	ADP	_	_	_	3	_	SB	_	_	_	_
+8	einem	in	_	ART	_	_	_	9	_	NK	_	_	_	_
+9	See	see	_	NOUN	_	_	_	7	_	NK	_	_	_	_
+10	.	--	_	.	_	_	_	3	_	--	_	_	_	_
+
+1	Mit	mit	_	ADP	_	_	_	3	_	MO	_	_	_	_
+2	Bedacht	bedacht	_	NOUN	_	_	_	1	_	NK	_	_	_	_
+3	badet	baden	_	VERB	_	_	_	0	_	--	_	_	_	_
+4	heute	heute	_	ADV	_	_	_	3	_	MO	_	_	_	_
+5	ein	ein	_	DET	_	_	_	6	_	MO	_	_	_	_
+6	Lurch	lurch	_	NOUN	_	_	_	3	_	SB	_	_	_	_
+7	in	in	_	ADP	_	_	_	3	_	MO	_	_	_	_
+8	einem	in	_	ART	_	_	_	9	_	NK	_	_	_	_
+9	See	see	_	NOUN	_	_	_	7	_	NK	_	_	_	_
+10	.	--	_	.	_	_	_	3	_	--	_	_	_	_

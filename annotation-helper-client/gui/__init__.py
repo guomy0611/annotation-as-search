@@ -13,7 +13,7 @@ from protocoll_gui import (
 
 from visualizer import visualize_solution
 from multiprocessing import Process
-
+from conll_convert import conll06_to_conll09
 
 app = Flask(__name__)
 ALLOWED_EXTENSIONS = set(['conll', 'conll09', 'conll06'])
@@ -92,8 +92,10 @@ def load_file():
                 return redirect(url_for('choose_input'))
             if allowed_file(data_file.filename):
                 data = secure_filename(data_file.filename)
-                print(data_file)
                 data_file.save(os.path.join(app.config['UPLOAD_FOLDER'], data))
+                if data_file.filename.endswith("conll06"):
+                    conll06_to_conll09(os.path.join(app.config['UPLOAD_FOLDER'], data))
+                    data = data[:-7] + "_converted.conll"
                 global requests
                 requests = data, "file"
                 requests = request_creator(requests)
