@@ -74,11 +74,11 @@ def input_sentence():
             requests = request_creator(request.form["sentence"])
             create_connection()
             return redirect(url_for('annotate'))
-    return redirect(url_for('choose_input'))
+#    return redirect(url_for('choose_input'))
+    return render_template("input.html")
 
 def create_connection():
     global socket_to_server
-    socket_to_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     socket_to_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     socket_to_server.connect((HOST, 8080))
 
@@ -101,13 +101,14 @@ def load_file():
                 requests = request_creator(requests)
                 create_connection()
                 return redirect(url_for('annotate'))
-    return redirect(url_for('choose_input'))
+#    return redirect(url_for('choose_input'))
+    return render_template('load_file.html')
 
 @app.route('/annotate', methods = ["GET", "POST"])
 def annotate():
     global requests, question, socket_to_server
-    print(requests)
     socket_to_server.send(pack_data_for_sending(requests))
+    print("DADA")
     data = unpack_received_data(socket_to_server.recv(1024))
     find_response(data)
     if 'question' in data.keys():
@@ -134,6 +135,10 @@ def get_answer():
             requests = get_yes(question)
         elif answer == "No":
             requests = get_no(question)
+        elif answer == "Undo":
+            requests = get_undo()
+        elif answer == "Abort":
+            requests = get_abort(question)
     return redirect(url_for('annotate'))
 
 def get_yes(question):
@@ -150,6 +155,17 @@ def get_no(question):
         'type': 'answer',
         }
 
+def get_undo():
+    return {
+        "type" : "undo",
+        "answers" : 1
+    }
+
+def get_abort(wanted):
+    return {
+        "type" : "abort",
+        "wanted" : "best"
+    }
 def handle_solution(data):
     solution = data['tree']['nodes']
     words = ["\t".join(word) for word in solution]
