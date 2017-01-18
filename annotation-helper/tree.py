@@ -236,6 +236,9 @@ class Forest(object):
 
         return fixed_nodes
 
+    def get_treated_nodes(self):
+        return [x[0].split("-")[-1] for x,y in self.answeredtuples if y]
+
     def get_best_tree(self):
         #TODO: Implement this.
         '''
