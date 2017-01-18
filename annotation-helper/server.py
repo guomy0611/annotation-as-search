@@ -205,9 +205,9 @@ def main():
         help='Name of the config file.')
     args = parser.parse_args()
 
-    setup_logging(args.logfile, args.loglevel)
     config = read_configfile(args.configfile)
     update_config(config, args)
+    setup_logging(args.logfile, args.loglevel)
     logging.debug('Read configuration from %s', args.configfile)
 
     # Determine socket to bind to.
