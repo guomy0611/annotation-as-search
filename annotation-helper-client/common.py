@@ -99,19 +99,26 @@ class AnnotationHelperClientProtocol(asyncio.Protocol):
         message is stripped of its length indicator and only the 'payload'
         is returned.
         '''
-        separator_index = self.message_buffer.index(0)
+        try:
+            separator_index = self.message_buffer.index(0)
+        except ValueError as e:
+            # No null byte in message. Wait for more data in buffer.
+            # Meanwhile, we cannot return a message.
+            return None
+
         message_length_part = self.message_buffer[0:separator_index]
+
         try:
             message_length = int(message_length_part.decode())
         except ValueError as e:
             logging.warning('Invalid message length: %s', message_length_part)
             return None
-        
+
         if len(self.message_buffer) > message_length + separator_index:
             # Entire message is in buffer and ready to be read.
             inclusive_start = separator_index + 1
             exclusive_end = separator_index + 1 + message_length
-            binary_message = self.message_buffer[start:end]
+            binary_message = self.message_buffer[inclusive_start:exclusive_end]
             self.message_buffer = self.message_buffer[exclusive_end:]
             return binary_message
         else:
@@ -128,11 +135,11 @@ class AnnotationHelperClientProtocol(asyncio.Protocol):
     def data_received(self, data):
         self.message_buffer += data
         binary_message = self.get_message()
-        if binary_message:
+        if binary_message is not None:
             message = decode_message(binary_message)
             self.inform('Received message {}'.format(message))
             binary_response = encode_message(self.find_response(message))
-            if response:
+            if response is not None:
                 self.transport.write(pack_message(response))
             else:
                 self.end_conversation()

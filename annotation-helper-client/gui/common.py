@@ -4,17 +4,24 @@ import asyncio
 import json
 import types
 
-def pack_data_for_sending(string):
+def encode_message(message):
     '''
-    Prepare a string for being sent. This includes converting to json.
+    Prepare a message for being sent. This includes converting to json.
     '''
-    return json.dumps(string).encode()
+    return json.dumps(message).encode()
 
-def unpack_received_data(bytestring):
+def decode_message(bytestring):
     '''
     Read a sent bytestring in as a json object.
     '''
     return json.loads(bytestring.decode())
+
+def pack_message(bytestring):
+    '''
+    Prefix a bytestring by its length and a null byte. This prefix is
+    used after sending to extract the message at the receiving side.
+    '''
+    return str(len(bytestring)).encode() + b'\0' + bytestring
 
 def inform(self, message):
     '''
@@ -84,22 +91,58 @@ class AnnotationHelperClientProtocol(asyncio.Protocol):
         self.handle_default = types.MethodType(handle_default, self)
         self.find_response = types.MethodType(find_response, self)
         self.inform('Initiated protocol instance.')
+        self.message_buffer = b''
+
+    def get_message(self):
+        '''
+        Read a complete binary message from a message buffer. The
+        message is stripped of its length indicator and only the 'payload'
+        is returned.
+        '''
+        try:
+            separator_index = self.message_buffer.index(0)
+        except ValueError as e:
+            # No null byte in message. Wait for more data in buffer.
+            # Meanwhile, we cannot return a message.
+            return None
+
+        message_length_part = self.message_buffer[0:separator_index]
+
+        try:
+            message_length = int(message_length_part.decode())
+        except ValueError as e:
+            logging.warning('Invalid message length: %s', message_length_part)
+            return None
+
+        if len(self.message_buffer) > message_length + separator_index:
+            # Entire message is in buffer and ready to be read.
+            inclusive_start = separator_index + 1
+            exclusive_end = separator_index + 1 + message_length
+            binary_message = self.message_buffer[inclusive_start:exclusive_end]
+            self.message_buffer = self.message_buffer[exclusive_end:]
+            return binary_message
+        else:
+            # Message is not ready to be read. We cannot return a message.
+            return None
 
     def connection_made(self, transport):
         self.transport = transport
         self.peername = self.transport.get_extra_info('peername')
         self.inform('Connected to {}'.format(self.peername))
-        self.transport.write(pack_data_for_sending(self.request))
+        self.transport.write(pack_message(encode_message(self.request)))
         self.inform('Sent request {}'.format(self.request))
 
     def data_received(self, data):
-        received = unpack_received_data(data)
-        self.inform('Received data {}'.format(received))
-        response = self.find_response(received)
-        if response:
-            self.transport.write(pack_data_for_sending(response))
-        else:
-            self.end_conversation()
+        self.message_buffer += data
+        binary_message = self.get_message()
+        if binary_message is not None:
+            message = decode_message(binary_message)
+            self.inform('Received message {}'.format(message))
+            binary_response = encode_message(self.find_response(message))
+            if response is not None:
+                self.transport.write(pack_message(response))
+            else:
+                self.end_conversation()
 
     def connection_lost(self, exc):
         self.inform('The connection was closed.')

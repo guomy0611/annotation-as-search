@@ -7,8 +7,9 @@ import socket
 import asyncio
 
 from common import (
-    unpack_received_data,
-    pack_data_for_sending,
+    encode_message,
+    decode_message,
+    pack_message
     )
 
 from visualizer import visualize_solution
@@ -82,6 +83,56 @@ def create_connection():
     socket_to_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     socket_to_server.connect((HOST, 8080))
 
+def inspect_message_buffer(message_buffer):
+    '''
+    Check if a message buffer contains a complete prefix indicating
+    the length of the message. If so, return the index of the null byte
+    separating the length indication from the payload and return the
+    indicated length of the message.
+    '''
+    try:
+        separator_index = self.message_buffer.index(0)
+    except ValueError as e:
+        # No null byte in message. Wait for more data in buffer.
+        return None, None
+
+    message_length_part = self.message_buffer[0:separator_index]
+
+    try:
+        message_length = int(message_length_part.decode())
+    except ValueError as e:
+        # Message length cannot be converted to int.
+        raise ValueError('Message buffer does not start with a message length.')
+
+    return separator_index, message_length
+
+def receive_message(socket, buffersize=1024):
+    '''
+    Read data from the given socket until a full message is received.
+    Return the message as a bytestring.
+    If there is more than one message in the message buffer the global
+    message_buffer will hold the rest.
+    '''
+    global message_buffer
+    if not message_buffer:
+        message_buffer = b''
+
+    binary_message = b''
+    while not binary_message:
+        # Loop until a full message is in the message buffer.
+        separator_index, message_length = inspect_message_buffer(message_buffer)
+        if (separator_index is not None
+            and len(message_buffer) > message_length + separator_index):
+            # Entire message is in buffer and ready to be read.
+            inclusive_start = separator_index + 1
+            exclusive_end = separator_index + 1 + message_length
+            binary_message = message_buffer[inclusive_start:exclusive_end]
+            message_buffer = message_buffer[exclusive_end:]
+        else:
+            message_buffer += socket.recv(buffersize)
+
+    return binary_message
+
 @app.route('/load_file', methods=["GET", "POST"])
 def load_file():
     if request.method == "POST":
@@ -107,13 +158,14 @@ def load_file():
 @app.route('/annotate', methods = ["GET", "POST"])
 def annotate():
     global requests, question, socket_to_server
-    socket_to_server.send(pack_data_for_sending(requests))
+    socket_to_server.send(pack_message(encode_message(requests)))
     print("DADA")
-    data = unpack_received_data(socket_to_server.recv(1024))
-    find_response(data)
-    if 'question' in data.keys():
-        question = data['question']
-        return render_template("visualized_tree.html", question = data['question'])
+    received_message = decode_message(receive_message(socket_to_server))
+    find_response(received_message)
+    if 'question' in received_message:
+        question = received_message['question']
+        return render_template("visualized_tree.html",
+            question=received_message['question'])
     return redirect(url_for('annotation_finished'))
 
 def find_response(server_data):
@@ -166,6 +218,7 @@ def get_abort(wanted):
         "type" : "abort",
         "wanted" : "best"
     }
+
 def handle_solution(data):
     solution = data['tree']['nodes']
     words = ["\t".join(word) for word in solution]
@@ -175,7 +228,6 @@ def handle_solution(data):
 def handle_question(question):
     q = question['question']
     visualize(question)
-
 
 @app.route('/endResult/', methods=["GET", "POST"])
 def annotation_finished():
