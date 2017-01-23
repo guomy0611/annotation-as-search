@@ -56,6 +56,7 @@
 \newcommand{\js}[1]{\lstinline[style=JSONInputStyle];#1;}
 \newcommand{\optional}{\textbf{Optional.}}
 \newcommand{\Examples}{\noindent\textbf{Examples:}}
+\newcommand{\bytes}[1]{\texttt{#1}}
 
 \newcommand{\checkthis}[1]{#1}
 
@@ -98,6 +99,20 @@ Otherwise it sends a \messtype{question} message again.
 At any time, the client may send an \messtype{abort} message to end the communication prematurely, or it may send an \messtype{undo} message to revoke one or more of the answers given previously.
 
 If the server encounters an unexpected situation it may send an \messtype{error} message to the client.
+
+\section{Encoding messages for stream-based sockets}
+\label{sec:Encoding messages for stream-based sockets}
+
+AaSP serves as an application layer for sending AaSP messages over stream-based sockets like TCP or Unix sockets.
+However, there is no concept of bounded messages when data is sent over a socket.
+To solve this problem, AaSP messages are required to be prefixed with the length of the message and a NULL byte separating the length part from the message part.
+The receiving side of the message must read the prefix and separate the messages according to the specified length.
+
+\Examples
+
+\lstinputlisting[basicstyle=\footnotesize\ttfamily]{request_process.json}
+The length of the message above is 144 bytes after encoding it as UTF-8 (see \ref{sub:Message format}.
+This means the message is going to be prefixed by the four bytes \bytes{0x31 0x34 0x34 0x00} (the three characters 1, 4 and 4 and a NULL byte) before sending it.
 
 \section{AaSP Messages}
 \label{sec:AaSP Messages}
