@@ -91,12 +91,12 @@ def inspect_message_buffer(message_buffer):
     indicated length of the message.
     '''
     try:
-        separator_index = self.message_buffer.index(0)
+        separator_index = message_buffer.index(0)
     except ValueError as e:
         # No null byte in message. Wait for more data in buffer.
         return None, None
 
-    message_length_part = self.message_buffer[0:separator_index]
+    message_length_part = message_buffer[0:separator_index]
 
     try:
         message_length = int(message_length_part.decode())
@@ -114,7 +114,7 @@ def receive_message(socket, buffersize=1024):
     message_buffer will hold the rest.
     '''
     global message_buffer
-    if not message_buffer:
+    if 'message_buffer' not in globals():
         message_buffer = b''
 
     binary_message = b''
@@ -135,6 +135,7 @@ def receive_message(socket, buffersize=1024):
 
 @app.route('/load_file', methods=["GET", "POST"])
 def load_file():
+    print('URL: /load_file')
     if request.method == "POST":
         if request.files:
             data_file = request.files['file']
@@ -144,13 +145,16 @@ def load_file():
             if allowed_file(data_file.filename):
                 data = secure_filename(data_file.filename)
                 data_file.save(os.path.join(app.config['UPLOAD_FOLDER'], data))
+                print('Uploaded file.')
                 if data_file.filename.endswith("conll06"):
                     conll06_to_conll09(os.path.join(app.config['UPLOAD_FOLDER'], data))
                     data = data[:-7] + "_converted.conll"
                 global requests
                 requests = data, "file"
                 requests = request_creator(requests)
+                print('requests:', requests)
                 create_connection()
+                print('Connected')
                 return redirect(url_for('annotate'))
 #    return redirect(url_for('choose_input'))
     return render_template('load_file.html')
