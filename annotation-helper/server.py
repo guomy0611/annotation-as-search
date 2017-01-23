@@ -24,17 +24,24 @@ from json_interface import (
     SolutionType
     )
 
-def pack_data_for_sending(string):
+def encode_message(message):
     '''
-    Prepare a string for being sent. This includes converting to json.
+    Prepare a message for being sent. This includes converting to json.
     '''
-    return json.dumps(string).encode()
+    return json.dumps(message).encode()
 
-def unpack_received_data(bytestring):
+def decode_message(bytestring):
     '''
     Read a sent bytestring in as a json object.
     '''
     return json.loads(bytestring.decode())
+
+def pack_message(bytestring):
+    '''
+    Prefix a bytestring by its length and a null byte. This prefix is
+    used after sending to extract the message at the receiving side.
+    '''
+    return str(len(bytestring)).encode() + b'\0' + bytestring
 
 class AnnotationHelperProtocol(asyncio.Protocol):
     '''
@@ -48,6 +55,32 @@ class AnnotationHelperProtocol(asyncio.Protocol):
         '''
         self.config = config
         self.forest = forest
+        self.message_buffer = b''
+
+    def get_message(self):
+        '''
+        Read a complete binary message from a message buffer. The
+        message is stripped of its length indicator and only the 'payload'
+        is returned.
+        '''
+        separator_index = self.message_buffer.index(0)
+        message_length_part = self.message_buffer[0:separator_index]
+        try:
+            message_length = int(message_length_part.decode())
+        except ValueError as e:
+            logging.warning('Invalid message length: %s', message_length_part)
+            return None
+        
+        if len(self.message_buffer) > message_length + separator_index:
+            # Entire message is in buffer and ready to be read.
+            inclusive_start = separator_index + 1
+            exclusive_end = separator_index + 1 + message_length
+            binary_message = self.message_buffer[inclusive_start:exclusive_end]
+            self.message_buffer = self.message_buffer[exclusive_end:]
+            return binary_message
+        else:
+            # Message is not ready to be read. We cannot return a message.
+            return None
 
     def connection_made(self, transport):
         '''
@@ -63,16 +96,19 @@ class AnnotationHelperProtocol(asyncio.Protocol):
         Use received data to update the forest object and send a response to
         the client to prompt them for further action.
         '''
-        received = unpack_received_data(data)
+        self.message_buffer += data
         logging.debug('Received %s from %s.', data, self.peername)
+        binary_message = self.get_message()
+        if binary_message:
+            message = decode_message(binary_message)
+            logging.info('Read message %s from %s.', message, self.peername)
+            binary_response = encode_message(self.interpret_message(message))
+            self.transport.write(pack_message(binary_response))
+            logging.debug('Sent %s to %s.', binary_response, self.peername)
 
-        to_be_sent = pack_data_for_sending(self.interpret_data(received))
-        self.transport.write(to_be_sent)
-        logging.debug('Sent %s to %s.', to_be_sent, self.peername)
-
-    def interpret_data(self, data):
+    def interpret_message(self, data):
         '''
-        Helper function used to decide what to with received data and to
+        Helper function used to decide what to with decoded message and to
         interface with the forest.
         '''
         response = {}

@@ -8,8 +8,6 @@ import socket
 import sys
 
 from common import (
-    unpack_received_data,
-    pack_data_for_sending,
     AnnotationHelperClientProtocol,
     format_tree
     )
