@@ -238,13 +238,17 @@ def annotation_finished():
     try:
         if request.method == "POST":
             answer = request.form["answer"]
-            if answer == "Yes":
+            if answer == "Download":
                 # TODO get conll part, convert to conll09 and save in static
+                sentence = request.form["sentence"]
+                sentence_file = open("static/annotated_sentence.conll09", "w")
+                sentence_file.write(sentence)
+                sentence_file.close()
                 return redirect(url_for('saveFile'))
-            else:
-                return render_template("visualized_tree.html",
-                                    message="Please correct the tree")
-
+            elif answer == "Visualise":
+                tree = request.form["sentence"]
+                visualize_solution(tree, 1)
+                return render_template("visualized_tree.html")
         else:
             return render_template("visualized_tree.html")
     # Debugging, remove later

@@ -58,7 +58,7 @@ def read_conll(inp,maxsent=1):
             yield sent, comments
 
 
-header='<div class="conllu-parse">\n'
+header='<div class="conllu-parse" id="sentence_div">\n'
 footer='</div>\n'
 
 def sort_feat(f):
@@ -145,7 +145,7 @@ def visualize(args, complete=0):
                 final_part = options.read()
     data = data.replace("OPTIONSGOHERE", final_part)
     return data
- 
+
 
 
 if __name__==u"__main__":

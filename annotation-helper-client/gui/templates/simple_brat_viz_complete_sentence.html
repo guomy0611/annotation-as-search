@@ -88,7 +88,7 @@
         // embedding support modules
         //'http://spyysalo.github.io/annodoc/lib/local/annodoc.js',
         // local modul
-        '../static/js/annodoc.js',       //root + 'annodoc.js'
+        '../static/js/annodoc_between.js',       //root + 'annodoc.js'
 	root + 'conllu.js'
 	//root + 'lib/local/config.js'
     );
@@ -155,6 +155,11 @@
 	// performes all embedding and support functions
 	Annodoc.activate(bratCollData, documentCollections);
     });
+</script>
+<script>
+$(document).ready(function() {
+        $("#conll_sentence").val(document.getElementById("embedded-1-in").textContent);
+        });
 </script>
 
       <div id="footer">

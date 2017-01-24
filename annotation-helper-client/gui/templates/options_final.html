@@ -1,11 +1,12 @@
 <div class="jumbotron">
-  <div class="container">
-  <h3>{{ question }}</h3>
-    <h4>Is this correct?</p>
-  </div>
+    <h3>Please correct any error in the tree.</h3>
+    <p>Click 'Visualise' to view a graphical representation of your corrected tree</p>
+    <p>Click 'Download' to save your tree in a conll-file.</p>
   <br>
     <form method="post">
-    <input type="submit" class="btn btn-success btn-lg" name="answer" value="Yes">
-    <input type="submit" class="btn btn-danger btn-lg" name="answer" value="No">
+    <p><textarea rows="10" id="conll_sentence" name="sentence" cols="62"></textarea></p>
+    <br>
+    <input type="submit" class="btn btn-success btn-lg" name="answer" value="Visualise">
+    <input type="submit" class="btn btn-info btn-lg" name="answer" value="Download">
     </form>
 </div>
