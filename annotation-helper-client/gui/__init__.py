@@ -135,7 +135,6 @@ def receive_message(socket, buffersize=1024):
 
 @app.route('/load_file', methods=["GET", "POST"])
 def load_file():
-    print('URL: /load_file')
     if request.method == "POST":
         if request.files:
             data_file = request.files['file']
@@ -145,16 +144,13 @@ def load_file():
             if allowed_file(data_file.filename):
                 data = secure_filename(data_file.filename)
                 data_file.save(os.path.join(app.config['UPLOAD_FOLDER'], data))
-                print('Uploaded file.')
                 if data_file.filename.endswith("conll06"):
                     conll06_to_conll09(os.path.join(app.config['UPLOAD_FOLDER'], data))
                     data = data[:-7] + "_converted.conll"
                 global requests
                 requests = data, "file"
                 requests = request_creator(requests)
-                print('requests:', requests)
                 create_connection()
-                print('Connected')
                 return redirect(url_for('annotate'))
 #    return redirect(url_for('choose_input'))
     return render_template('load_file.html')
