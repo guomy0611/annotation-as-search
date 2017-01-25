@@ -4,7 +4,6 @@ import sys
 import os
 import argparse
 import socket
-import asyncio
 
 from common import (
     encode_message,
@@ -13,7 +12,6 @@ from common import (
     )
 
 from visualizer import visualize_solution
-from multiprocessing import Process
 from conll_convert import conll06_to_conll09
 from get_sentence_from_conll import generate_sentence
 
@@ -149,7 +147,7 @@ def load_file():
                 data_file.save(os.path.join(app.config['UPLOAD_FOLDER'], data))
                 if data_file.filename.endswith("conll06"):
                     conll06_to_conll09(os.path.join(app.config['UPLOAD_FOLDER'], data))
-                    data = data[:-7] + "_converted.conll"
+                    data = data[:-8] + "_converted.conll09"
                 global requests
                 requests = data, "file"
                 sentence = generate_sentence(
@@ -173,6 +171,10 @@ def annotate():
         return render_template("visualized_tree.html",
             question=received_message['question'], sentence=sentence)
     return redirect(url_for('annotation_finished'))
+
+@app.route('/contact/')
+def contact():
+    return render_template('contact.html')
 
 def find_response(server_data):
     if server_data['type'] == 'question':
@@ -281,4 +283,3 @@ if __name__ == '__main__':
         PORT = 5000
 
     app.run(HOST, PORT)
-
