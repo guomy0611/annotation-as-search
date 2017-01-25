@@ -15,6 +15,7 @@ from common import (
 from visualizer import visualize_solution
 from multiprocessing import Process
 from conll_convert import conll06_to_conll09
+from get_sentence_from_conll import generate_sentence
 
 app = Flask(__name__)
 ALLOWED_EXTENSIONS = set(['conll', 'conll09', 'conll06'])
@@ -68,11 +69,12 @@ def choose_input():
 
 @app.route('/input_sentence', methods=["GET", "POST"])
 def input_sentence():
-    global requests
+    global requests, sentence
     # ugly, need to find a way to get rid of it
     if request.method == "POST":
         if request.form["sentence"]:
             requests = request_creator(request.form["sentence"])
+            sentence = request.form["sentence"]
             create_connection()
             return redirect(url_for('annotate'))
 #    return redirect(url_for('choose_input'))
@@ -135,6 +137,7 @@ def receive_message(socket, buffersize=1024):
 
 @app.route('/load_file', methods=["GET", "POST"])
 def load_file():
+    global sentence
     if request.method == "POST":
         if request.files:
             data_file = request.files['file']
@@ -149,6 +152,9 @@ def load_file():
                     data = data[:-7] + "_converted.conll"
                 global requests
                 requests = data, "file"
+                sentence = generate_sentence(
+                            open(UPLOAD_FOLDER +'/' + data).read()
+                            )
                 requests = request_creator(requests)
                 create_connection()
                 return redirect(url_for('annotate'))
@@ -157,15 +163,15 @@ def load_file():
 
 @app.route('/annotate', methods = ["GET", "POST"])
 def annotate():
-    global requests, question, socket_to_server
+    global requests, question, socket_to_server, sentence
     socket_to_server.send(pack_message(encode_message(requests)))
-    print("DADA")
+    print(sentence)
     received_message = decode_message(receive_message(socket_to_server))
     find_response(received_message)
     if 'question' in received_message:
         question = received_message['question']
         return render_template("visualized_tree.html",
-            question=received_message['question'])
+            question=received_message['question'], sentence=sentence)
     return redirect(url_for('annotation_finished'))
 
 def find_response(server_data):

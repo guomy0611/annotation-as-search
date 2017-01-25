@@ -266,6 +266,38 @@ class Forest(object):
 
         return fixed_nodes
 
+    def get_fixed_fields(self):
+        '''
+        Find the fields that exist in every tree and return them as a list.
+        This method assumes that all trees in the forest have the same number
+        of nodes.
+        '''
+        fixed_fields = []
+        if len(self.trees) == 0:
+            return fixed_fields
+
+        for node_index in range(len(self.trees[0].nodes)):
+            liste=[]
+            for field_index in range(len(self.trees[0].nodes[node_index])):
+                for tree in self.trees:
+                    if tree.nodes[node_index][field_index] != self.trees[0].nodes[node_index][field_index]:
+                        break
+                else:
+                    liste.append(field_index)
+            fixed_fields.append(liste)
+        return fixed_fields
+
+
+    def get_treated_fields(self):
+        indices=[int(x) for x in self.get_treated_nodes()]
+        liste=[]
+        for node in self.trees[0].nodes:
+            if int(node[0]) in indices:
+                liste.append([self.trees[0].rel, self.trees[0].rel_type])
+            else:
+                liste.append([])
+        return liste
+
     def get_treated_nodes(self):
         return [x[0].split("-")[-1] for x,y in self.answeredtuples if y]
 
