@@ -190,7 +190,7 @@ def get_answer():
         elif answer == "Undo":
             requests = get_undo()
         elif answer == "Abort":
-            requests = get_abort(question)
+            requests = get_abort()
     return redirect(url_for('annotate'))
 
 def get_yes(question):
@@ -213,10 +213,9 @@ def get_undo():
         "answers" : 1
     }
 
-def get_abort(wanted):
+def get_abort():
     return {
-        "type" : "abort",
-        "wanted" : "best"
+        "type" : "abort"
     }
 
 def handle_solution(data):
@@ -258,9 +257,9 @@ def page_not_found(e):
 def visualize(data):
     if data['type'] == 'question':
         q = data['question']
-        parts = ["\t".join(word) for word in data['fixed_nodes']['nodes']]
+        parts = ["\t".join(word) for word in data['best_tree']['nodes']]
         tree = "\n".join(parts)
-        visualize_solution(tree)
+        visualize_solution(tree, 1)
     else:
         q = "Final tree"
         parts = ["\t".join(word) for word in data['tree']['nodes']]

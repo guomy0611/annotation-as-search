@@ -12,10 +12,6 @@ from common import (
     format_tree
     )
 
-class Wanted(Enum):
-    best = 1
-    fixed = 2
-
 class UserAction(Enum):
     yes = 1
     no = 2
@@ -59,10 +55,9 @@ def perform_save(filename, tree):
 def perform_exit(exit_code=0):
     sys.exit(exit_code)
 
-def perform_abort(wanted):
+def perform_abort():
     return {
-        'type': 'abort',
-        'wanted': wanted.name
+        'type': 'abort'
         }
 
 def perform_process_request(sentence):
@@ -88,7 +83,7 @@ def perform_user_action(user_action, argument=None, **message_properties):
     elif user_action is UserAction.undo:
         return perform_undo(argument or '1')
     elif user_action is UserAction.abort:
-        return perform_abort(Wanted[argument])
+        return perform_abort()
     elif user_action is UserAction.save:
         return perform_save(argument, message_properties['tree'])
     elif user_action is UserAction.process_request:
@@ -110,9 +105,6 @@ def format_user_action_hint(user_action):
     elif user_action is UserAction.save:
         description = 'save to file'
         argument = ' file'
-    elif user_action is UserAction.abort:
-        description = 'abort annotation'
-        argument = ' {best,fixed}'
     elif user_action is UserAction.process_request:
         description = 'send process request'
         argument = ' sentence'
@@ -149,9 +141,6 @@ def prompt_for_user_action(*user_actions):
             if ua.name.startswith(action_string):
                 action = ua
                 if action in ARGUMENT_OBLIGATORY_ACTIONS and argument is None:
-                    action = None
-                elif (action is UserAction.abort
-                        and argument not in ('best', 'fixed')):
                     action = None
                 else:
                     return action, argument
@@ -199,7 +188,7 @@ def handle_question(self, question):
         action,
         argument,
         question=question['question'],
-        tree=question['fixed_nodes']
+        tree=question['best_tree']
         )
 
     if response:

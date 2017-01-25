@@ -51,25 +51,38 @@ def create_error(error_message, recommendation=Recommendation.abort):
         }
     return error
 
+def find_tree(forest):
+    '''
+    Find the best tree in the given forest and format it as a tree
+    object.
+
+    Args:
+        forest: A Forest object that may or may not be solved.
+    '''
+    return {
+        'tree_format': forest.trees[0].format,
+        'nodes': forest.trees[0].nodes
+        'overlays': {
+            'treated': forest.get_treated_fields(),
+            'fixed': forest.get_fixed_fields()
+        }
+
 def create_question(forest):
     '''
     Format a message of type question.
     
     Args:
-        forest: A Forest object that is not solved..
+        forest: A Forest object that is not solved.
     '''
     question = {
         'type': 'question',
-        'remaining_sentences': len(forest.trees),
+        'remaining_trees': len(forest.trees),
         'question': forest.question(),
-        'fixed_nodes': {
-            'tree_format': forest.trees[0].format,
-            'nodes': forest.get_fixed_nodes()
-            }
+        'best_tree': find_tree(forest)
         }
     return question
 
-def create_solution(forest, solution_type=SolutionType.real):
+def create_solution(forest):
     '''
     Format a message of type solution.
 
@@ -79,36 +92,11 @@ def create_solution(forest, solution_type=SolutionType.real):
             message it is going to be. If the solution_type is
             SolutionType.real, the forest should be solved.
     '''
-    if solution_type == SolutionType.real:
-        nodes = forest.trees[0].nodes
-        tree_format = forest.trees[0].format
-
-    elif solution_type == SolutionType.fixed:
-        nodes = forest.get_fixed_nodes()
-        tree_format = forest.trees[0].format
-
-    elif solution_type == SolutionType.best:
-        best_tree = forest.get_best_tree()
-        nodes = best_tree.nodes
-        tree_format = best_tree.format
-
-    else:
-        # This should never happen.
-        logging.warning('Unknown SolutionType %s', solution_type)
-        return create_error(
-            'Internal Error: Unknown SolutionType {}'.format(solution_type),
-            Recommendation.abort
-            )
-
-    solution = {
+    return {
         'type': 'solution',
-        'solution_type': solution_type.name,
-        'tree': {
-            'tree_format': tree_format,
-            'nodes': nodes
-            }
+        'remaining_trees': len(forest.trees),
+        'tree': find_tree(forest)
         }
-    return solution
 
 def create_question_or_solution(forest):
     '''
