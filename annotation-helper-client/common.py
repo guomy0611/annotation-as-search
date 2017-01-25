@@ -139,8 +139,8 @@ class AnnotationHelperClientProtocol(asyncio.Protocol):
             message = decode_message(binary_message)
             self.inform('Received message {}'.format(message))
             binary_response = encode_message(self.find_response(message))
-            if response is not None:
-                self.transport.write(pack_message(response))
+            if binary_response is not None:
+                self.transport.write(pack_message(binary_response))
             else:
                 self.end_conversation()
 

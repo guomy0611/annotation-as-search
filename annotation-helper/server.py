@@ -113,11 +113,16 @@ class AnnotationHelperProtocol(asyncio.Protocol):
         '''
         response = {}
         if 'type' not in data:
-            reponse = create_error('No message type')
+            response = create_error('No message type')
             logging.info('No-message-type error with %s.', self.peername)
 
         elif data['type'] == 'request':
-            self.forest = create_forest(data, self.config)
+            try:
+                self.forest = create_forest(data, self.config)
+            except ValueError:
+                response = create_error('Cannot create forest.')
+                logging.info('Cannot-create-forest error with %s.', self.peername)
+
             response = create_question_or_solution(self.forest)
 
         elif data['type'] == 'answer':
@@ -126,7 +131,11 @@ class AnnotationHelperProtocol(asyncio.Protocol):
                 response = create_error(error_messsage)
                 logging.info('No-forest error with %s.', self.peername)
             else:
-                self.forest.filter(tuple(data['question']), data['answer'])
+                question = data['question']
+                self.forest.filter((question['dependent'],
+                                    question['head'],
+                                    question['relation']),
+                                   data['answer'])
                 response = create_question_or_solution(self.forest)
 
         elif data['type'] == 'undo':
@@ -135,12 +144,12 @@ class AnnotationHelperProtocol(asyncio.Protocol):
 
         elif data['type'] == 'abort':
             response = create_solution(
-                    self.forest,
-                    SolutionType[data['wanted']]
-                    )
+                self.forest,
+                SolutionType[data['wanted']]
+                )
 
         else:
-            reponse = create_error(
+            response = create_error(
                 'Unknown message type: {}'.format(data['type'])
                 )
             logging.info('Unknown-message-type error with %s.', self.peername)
@@ -176,6 +185,12 @@ def read_configfile(configfile):
         return json.load(open(configfile))
     except FileNotFoundError as e:
         return dict()
+
+def make_format_aliases_explicit(config):
+    if 'format_aliases' in config:
+        for alias, actual_format in config['format_aliases'].items():
+            config['formats'][alias] = config['formats'][actual_format]
+            config['formats'][alias]['name'] = alias
 
 def update_config(config, new_pairs):
     '''
@@ -247,6 +262,7 @@ def main():
         'port': 8080,
         'logfile': '',
         'loglevel': 'INFO',
+        'formats': {},
         'configfile': os.path.join(os.environ['HOME'], '.aas-server.json')
         }
 
@@ -255,6 +271,7 @@ def main():
         )
     update_config(config, config_from_file)
     update_config(config, args)
+    make_format_aliases_explicit(config)
     setup_logging(config['logfile'], config['loglevel'])
 
     # Determine socket to bind to.

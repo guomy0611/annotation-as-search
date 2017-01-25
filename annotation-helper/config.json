@@ -1,6 +1,39 @@
 {
   "host": "",
   "port": "8080",
+  "formats": {
+    "conll09_gold": {
+      "name": "conll09_gold",
+      "id": 0,
+      "form": 1,
+      "label": 4,
+      "label_type": "pos",
+      "head": 8,
+      "relation": 10,
+      "relation_type": "deprel"
+    }, "conll09_predicted": {
+      "name": "conll09_predicted",
+      "id": 0,
+      "form": 1,
+      "label": 5,
+      "label_type": "pos",
+      "head": 9,
+      "relation": 11,
+      "relation_type": "deprel"
+    }, "conllu": {
+      "name": "conllu",
+      "id": 0,
+      "form": 1,
+      "label": 3,
+      "label_type": "upos",
+      "head": 6,
+      "relation": 7,
+      "relation_type": "deprel"
+    }
+  },
+  "format_aliases": {
+    "conll09": "conll09_gold"
+  },
   "default_format": "conll09",
   "processors": [{
     "name": "UCTO",
@@ -8,19 +41,19 @@
     "command": ["/usr/bin/ucto", "{infile}", "{outfile}"],
     "source_format": "raw",
     "target_format": "newline_separated"
-  },{
+  }, {
     "name": "LEMMING",
     "type": "lemmatizer",
     "command": ["/usr/bin/lemming", "{infile}", "-o", "{outfile}"],
     "source_format": "conll09",
     "target_format": "conll09"
-  },{
+  }, {
     "name": "RBG",
     "type": "parser",
     "command": ["/usr/bin/rbg", "{infile}", "{outfile}"],
     "source_format": "conll09",
     "target_format": "conll09"
-  },{
+  }, {
     "name": "Θεός",
     "type": "parser",
     "command": ["/home/me/bin/parse", "{infile}", "{outfile}"],

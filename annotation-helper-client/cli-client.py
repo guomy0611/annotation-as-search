@@ -27,10 +27,10 @@ class UserAction(Enum):
     forest_request = 8
 
 ARGUMENT_OBLIGATORY_ACTIONS = (
-        UserAction.save,
-        UserAction.process_request,
-        UserAction.forest_request
-        )
+    UserAction.save,
+    UserAction.process_request,
+    UserAction.forest_request
+    )
 
 def perform_yes(question):
     return {
@@ -188,13 +188,13 @@ def handle_question(self, question):
     display_question(question['question'])
 
     action, argument = prompt_for_user_action(
-            UserAction.yes,
-            UserAction.no,
-            UserAction.undo,
-            UserAction.abort,
-            UserAction.save,
-            UserAction.exit
-            )
+        UserAction.yes,
+        UserAction.no,
+        UserAction.undo,
+        UserAction.abort,
+        UserAction.save,
+        UserAction.exit
+        )
     response = perform_user_action(
         action,
         argument,
@@ -212,9 +212,10 @@ def create_request(forest_file=None):
         request = perform_forest_request(forest_file)
     else:
         action, argument = prompt_for_user_action(
-                UserAction.forest_request,
-                UserAction.process_request
-                )
+            UserAction.forest_request,
+            UserAction.process_request,
+            UserAction.exit
+            )
         request = perform_user_action(action, argument)
     return request
 
@@ -246,6 +247,7 @@ def main():
         lambda : AnnotationHelperClientProtocol(
             loop,
             request_creator,
+            inform=lambda self, message: 0, # Don't inform me.
             handle_question=handle_question,
             handle_solution=handle_solution
             ),

@@ -94,7 +94,7 @@ def create_solution(forest, solution_type=SolutionType.real):
 
     else:
         # This should never happen.
-        logging.error('Unknown SolutionType %s', solution_type)
+        logging.warning('Unknown SolutionType %s', solution_type)
         return create_error(
             'Internal Error: Unknown SolutionType {}'.format(solution_type),
             Recommendation.abort
@@ -131,10 +131,31 @@ def create_forest(request, config):
         config: The configuration dict needed for preprocessing instructions.
     '''
     if 'use_forest' in request:
-        return Forest.from_string(request['use_forest'])
+        format_ = request['forest_format']
+        try:
+            info = config['formats'][format_]
+        except KeyError as e:
+            msg = 'Format not supported: %s'
+            logging.warning(msg, format_)
+            raise ValueError(msg % format_) from e
+        return Forest.from_string(request['use_forest'], format_info=info)
+
     elif 'process' in request:
-        forest_string = process(request, config)
-        return Forest.from_string(forest_string)
+        try:
+            forest_string = process(request, config)
+        except ValueError as e:
+            msg = 'Cannot convert from source_format %s to target_format %s.'
+            logging.warning(msg,
+                request['source_format'], request['target_format'])
+            raise ValueError(msg, request['source_format'],
+                request['target_format']) from e
+        try:
+            info = config['formats'][request['target_format']]
+        except KeyError as e:
+            msg = 'target_format %s not supported.'
+            logging.warning(msg, request['target_format'])
+            raise ValueError(msg, request['target_format']) from e
+        return Forest.from_string(forest_string, format_info=info)
 
 def choose_processor(processors, source_format, target_format):
     '''
@@ -155,7 +176,7 @@ def choose_processor(processors, source_format, target_format):
     else:
         msg1 = 'Cannot find processor for '
         msg2 = 'source_format %s and target_format %s.'
-        logging.error(''.join([msg1, msg2]), source_format, target_format)
+        logging.warning(''.join([msg1, msg2]), source_format, target_format)
 
 def call_processor(processor, infile):
     '''
@@ -189,14 +210,14 @@ def process(request, config):
     '''
     try:
         target_format = (
-            request['wanted_format']
-            if 'wanted_format' in request
+            request['target_format']
+            if 'target_format' in request
             else config['default_format']
             )
     except KeyError as e:
         msg = 'Cannot determine target format for parsing.'
         msg += ' Specify a default_format in the configuration file.'
-        logging.error(msg)
+        raise ValueError(msg)
     
     processor = choose_processor(
         config['processors'],
@@ -208,5 +229,5 @@ def process(request, config):
     open(infile, 'w').write(request['process'])
     outfile = call_processor(processor, infile)
 
-    forest = Forest.from_string(open(outfile).read())
-    return forest
+    forest_string = open(outfile).read()
+    return forest_string

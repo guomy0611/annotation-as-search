@@ -5,7 +5,7 @@
 HOST='127.0.0.1'
 PORT=${1:-8080}
 
-PYTHON=python3.4
+PYTHON=python3
 
 SCRIPT_DIR=$(dirname "${BASH_SOURCE[0]}")
 SERVER_DIR="$SCRIPT_DIR/../annotation-helper/"

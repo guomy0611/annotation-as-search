@@ -15,24 +15,42 @@ class Tree(object):
     to work with it.
     '''
 
-    def __init__(self, head=8, dep=10):
+    def __init__(self, format_info=None, id_=0, form=1, head=None, rel=None,
+            rel_type=None):
         '''
         Initialize the Tree with an empty list later containing the CONLL-Tuples
         and an empty dictionary later containing the position -> word mapping.
         '''
         self.nodes = []
+
+        if format_info is not None:
+            try:
+                self.format = format_info['name']
+                self.id = format_info['id']
+                self.form = format_info['form']
+                self.head = format_info['head']
+                self.rel = format_info['relation']
+                self.rel_type = format_info['relation_type']
+            except KeyError as e:
+                msg = 'format_info does not specify all necessary information.'
+                raise ValueError(msg) from e
+        else:
+            self.format = 'unspecified'
+            self.id = id_
+            self.form = form
+            self.head = head
+            self.rel = rel
+            self.rel_type = rel_type
+
         self.dictio = dict()
         self.tuples = None
-        self.head = head
-        self.dep = dep
-        self.format = 'conll09'
 
     @classmethod
-    def from_string(cls, tree_string):
+    def from_string(cls, tree_string, **kwargs):
         '''
         Initialize a tree object from an already formatted conll string.
         '''
-        tree = cls()
+        tree = cls(**kwargs)
         lines = [
             line.strip()
             for line in tree_string.split('\n')
@@ -54,7 +72,7 @@ class Tree(object):
         self.nodes.append(tuple(conll_parts))
 
         # fills mapping position -> word
-        self.dictio[conll_parts[0]] = conll_parts[1]
+        self.dictio[conll_parts[self.id]] = conll_parts[self.form]
 
     def contains(self, tup):
         '''
@@ -82,7 +100,7 @@ class Tree(object):
                  self.dictio[x[self.head]]+"-"+x[self.head] if x[self.head] != "0" else "Root-0",
                  #Look up the index of the target word in the dictionary
                  #take the word and add the index to it.
-                 x[self.dep]) for x in self.nodes}
+                 x[self.rel]) for x in self.nodes}
                  #Last element of the tuple is the relation type.
         return self.tuples
 
@@ -136,14 +154,14 @@ class Forest(object):
         self.answeredtuples=[]
 
     @classmethod
-    def from_string(cls, forest_string):
+    def from_string(cls, forest_string, **tree_kwargs):
         '''
         Initialize a forest object from a long string formatted like a conll
         file.
         '''
         forest = cls()
         for tree_string in forest_string.split('\n\n'):
-            forest.add(Tree.from_string(tree_string))
+            forest.add(Tree.from_string(tree_string, **tree_kwargs))
         return forest
 
     def solved(self):
@@ -166,7 +184,7 @@ class Forest(object):
         return Counter([x for tree in self.trees for x \
                            in tree.get()]).most_common()
 
-    def question(self):
+    def get_best_tuple(self):
         '''
         Chooses the tuple minimizing the equation:
                       lambda x: abs(x[1]-length/2
@@ -175,6 +193,18 @@ class Forest(object):
         '''
         length = len(self.trees)
         return min(self.get_dict(), key=lambda x: abs(x[1]-length/2))[0]
+
+    def question(self):
+        '''
+        Find the best question to ask and return it.
+        '''
+        dependent, head, relation = self.get_best_tuple()
+        return {
+            'head': head,
+            'dependent': dependent,
+            'relation': relation,
+            'relation_type': self.trees[0].rel_type
+            }
 
     def filter(self, asked_tuple, boolean):
         '''
@@ -240,15 +270,14 @@ class Forest(object):
         return [x[0].split("-")[-1] for x,y in self.answeredtuples if y]
 
     def get_best_tree(self):
-        #TODO: Implement this.
         '''
-        Find the best guess for the correct tree.
+        Find the best guess for the correct tree. As it stands, we
+        assume that the first tree in the list is the best guess.
         '''
         if len(self.trees) > 0:
             return self.trees[0]
         else:
             raise ValueError('This forest contains no trees.')
-
 
 if __name__ == "__main__":
     tree = Tree()
