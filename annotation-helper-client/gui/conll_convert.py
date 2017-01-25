@@ -18,8 +18,9 @@ def conll06_to_conll09(filename):
     """
     # check if file exists
     file = Path("./" + filename)
+    print(file)
     if file.is_file():
-        output = open(filename[:-7] + "_converted.conll", "w")
+        output = open(filename[:-8] + "_converted.conll09", "w")
         with file.open() as f:
             for line in f:
                 line = line.strip()
