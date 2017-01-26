@@ -124,7 +124,7 @@ class AnnotationHelperProtocol(asyncio.Protocol):
                 logging.info('Cannot-create-forest error with %s.', self.peername)
             except Exception as e:
                 response = create_error('Cannot create forest.')
-                msg = 'Unexpected exception:\n{}'.format(e)
+                msg = 'Unexpected exception:\n{} with %s'.format(e)
                 logging.error(msg, self.peername)
 
             response = create_question_or_solution(self.forest)

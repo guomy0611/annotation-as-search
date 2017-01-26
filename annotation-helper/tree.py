@@ -160,7 +160,7 @@ class Forest(object):
         file.
         '''
         forest = cls()
-        for tree_string in forest_string.split('\n\n'):
+        for tree_string in forest_string.strip().split('\n\n'):
             forest.add(Tree.from_string(tree_string, **tree_kwargs))
         return forest
 
