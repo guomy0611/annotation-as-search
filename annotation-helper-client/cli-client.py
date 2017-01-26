@@ -175,6 +175,7 @@ def display_question(question_tuple):
 
 def handle_question(self, question):
     display_question(question['question'])
+    print(question)
 
     action, argument = prompt_for_user_action(
         UserAction.yes,

@@ -61,10 +61,11 @@ def find_tree(forest):
     '''
     return {
         'tree_format': forest.trees[0].format,
-        'nodes': forest.trees[0].nodes
+        'nodes': forest.trees[0].nodes,
         'overlays': {
             'treated': forest.get_treated_fields(),
             'fixed': forest.get_fixed_fields()
+            }
         }
 
 def create_question(forest):
