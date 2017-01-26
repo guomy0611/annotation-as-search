@@ -110,21 +110,6 @@ def annotate():
 def contact():
     return render_template('contact.html')
 
-@app.route('/get_answer', methods = ['GET', 'POST'])
-def get_answer():
-    global requests, question
-    if request.method == 'POST':
-        answer = request.form['choice']
-        if answer == 'Yes':
-            requests = get_yes(question)
-        elif answer == 'No':
-            requests = get_no(question)
-        elif answer == 'Undo':
-            requests = get_undo()
-        elif answer == 'Abort':
-            requests = get_abort(question)
-    return redirect(url_for('annotate'))
-
 @app.route('/endResult/', methods=['GET', 'POST'])
 def annotation_finished():
     try:
@@ -238,18 +223,18 @@ def find_response(server_data):
     else:
         handle_default(server_data)
 
-@app.route('/get_answer', methods = ["GET", "POST"])
+@app.route('/get_answer', methods = ['GET', 'POST'])
 def get_answer():
     global requests, question
-    if request.method == "POST":
-        answer = request.form["choice"]
-        if answer == "Yes":
+    if request.method == 'POST':
+        answer = request.form['choice']
+        if answer == 'Yes':
             requests = get_yes(question)
-        elif answer == "No":
+        elif answer == 'No':
             requests = get_no(question)
-        elif answer == "Undo":
+        elif answer == 'Undo':
             requests = get_undo()
-        elif answer == "Abort":
+        elif answer == 'Abort':
             requests = get_abort()
     return redirect(url_for('annotate'))
 
