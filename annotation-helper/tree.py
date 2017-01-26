@@ -206,12 +206,13 @@ class Forest(object):
             'relation_type': self.trees[0].rel_type
             }
 
-    def filter(self, asked_tuple, boolean):
+    def filter(self, asked_dict, boolean):
         '''
         Wrapper around the _filter method that adds asked_tuples to a
         list of answered tuples. This list can then be used by the undo
         method.
         '''
+        asked_tuple=(asked_dict['dependent'], asked_dict['head'], asked_dict['relation'])
         if self.originaltrees is None:
             self.originaltrees = self.trees[:]
         self.answeredtuples.append((asked_tuple, boolean))
@@ -293,7 +294,11 @@ class Forest(object):
         liste=[]
         for node in self.trees[0].nodes:
             if int(node[0]) in indices:
-                liste.append([self.trees[0].rel, self.trees[0].rel_type])
+<<<<<<< HEAD
+                liste.append([self.trees[0].rel, self.trees[0].head])
+=======
+                liste.append([self.trees[0].head, self.trees[0].rel])
+>>>>>>> 0408a376b8f81b0ecdac793df63f2573d0c1439c
             else:
                 liste.append([])
         return liste
@@ -321,6 +326,7 @@ if __name__ == "__main__":
             continue
         tree.add(line)
     while len(forest.trees) != 1:
+        print(forest.get_fixed_fields())
         question = forest.question()
         print(" ".join(x[1] for x in forest.trees[0].nodes))
         answer = input(question)

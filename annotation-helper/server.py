@@ -122,6 +122,10 @@ class AnnotationHelperProtocol(asyncio.Protocol):
             except ValueError:
                 response = create_error('Cannot create forest.')
                 logging.info('Cannot-create-forest error with %s.', self.peername)
+            except Exception as e:
+                response = create_error('Cannot create forest.')
+                msg = 'Unexpected exception:\n{}'.format(e)
+                logging.error(msg, self.peername)
 
             response = create_question_or_solution(self.forest)
 
@@ -143,10 +147,7 @@ class AnnotationHelperProtocol(asyncio.Protocol):
             response = create_question_or_solution(self.forest)
 
         elif data['type'] == 'abort':
-            response = create_solution(
-                self.forest,
-                SolutionType[data['wanted']]
-                )
+            response = create_solution(self.forest)
 
         else:
             response = create_error(
