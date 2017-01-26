@@ -1,0 +1,21 @@
+{% extends "header.html"  %}
+{% block body %}
+<div class="jumbotron">   
+<p><src={{sentence_visual|safe}}></p>
+<br>
+        <div class="container">   
+            <h2>{{ sentence }}</h2>
+            <h3>{{ question }}</h3>
+            <h4>Is this correct?</p>
+        </div>
+        <br>
+        <form method="post" action="/get_answer">
+            <input type="submit" class="btn btn-success btn-lg" name="choice" value="Yes">
+            <input type="submit" class="btn btn-warning btn-lg" name="choice" value="No">
+            <input type="submit" class="btn btn-info btn-lg" name="choice" value="Undo">
+            <input type="submit" class="btn btn-danger btn-lg" name="choice" value="Abort">
+        </form> 
+    </div>
+
+
+{% endblock %}

@@ -4,7 +4,7 @@ from flask import (
     url_for,
     request,
     flash,
-    redirect
+    redirect,
     )
 from werkzeug.utils import secure_filename
 import sys
@@ -20,6 +20,7 @@ from common import (
 from visualizer import visualize_solution
 from conll_convert import conll06_to_conll09
 from get_sentence_from_conll import generate_sentence
+from generate_dot_tree import generate_dot_tree
 
 # app variables and definitions
 app = Flask(__name__)
@@ -29,6 +30,7 @@ app.config['SECRET_KEY'] = 'jqUNf8?B\8d&(teVZq,~'
 # folder to save files to be annotated
 UPLOAD_FOLDER = 'loadedFiles'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+conll09 = eval(open('conll09_gold.format').read())
 
 
 @app.route('/')
@@ -64,7 +66,6 @@ def input_sentence():
             sentence = request.form['sentence']
             create_connection()
             return redirect(url_for('annotate'))
-#    return redirect(url_for('choose_input'))
     return render_template('input.html')
 
 @app.route('/load_file', methods=['GET', 'POST'])
@@ -90,47 +91,52 @@ def load_file():
                 requests = request_creator(requests)
                 create_connection()
                 return redirect(url_for('annotate'))
-#    return redirect(url_for('choose_input'))
     return render_template('load_file.html')
 
 @app.route('/annotate', methods = ['GET', 'POST'])
 def annotate():
-    global requests, question, socket_to_server, sentence
+    global requests, question, socket_to_server, sentence, message
     socket_to_server.send(pack_message(encode_message(requests)))
-    print(sentence)
     received_message = decode_message(receive_message(socket_to_server))
     find_response(received_message)
     if 'question' in received_message:
         question = received_message['question']
-        return render_template('visualized_tree.html',
-            question=received_message['question'], sentence=sentence)
-    return redirect(url_for('annotation_finished'))
+        return render_template('visualized_tree_dot.html',
+                                question=received_message['question'],
+                                sentence=sentence,
+                                sentence_visual=visualize(received_message)
+                                )
+    message = received_message
+    return render_template('visualized_tree_final.html',
+                            sentence_visual=visualize(received_message),
+                            sentence_conll = handle_solution(received_message)
+                        )
+
+
 
 @app.route('/contact/')
 def contact():
     return render_template('contact.html')
 
-@app.route('/endResult/', methods=['GET', 'POST'])
+@app.route('/endResult', methods=['GET', 'POST'])
 def annotation_finished():
-    try:
-        if request.method == 'POST':
-            answer = request.form['answer']
-            if answer == 'Save':
-                # TODO get conll part, convert to conll09 and save in static
-                sentence = request.form['sentence']
-                sentence_file = open('static/annotated_sentence.conll09', 'a')
-                sentence_file.write(sentence+'\n')
-                sentence_file.close()
-                return redirect(url_for('homepage'))
-            elif answer == 'Visualise':
-                tree = request.form['sentence']
-                visualize_solution(tree, 1)
-                return render_template('visualized_tree.html')
-        else:
-            return render_template('visualized_tree.html')
-    except Exception as e:
-        return render_template('visualized_tree.html', message=e)
-
+    global received_message
+    if request.method == 'POST':
+        answer = request.form['answer']
+        if answer == 'Save':
+            sentence = request.form['sentence']
+            sentence_file = open('static/annotated_sentence.conll09', 'a')
+            sentence_file.write(sentence+'\n\n')
+            print(sentence)
+            sentence_file.close()
+            return redirect(url_for('homepage'))
+        elif answer == 'Visualise':
+            tree_sentence = request.form['sentence']
+            message['tree']['nodes'] = [tree.split("\t") for tree in tree_sentence.split("\n")]
+            return render_template('visualized_tree_final.html',
+                                    sentence_visual = visualize(message),
+                                    sentence_conll = tree_sentence
+                                    )
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html')
@@ -214,14 +220,10 @@ def receive_message(socket, buffersize=1024):
 
 
 def find_response(server_data):
-    if server_data['type'] == 'question':
-        handle_question(server_data)
-    elif server_data['type'] == 'solution':
-        handle_solution(server_data)
-    elif server_data['type'] == 'error':
+    if server_data['type'] == 'error':
         handle_error(server_data)
     else:
-        handle_default(server_data)
+        return
 
 @app.route('/get_answer', methods = ['GET', 'POST'])
 def get_answer():
@@ -268,21 +270,17 @@ def handle_solution(data):
     solution = data['tree']['nodes']
     words = ['\t'.join(word) for word in solution]
     tree = '\n'.join(words)
-    visualize_solution(tree, 1)
+    return tree
 
 def handle_question(question):
-    q = question['question']
     visualize(question)
 
 def visualize(data):
     if data['type'] == 'question':
-        parts = ["\t".join(word) for word in data['best_tree']['nodes']]
-        tree = "\n".join(parts)
-        visualize_solution(tree)
-    else:
-        parts = ['\t'.join(word) for word in data['tree']['nodes']]
-        tree = '\n'.join(parts)
-        visualize_solution(tree, 1)
+        return generate_dot_tree(data['best_tree'], conll09).pipe().decode('utf-8')
+    return generate_dot_tree(data['tree'], conll09).pipe().decode('utf-8')
+
+
 
 if __name__ == '__main__':
     app.debug = True
