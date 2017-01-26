@@ -15,7 +15,7 @@
     <link rel="stylesheet" type="text/css" href="http://universaldependencies.github.io/docs/css/style.css"/>
     <link rel="stylesheet" type="text/css" href="http://universaldependencies.github.io/docs/css/style-vis.css"/>
     <script type="text/javascript" src="http://universaldependencies.github.io/docs/lib/ext/head.load.min.js"></script>
-    <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script src="{{ url_for('static', filename='js/jquery-3.1.1.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
 
   </head>
@@ -33,6 +33,7 @@
             <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
                 <li><a href="/input_sentence">annotate a new sentence</a></li>
                 <li><a href="/load_file">load a new forest</a></li>
+                <li class=disabled><a href="/save_file">save annotation</a></li>
                 <li role="separator" class="divider"></li>
                 <li><a href="/exit">End Annotation Helper</a></li>
             </ul>
@@ -61,7 +62,18 @@
 
       </div>
 
-      OPTIONSGOHERE
+      <div class="jumbotron">
+    <h3>Please correct any error in the tree.</h3>
+    <p>Click 'Visualise' to view a graphical representation of your corrected tree</p>
+    <p>Click 'Save' to save your tree in a conll-file.</p>
+  <br>
+    <form method="post">
+    <p><textarea rows="8" id="conll_sentence" name="sentence" cols="62"></textarea></p>
+    <br>
+    <input type="submit" class="btn btn-success btn-lg" name="answer" value="Visualise">
+    <input type="submit" class="btn btn-info btn-lg" name="answer" value="Save">
+    </form>
+</div>
 
 <script type="text/javascript">
     // TODO pull this stuff from a more reasonable location

@@ -10,7 +10,7 @@
         rel="stylesheet" >
         <link href="{{ url_for('static', filename='css/jumbotron-narrow.css') }}" 
         rel="stylesheet">
-        <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+        <script src="{{ url_for('static', filename='js/jquery-3.1.1.min.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
 
 
@@ -30,6 +30,7 @@
             <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
                 <li><a href="/input_sentence">annotate a new sentence</a></li>
                 <li><a href="/load_file">load a new forest</a></li>
+                <li class="disabled"><a href="/save_file">download annotations</a></li>
                 <li role="separator" class="divider"></li>
                 <li><a href="/exit">End Annotation Helper</a></li>
             </ul>

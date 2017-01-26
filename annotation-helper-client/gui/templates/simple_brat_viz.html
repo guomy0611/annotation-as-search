@@ -15,7 +15,7 @@
     <link rel="stylesheet" type="text/css" href="http://universaldependencies.github.io/docs/css/style.css"/>
     <link rel="stylesheet" type="text/css" href="http://universaldependencies.github.io/docs/css/style-vis.css"/>
     <script type="text/javascript" src="http://universaldependencies.github.io/docs/lib/ext/head.load.min.js"></script>
-    <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script src="{{ url_for('static', filename='js/jquery-3.1.1.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
  </head>
     <header>
@@ -32,6 +32,7 @@
             <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
                 <li><a href="/input_sentence">annotate a new sentence</a></li>
                 <li><a href="/load_file">load a new forest</a></li>                
+                <li class=disabled><a href="/save_file">save annotation</a></li>
                 <li role="separator" class="divider"></li>
                 <li><a href="/exit">End Annotation Helper</a></li>
             </ul>
@@ -58,9 +59,20 @@
        CONTENTGOESHERE
 
       </div>
-
-      OPTIONSGOHERE
-
+    <div class="jumbotron">   
+        <div class="container">   
+            <h2>{{ sentence }}</h2>
+            <h3>{{ question }}</h3>
+            <h4>Is this correct?</p>
+        </div>
+        <br>
+        <form method="post" action="/get_answer">
+            <input type="submit" class="btn btn-success btn-lg" name="choice" value="Yes">
+            <input type="submit" class="btn btn-warning btn-lg" name="choice" value="No">
+            <input type="submit" class="btn btn-info btn-lg" name="choice" value="Undo">
+            <input type="submit" class="btn btn-danger btn-lg" name="choice" value="Abort">
+        </form> 
+    </div>
 <script type="text/javascript">
     // TODO pull this stuff from a more reasonable location
     var root = 'http://spyysalo.github.io/conllu.js/';
