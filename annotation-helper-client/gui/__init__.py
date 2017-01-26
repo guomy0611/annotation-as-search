@@ -17,7 +17,6 @@ from common import (
     decode_message,
     pack_message
     )
-from visualizer import visualize_solution
 from conll_convert import conll06_to_conll09
 from get_sentence_from_conll import generate_sentence
 from generate_dot_tree import generate_dot_tree
