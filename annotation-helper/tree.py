@@ -294,11 +294,7 @@ class Forest(object):
         liste=[]
         for node in self.trees[0].nodes:
             if int(node[0]) in indices:
-<<<<<<< HEAD
-                liste.append([self.trees[0].rel, self.trees[0].head])
-=======
                 liste.append([self.trees[0].head, self.trees[0].rel])
->>>>>>> 0408a376b8f81b0ecdac793df63f2573d0c1439c
             else:
                 liste.append([])
         return liste

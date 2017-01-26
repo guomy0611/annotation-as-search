@@ -135,11 +135,7 @@ class AnnotationHelperProtocol(asyncio.Protocol):
                 response = create_error(error_messsage)
                 logging.info('No-forest error with %s.', self.peername)
             else:
-                question = data['question']
-                self.forest.filter((question['dependent'],
-                                    question['head'],
-                                    question['relation']),
-                                   data['answer'])
+                self.forest.filter(data['question'], data['answer'])
                 response = create_question_or_solution(self.forest)
 
         elif data['type'] == 'undo':
