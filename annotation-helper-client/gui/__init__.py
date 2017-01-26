@@ -238,8 +238,6 @@ def find_response(server_data):
     else:
         handle_default(server_data)
 
-<<<<<<< HEAD
-=======
 @app.route('/get_answer', methods = ["GET", "POST"])
 def get_answer():
     global requests, question
@@ -254,7 +252,6 @@ def get_answer():
         elif answer == "Abort":
             requests = get_abort()
     return redirect(url_for('annotate'))
->>>>>>> f91eab9882bfc72fc7dca6881f3ee1a380f12126
 
 def get_yes(question):
     return {
@@ -278,12 +275,8 @@ def get_undo():
 
 def get_abort():
     return {
-<<<<<<< HEAD
         'type' : 'abort',
         'wanted' : 'best'
-=======
-        "type" : "abort"
->>>>>>> f91eab9882bfc72fc7dca6881f3ee1a380f12126
     }
 
 def handle_solution(data):
@@ -298,18 +291,10 @@ def handle_question(question):
 
 def visualize(data):
     if data['type'] == 'question':
-        q = data['question']
-<<<<<<< HEAD
-        parts = ['\t'.join(word) for word in data['fixed_nodes']['nodes']]
-        tree = '\n'.join(parts)
-        visualize_solution(tree)
-=======
         parts = ["\t".join(word) for word in data['best_tree']['nodes']]
         tree = "\n".join(parts)
-        visualize_solution(tree, 1)
->>>>>>> f91eab9882bfc72fc7dca6881f3ee1a380f12126
+        visualize_solution(tree)
     else:
-        q = 'Final tree'
         parts = ['\t'.join(word) for word in data['tree']['nodes']]
         tree = '\n'.join(parts)
         visualize_solution(tree, 1)
