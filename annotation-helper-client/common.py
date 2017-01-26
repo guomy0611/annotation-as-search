@@ -157,7 +157,7 @@ def format_tree(tree):
     '''
     Format a tree object as described in the AaSP specification.
     '''
-    if tree['tree_format'] in ('conll09', 'conllu'):
+    if tree['tree_format'].startswith('conll09'):
         return '\n'.join(
             '\t'.join(elm for elm in node)
             for node

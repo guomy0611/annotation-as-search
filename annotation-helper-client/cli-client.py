@@ -60,19 +60,25 @@ def perform_abort():
         'type': 'abort'
         }
 
-def perform_process_request(sentence):
+def perform_process_request(sentence, default_format='conll09'):
+    prompt = "What format do you want? (Default: {}) "
+    user_provided = input(prompt.format(default_format))
+    target_format = user_provided or default_format
     return {
         'type': 'request',
         'process': sentence,
         'source_format': 'raw',
-        'target_format': 'conll09'
+        'target_format': target_format
         }
 
-def perform_forest_request(forest_filename):
+def perform_forest_request(forest_filename, default_format='conll09'):
+    prompt = "What's the given forest's format? (Default: {}) "
+    user_provided = input(prompt.format(default_format))
+    forest_format = user_provided or default_format
     return {
         'type': 'request',
         'use_forest': open(forest_filename).read(),
-        'forest_format': 'conll09'
+        'forest_format': forest_format
         }
 
 def perform_user_action(user_action, argument=None, **message_properties):

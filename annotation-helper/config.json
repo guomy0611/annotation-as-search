@@ -32,7 +32,7 @@
     }
   },
   "format_aliases": {
-    "conll09": "conll09_gold"
+    "conll09": "conll09_predicted"
   },
   "default_format": "conll09",
   "processors": [{
