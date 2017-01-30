@@ -13,6 +13,17 @@ import tempfile
 
 from tree import Forest
 
+def get_format_from_config(config, format_name):
+    formats = config['formats']
+    aliases = config['format_aliases']
+    if format_name in formats:
+        return formats[format_name]
+    elif format_name in aliases:
+        format_ = formats[aliases[format_name]]
+        return format_
+    else:
+        raise ValueError('Format {} not supported.'.format(format_name))
+
 class Recommendation(Enum):
     '''
     A recommendation that the server sends to the client when an error
@@ -122,7 +133,7 @@ def create_forest(request, config):
     if 'use_forest' in request:
         format_ = request['forest_format']
         try:
-            info = config['formats'][format_]
+            info = get_format_from_config(config, format_)
         except KeyError as e:
             msg = 'Format not supported: %s'
             logging.warning(msg, format_)
@@ -136,14 +147,14 @@ def create_forest(request, config):
             msg = 'Cannot convert from source_format %s to target_format %s.'
             logging.warning(msg,
                 request['source_format'], request['target_format'])
-            raise ValueError(msg, request['source_format'],
-                request['target_format']) from e
+            raise ValueError(msg % (request['source_format'],
+                request['target_format'])) from e
         try:
-            info = config['formats'][request['target_format']]
+            info = get_format_from_config(config, request['target_format'])
         except KeyError as e:
             msg = 'target_format %s not supported.'
             logging.warning(msg, request['target_format'])
-            raise ValueError(msg, request['target_format']) from e
+            raise ValueError(msg % (request['target_format'])) from e
         return Forest.from_string(forest_string, format_info=info)
 
 def choose_processor(processors, source_format, target_format):
@@ -166,6 +177,8 @@ def choose_processor(processors, source_format, target_format):
         msg1 = 'Cannot find processor for '
         msg2 = 'source_format %s and target_format %s.'
         logging.warning(''.join([msg1, msg2]), source_format, target_format)
+        raise ValueError(''.join([msg1, msg2])
+            % (source_format, target_format))
 
 def call_processor(processor, infile):
     '''

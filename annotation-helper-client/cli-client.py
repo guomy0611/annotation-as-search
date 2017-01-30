@@ -60,19 +60,25 @@ def perform_abort():
         'type': 'abort'
         }
 
-def perform_process_request(sentence):
+def perform_process_request(sentence, default_format='conll09'):
+    prompt = "What format do you want? (Default: {}) "
+    user_provided = input(prompt.format(default_format))
+    target_format = user_provided or default_format
     return {
         'type': 'request',
         'process': sentence,
         'source_format': 'raw',
-        'target_format': 'conll09'
+        'target_format': target_format
         }
 
-def perform_forest_request(forest_filename):
+def perform_forest_request(forest_filename, default_format='conll09'):
+    prompt = "What's the given forest's format? (Default: {}) "
+    user_provided = input(prompt.format(default_format))
+    forest_format = user_provided or default_format
     return {
         'type': 'request',
         'use_forest': open(forest_filename).read(),
-        'forest_format': 'conll09'
+        'forest_format': forest_format
         }
 
 def perform_user_action(user_action, argument=None, **message_properties):
@@ -196,6 +202,14 @@ def handle_question(self, question):
     else:
         self.end_conversation()
 
+def display_error(error):
+    msg = 'Error: {}'
+    print(msg.format(error['error_message']))
+
+def handle_error(self, error):
+    display_error(error)
+    sys.exit(1)
+
 def create_request(forest_file=None):
     if forest_file:
         request = perform_forest_request(forest_file)
@@ -238,6 +252,7 @@ def main():
             request_creator,
             inform=lambda self, message: 0, # Don't inform me.
             handle_question=handle_question,
+            handle_error=handle_error,
             handle_solution=handle_solution
             ),
         sock=socket_to_server
