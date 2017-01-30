@@ -2,14 +2,15 @@
 
 {% block body %}
 <div class="jumbotron">
-    <h1>Annotation-Helper is provided by</h1>
-    <p> Simon Will</p>
-    <p>Michael Staniek</p>
-    <p>Rebekka Hubert</p>
+    <h1>Annotation-Helper is provided by:</h1>
     <br>
-    <h2>Questions, Problems?</h2>
-    <h3>Contact us:</h3>
-    <h3>annotation-helper@cl.uni-heidelberg.de</h3>
+    <h2>{{ author1 }}</h2>
+    <h2>{{ author2 }}</h2>
+    <h2>{{ author3 }}</h2>
+    <br>
+    <h3>Contact:</h3>
+    <h3>{hubert|staniek|will}@cl.uni-heidelberg.de</h3>
+    <p>e-mail subject: [AaS]</p>
 </div>
 
 {% endblock %}
