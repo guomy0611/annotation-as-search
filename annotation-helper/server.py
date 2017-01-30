@@ -70,7 +70,7 @@ class AnnotationHelperProtocol(asyncio.Protocol):
         except ValueError as e:
             logging.warning('Invalid message length: %s', message_length_part)
             return None
-        
+
         if len(self.message_buffer) > message_length + separator_index:
             # Entire message is in buffer and ready to be read.
             inclusive_start = separator_index + 1
