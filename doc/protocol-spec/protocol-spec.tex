@@ -204,12 +204,7 @@ The client sends this message if it wants to terminate the annotation helping pr
 and the content of this message shall be used by the server to generate a mock \jsstring{solution} to return to the client.
 The client can request the tree the server judges as being the best candidate for the correct tree or an incomplete tree containing only the edges that are present in all trees.
 
-The client shall provide one additional pair:
-\begin{description}
-    \item[\jsstring{wanted}] A string specifying what tree the client wants to have.
-        Servers should support the options \jsstring{best} for the best guess at the correct tree and \jsstring{fixed} for the incomplete tree containing only fixed edges.
-        Servers may, however, support additional options of their own.
-\end{description}
+The client should not provide any additinal pairs.
 
 \Examples
 
@@ -243,7 +238,8 @@ The server shall provide four additional pairs:
     \item[\jsstring{sentence}] A string representing the sentence that is being annotated.
     \item[\jsstring{question}] A \hyperref[ssub:Question object]{question object} representing the question the user is to be asked.
     \item[\jsstring{remaining\_trees}] An integer value specifying how many trees currently remain in the forest.
-    \item[\jsstring{fixed\_edges}] A \hyperref[ssub:Tree object]{tree object} containing the fixed edges, i.e. the edges present in every tree in the forest.
+    \item[\jsstring{best\_tree}] A \hyperref[ssub:Tree object]{tree object} showing the one possible tree in the forest.
+        Servers should try to guess what the best tree in the current forest is and send that tree to the client.
 \end{description}
 
 \Examples
@@ -332,6 +328,12 @@ It contains two pairs:
     \item[\jsstring{nodes}] An array of arrays.
         Each inner array represents a node.
         Each element of a node array is a string representing one of the values of the respective CoNLL format.
+    \item[\jsstring{overlays}] An object that itself has two keys:
+        The key \jsstring{treated} maps to an array of arrays.
+        Each inner array represents a node.
+        But the elements of the node arrays contain the indices of the fields in the corresponding node in the nodes array that have already been treated by the annotator.
+        Usually, this means that they have been manually checked for correctness by an annotator and therefore can be considered correctly annotated..
+        The second key, \jsstring{fixed} behaves the same way as the \jsstring{treated} key, but the indices denote that the corresponding fields occur in every tree in the forest.
 \end{description}
 
 \Examples
