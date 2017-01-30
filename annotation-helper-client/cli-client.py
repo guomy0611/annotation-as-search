@@ -202,6 +202,14 @@ def handle_question(self, question):
     else:
         self.end_conversation()
 
+def display_error(error):
+    msg = 'Error: {}'
+    print(msg.format(error['error_message']))
+
+def handle_error(self, error):
+    display_error(error)
+    sys.exit(1)
+
 def create_request(forest_file=None):
     if forest_file:
         request = perform_forest_request(forest_file)
@@ -244,6 +252,7 @@ def main():
             request_creator,
             inform=lambda self, message: 0, # Don't inform me.
             handle_question=handle_question,
+            handle_error=handle_error,
             handle_solution=handle_solution
             ),
         sock=socket_to_server
