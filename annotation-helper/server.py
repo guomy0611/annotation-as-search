@@ -254,7 +254,7 @@ def main():
     # Default configuration
     config = {
         'host': '0.0.0.0',
-        'port': 8080,
+        'port': 8000,
         'logfile': '',
         'loglevel': 'INFO',
         'formats': {},
@@ -262,10 +262,12 @@ def main():
         'configfile': os.path.join(os.environ['HOME'], '.aas-server.json')
         }
 
-    config_from_file = read_configfile(
-        args.configfile if 'configfile' in args else arg_defaults['configfile']
-        )
-    update_config(config, config_from_file)
+    configfile = (args.configfile if 'configfile' in args
+        else config['configfile'])
+    if os.path.isfile(configfile):
+        config_from_file = read_configfile(configfile)
+        update_config(config, config_from_file)
+
     update_config(config, args)
     setup_logging(config['logfile'], config['loglevel'])
 
