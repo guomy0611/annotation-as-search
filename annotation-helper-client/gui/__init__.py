@@ -23,34 +23,40 @@ from conll_convert import conll06_to_conll09
 from get_sentence_from_conll import generate_sentence
 from generate_dot_tree import generate_dot_tree
 
-# app variables and definitions
+# define global read-only variables to make flask work
+# flask typical app variables and definitions
 app = Flask(__name__)
 # basic check if file is valid
-ALLOWED_EXTENSIONS = set(['conll', 'conll09', 'conll06'])
+ALLOWED_EXTENSIONS = set(['conll', 'conll09', 'conll06', 'conllu'])
 app.config['SECRET_KEY'] = 'jqUNf8?B\8d&(teVZq,~'
 # folder to save files to be annotated
 UPLOAD_FOLDER = 'loadedFiles'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+# TODO: put this in config
 conll_formats = {
                 'conll09_gold' : eval(open('conll09_gold.format').read()),
                 'conll09_predicted' : eval(open('conll09_parser.format').read())
                 }
+# define socket to send data
 socket_to_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 @app.route('/')
 def homepage():
     ''' render startpage '''
+    # remove request-cookie of previous annotation process
     if 'requests' in session.keys():
         session.pop('requests')
     return render_template('index.html')
 
 @app.route('/exit/', methods = ['POST', 'GET'])
 def close_annotator():
+    ''' Render exit page and remove all created files from storage '''
     if request.method == 'POST':
         if request.form['closeApplication']:
             # ugly, but functional, improve later
             if os.path.isfile('static/annotated_sentence.conll09'):
                 os.remove('static/annotated_sentence.conll09')
+            [os.remove('loadedFiles/' + f) for f in os.listdir('loadedFiles')]
             sys.exit()
     return render_template('exit.html')
 
@@ -66,18 +72,22 @@ def contact():
 
 @app.route('/about/')
 def about():
+    ''' Rendet template to display project information'''
     return render_template('about.html')
 
 @app.route('/save_file/', methods = ['POST', 'GET'])
 def saveFile():
+   ''' Render template to show option to download the annotated sentences '''
    return render_template('save_file.html')
 
 @app.route('/choose_input', methods=['GET','POST'])
 def choose_input():
+    ''' Render template to show choose input - sentence, forest-file - and format '''
     return render_template('choose.html')
 
 @app.route('/input_sentence', methods=['GET', 'POST'])
 def input_sentence():
+    ''' Get a raw sentence, then create question and connect to AH-server '''
     if request.method == 'POST':
         if request.form['sentence']:
             requests = request_creator((request.form['sentence'],
@@ -94,6 +104,7 @@ def input_sentence():
 
 @app.route('/load_file', methods=['GET', 'POST'])
 def load_file():
+    ''' load forest file, create forest-request and connect to AH-server '''
     if request.method == 'POST':
         if request.files:
             data_file = request.files['file']
@@ -172,17 +183,29 @@ def annotation_finished():
 
 @app.errorhandler(404)
 def page_not_found(e):
+    ''' Catch 404 error and render costumized template'''
     return render_template('404.html')
 
 @app.route('/noCookies')
 def no_cookies_set():
+    ''' Catch session[key] error and render costumized, helpful template '''
     return render_template('cookies.html')
 
 @app.route('/follow_instructions')
 def follow_instructions():
+    ''' Catch NameError if user tries to skip annotationprocess '''
     return render_template('instructions.html')
 
 def request_creator(requests):
+    ''' Create first request to start annotation-loop 
+    Creates either a forest or a sentence request 
+    Arguments:
+        requests: tuple consisting of:
+                    sentence or filename,
+                    conll-format,
+                    nothing or key-word forest to choose correct request
+    Returns a json-like dictionary
+    '''
     if requests[2] == 'forest':
         data = open(UPLOAD_FOLDER +'/' + requests[0]).read()
         session['sentence_format'] = conll_formats[requests[1]]
@@ -201,11 +224,13 @@ def request_creator(requests):
             }
 
 def allowed_file(filename):
+    ''' Check if file has an extension specified in global allowed extensions '''
     return '.' in filename and \
             filename.split('.')[-1].lower() in  ALLOWED_EXTENSIONS
 
 
 def create_connection():
+    ''' Connect to AnnotationHelper server '''
     socket_to_server.connect((arg.host, arg.port))
 
 def inspect_message_buffer(message_buffer):
@@ -261,6 +286,7 @@ def receive_message(socket, buffersize=1024):
 
 @app.route('/get_answer', methods = ['GET', 'POST'])
 def get_answer():
+    ''' Return request for annotation-loop according to user answer'''
     if request.method == 'POST':
         answer = request.form['choice']
         if answer == 'Yes':
@@ -300,6 +326,7 @@ def get_abort():
     }
 
 def handle_solution(data):
+    ''' Return conll representation of annotated tree '''
     solution = data['tree']['nodes']
     words = ['\t'.join(word) for word in solution]
     tree = '\n'.join(words)
@@ -309,6 +336,15 @@ def handle_question(question):
     visualize(question)
 
 def visualize(data):
+    ''' Visualize given tree 
+    Vizualize the given tree: Color fixed edges green, uncertain edges red, all
+    others black
+    Arguments:
+        data: message sent by the AnnotationHelper-server
+    Returns:
+        svg-image of the best tree (first tree in the list of trees) or
+        svg-image of the last given tree (solution case)
+    '''
     try:
         if data['type'] == 'question':
             return generate_dot_tree(data['best_tree'], session['sentence_format']).pipe().decode('utf-8')
