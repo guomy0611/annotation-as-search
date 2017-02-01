@@ -31,9 +31,11 @@ app.config['SECRET_KEY'] = 'jqUNf8?B\8d&(teVZq,~'
 # folder to save files to be annotated
 UPLOAD_FOLDER = 'loadedFiles'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-conll09 = eval(open('conll09_gold.format').read())
-conll09_parser = eval(open('conll09_parser.format').read())
-
+conll_formats = {
+                'conll09_gold' : eval(open('conll09_gold.format').read()),
+                'conll09_predicted' : eval(open('conll09_parser.format').read())
+                }
+socket_to_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 @app.route('/')
 def homepage():
@@ -56,7 +58,7 @@ def close_annotator():
 def contact():
     authors = ["Michael Staniek", "Rebekka Hubert", "Simon Will"]
     shuffle(authors)
-    return render_template('contact.html', 
+    return render_template('contact.html',
                             author1=authors[0],
                             author2=authors[1],
                             author3=authors[2]
@@ -86,13 +88,12 @@ def input_sentence():
             sentence = request.form['sentence']
             session['sentence'] = sentence
             create_connection()
-            session['sentence_format'] = conll09
+            session['sentence_format'] = request.form['format_sentence']
             return redirect(url_for('annotate'))
     return render_template('input.html')
 
 @app.route('/load_file', methods=['GET', 'POST'])
 def load_file():
-    global forest_request
     if request.method == 'POST':
         if request.files:
             data_file = request.files['file']
@@ -105,43 +106,42 @@ def load_file():
                 if data_file.filename.endswith('conll06'):
                     conll06_to_conll09(os.path.join(app.config['UPLOAD_FOLDER'], data))
                     data = data[:-8] + '_converted.conll09'
-                requests = data, request.form['forest_format'], 'forest'
+                session['requests'] = data, request.form['forest_format'], 'forest'
                 sentence = generate_sentence(
                             open(UPLOAD_FOLDER +'/' + data).read()
                             )
                 session['sentence'] = sentence
-                forest_request = request_creator(requests)
                 create_connection()
                 return redirect(url_for('annotate'))
     return render_template('load_file.html')
 
 @app.route('/annotate', methods = ['GET', 'POST'])
 def annotate():
-    global socket_to_server, message, forest_request
-
     try:
-        if 'requests' in session.keys():
-            requests = session['requests']
+        if type(session['requests']) == tuple:
+            requests = request_creator(session['requests'])
         else:
-            requests = forest_request
+            requests = session['requests']
         socket_to_server.send(pack_message(encode_message(requests)))
         received_message = decode_message(receive_message(socket_to_server))
+        sentence_visual = visualize(received_message)
+        if sentence_visual == 'Parser was not found.':
+            return render_template('parser_not_found.html')
         if 'question' in received_message:
             session['question'] = received_message['question']
             return render_template('visualized_tree_dot.html',
                                     question=received_message['question'],
                                     sentence=session['sentence'],
-                                    sentence_visual=visualize(received_message)
+                                    sentence_visual=sentence_visual
                                     )
         elif 'error' in received_message:
             return render_template('error.html')
-        message = received_message
+        session['message'] = received_message
         return render_template('visualized_tree_final.html',
-                                sentence_visual=visualize(received_message),
-                                sentence_conll = handle_solution(received_message)
+                                sentence_visual = sentence_visual,
+                                sentence_conll = handle_solution(received_message),
+                                message = received_message
                                 )
-    except KeyError:
-        return redirect(url_for('no_cookies_set'))
     except NameError:
         return redirect(url_for('follow_instructions'))
 
@@ -159,6 +159,7 @@ def annotation_finished():
                 return redirect(url_for('homepage'))
             elif answer == 'Visualise':
                 tree_sentence = request.form['sentence']
+                message = session['message']
                 message['tree']['nodes'] = [tree.split("\t")    \
                                             for tree in tree_sentence.split("\n")]
                 return render_template('visualized_tree_final.html',
@@ -184,12 +185,7 @@ def follow_instructions():
 def request_creator(requests):
     if requests[2] == 'forest':
         data = open(UPLOAD_FOLDER +'/' + requests[0]).read()
-        format_file = len(data.split("\n")[0].split("\t"))
-        if requests[1] == "conll09":
-            if format_file == 14:
-                session['sentence_format'] = conll09_parser
-            else:
-                session['sentence_format'] = conll09
+        session['sentence_format'] = conll_formats[requests[1]]
         return {
             'type': 'request',
             'use_forest': data,
@@ -210,8 +206,6 @@ def allowed_file(filename):
 
 
 def create_connection():
-    global socket_to_server
-    socket_to_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     socket_to_server.connect((arg.host, arg.port))
 
 def inspect_message_buffer(message_buffer):
@@ -287,7 +281,6 @@ def get_yes(question):
         }
 
 def get_no(question):
-    print(question)
     return {
         'answer': False,
         'question': question,
@@ -316,9 +309,12 @@ def handle_question(question):
     visualize(question)
 
 def visualize(data):
-    if data['type'] == 'question':
-        return generate_dot_tree(data['best_tree'], session['sentence_format']).pipe().decode('utf-8')
-    return generate_dot_tree(data['tree'], session['sentence_format']).pipe().decode('utf-8')
+    try:
+        if data['type'] == 'question':
+            return generate_dot_tree(data['best_tree'], session['sentence_format']).pipe().decode('utf-8')
+        return generate_dot_tree(data['tree'], session['sentence_format']).pipe().decode('utf-8')
+    except KeyError:
+        return "Parser was not found."
 
 
 
@@ -340,4 +336,5 @@ if __name__ == '__main__':
         PORT = int(os.environ.get('SERVER_PORT', '5000'))
     except ValueError:
         PORT = 5000
+    app.debug = True
     app.run(HOST, PORT)
