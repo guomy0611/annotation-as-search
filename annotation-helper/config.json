@@ -45,13 +45,13 @@
     "name": "LEMMING",
     "type": "lemmatizer",
     "command": ["/usr/bin/lemming", "{infile}", "-o", "{outfile}"],
-    "source_format": "conll09",
-    "target_format": "conll09"
+    "source_format": "conll09_tokenized",
+    "target_format": "conll09_lemmatized"
   }, {
     "name": "RBG",
     "type": "parser",
     "command": ["/usr/bin/rbg", "{infile}", "{outfile}"],
-    "source_format": "conll09",
+    "source_format": "conll09_lemmatized",
     "target_format": "conll09"
   }, {
     "name": "Θεός",
