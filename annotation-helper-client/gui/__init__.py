@@ -13,6 +13,7 @@ import os
 import argparse
 import socket
 from random import shuffle
+import json
 
 from common import (
     encode_message,
@@ -38,6 +39,40 @@ conll_formats = {
                 }
 # define socket to send data
 socket_to_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+
+def update_config(config, new_pairs):
+    '''
+    Update the config dict (conll-formats) with the key-value-pairs in new_data.
+
+    Args:
+        config: The current configuration dict.
+        new_pairs: A dict or an argparse.Namespace containing the
+            key-value-pairs that are to be inserted. In the case of a
+            namespace, only names not starting with an underscore are added to
+            the config. If a vale is None, the pair is ignored.
+    '''
+    if isinstance(new_pairs, dict):
+        config.update({k: v for k, v in new_pairs.items() if v is not None})
+    elif isinstance(new_pairs, argparse.Namespace):
+        for key in dir(new_pairs):
+            if not key.startswith('_'):
+                value = getattr(new_pairs, key)
+                if value is not None:
+                    config[key] = value
+    else:
+        msg = '{} is neither a dict nor an argparse.Namespace.'
+        raise TypeError(msg.format(new_pairs))
+
+def read_configfile(configfile):
+    '''
+    Read a json-formatted configuration file and return the resulting dict.
+    '''
+    try:
+        return json.load(open(configfile))
+    except FileNotFoundError as e:
+        return dict()
+
 
 @app.route('/')
 def homepage():
@@ -86,7 +121,7 @@ def choose_input():
 
 @app.route('/input_sentence', methods=['GET', 'POST'])
 def input_sentence():
-    ''' Get a raw sentence, then create question and connect to AH-server '''
+    ''' Get a raw sentence, then create question and connect to AaS-server '''
     if request.method == 'POST':
         if request.form['sentence']:
             requests = request_creator((request.form['sentence'],
@@ -102,7 +137,7 @@ def input_sentence():
 
 @app.route('/load_file', methods=['GET', 'POST'])
 def load_file():
-    ''' load forest file, create forest-request and connect to AH-server '''
+    ''' load forest file, create forest-request and connect to AaS-server '''
     if request.method == 'POST':
         if request.files:
             data_file = request.files['file']
@@ -352,21 +387,53 @@ if __name__ == '__main__':
     desc = '''Start a client that connects with the annotation-helper server
     and helps with annotating sentences.'''
     parser = argparse.ArgumentParser(description=desc)
-    parser.add_argument('-H', '--host', required=False, type=str,
-        default='localhost', help='The host that accepts TCP connections.')
-    parser.add_argument('-p', '--port', required=False, type=int,
-        default=8080, help='The port that accepts TCP connections.')
-    parser.add_argument('-s', '--unix_socket', required=False, type=str,
-        help='Unix socket file to use instead of host and port.')
-    parser.add_argument('-f', '--conll_file', required=False, default=None,
-        help='Path of a file containing a forest.')
+    parser.add_argument(
+        '-H',
+        '--host',
+        required=False,
+        type=str,
+        default='localhost',
+        help='The host that accepts TCP connections.'
+        )
+    parser.add_argument(
+        '-p',
+        '--port',
+        required=False,
+        type=int,
+        default=8080,
+        help='The port that accepts TCP connections.'
+        )
+    parser.add_argument(
+        '-s',
+        '--unix_socket',
+        required=False,
+        type=str,
+        help='Unix socket file to use instead of host and port.'
+        )
+    parser.add_argument(
+        '-f',
+        '--conll_file',
+        required=False,
+        default=None,
+        help='Path of a file containing a forest.'
+        )
+    parser.add_argument(
+        '-c',
+        '--configfile',
+        required=False,
+        type=str,
+        help='Name of the config file.')
+
     arg = parser.parse_args()
+    config = read_configfile(
+        arg.configfile if 'configfile' in arg else arg_defaults['configfile']
+        )
+    update_config(conll_formats, config)
     HOST = os.environ.get('SERVER_HOST', 'localhost')
     try:
         PORT = int(os.environ.get('SERVER_PORT', '5000'))
     except ValueError:
         PORT = 5000
-    app.debug = True
     try:
         socket_to_server.connect((arg.host, arg.port))
     except ConnectionRefusedError:

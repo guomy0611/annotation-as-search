@@ -1,0 +1,30 @@
+{
+  "conll09_gold": {
+      "name": "conll09_gold",
+      "id": 0,
+      "form": 1,
+      "label": 4,
+      "label_type": "pos",
+      "head": 8,
+      "relation": 10,
+      "relation_type": "deprel"
+    }, "conll09_predicted": {
+      "name": "conll09_predicted",
+      "id": 0,
+      "form": 1,
+      "label": 5,
+      "label_type": "pos",
+      "head": 9,
+      "relation": 11,
+      "relation_type": "deprel"
+    }, "conllu": {
+      "name": "conllu",
+      "id": 0,
+      "form": 1,
+      "label": 3,
+      "label_type": "upos",
+      "head": 6,
+      "relation": 7,
+      "relation_type": "deprel"
+    }
+}
