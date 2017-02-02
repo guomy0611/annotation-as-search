@@ -86,7 +86,7 @@ def choose_input():
 
 @app.route('/input_sentence', methods=['GET', 'POST'])
 def input_sentence():
-    ''' Get a raw sentence, then create question and connect to AH-server '''
+    ''' Get a raw sentence, then create question and connect to AaS-server '''
     if request.method == 'POST':
         if request.form['sentence']:
             requests = request_creator((request.form['sentence'],
@@ -102,7 +102,7 @@ def input_sentence():
 
 @app.route('/load_file', methods=['GET', 'POST'])
 def load_file():
-    ''' load forest file, create forest-request and connect to AH-server '''
+    ''' load forest file, create forest-request and connect to AaS-server '''
     if request.method == 'POST':
         if request.files:
             data_file = request.files['file']
