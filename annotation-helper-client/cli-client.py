@@ -60,14 +60,18 @@ def perform_abort():
         'type': 'abort'
         }
 
-def perform_process_request(sentence, default_format='conll09'):
+def perform_process_request(sentence, default_target='conll09',
+        default_source='raw'):
+    prompt = "What format have you provided? (Default: {}) "
+    user_provided = input(prompt.format(default_source))
+    source_format = user_provided or default_source
     prompt = "What format do you want? (Default: {}) "
-    user_provided = input(prompt.format(default_format))
-    target_format = user_provided or default_format
+    user_provided = input(prompt.format(default_target))
+    target_format = user_provided or default_target
     return {
         'type': 'request',
         'process': sentence,
-        'source_format': 'raw',
+        'source_format': source_format,
         'target_format': target_format
         }
 
@@ -176,11 +180,17 @@ def handle_solution(self, solution):
     else:
         self.end_conversation()
 
-def display_question(question_tuple):
-    print('Question: {}'.format(question_tuple))
+def display_question(question):
+    sent = ' '.join([n[1] for n in question['best_tree']['nodes']])
+    print('\n{}'.format(sent))
+    qo = question['question']
+    s = '{head} ---{relation}---> {dependent}\n'
+    s = s.format(head=qo['head'], relation=qo['relation'],
+        dependent=qo['dependent'])
+    print(s)
 
 def handle_question(self, question):
-    display_question(question['question'])
+    display_question(question)
 
     action, argument = prompt_for_user_action(
         UserAction.yes,
