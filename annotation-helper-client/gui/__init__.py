@@ -19,7 +19,6 @@ from common import (
     decode_message,
     pack_message
     )
-from conll_convert import conll06_to_conll09
 from get_sentence_from_conll import generate_sentence
 from generate_dot_tree import generate_dot_tree
 
@@ -97,7 +96,6 @@ def input_sentence():
             session['requests'] = requests
             sentence = request.form['sentence']
             session['sentence'] = sentence
-            create_connection()
             session['sentence_format'] = request.form['format_sentence']
             return redirect(url_for('annotate'))
     return render_template('input.html')
@@ -114,21 +112,20 @@ def load_file():
             if allowed_file(data_file.filename):
                 data = secure_filename(data_file.filename)
                 data_file.save(os.path.join(app.config['UPLOAD_FOLDER'], data))
-                if data_file.filename.endswith('conll06'):
-                    conll06_to_conll09(os.path.join(app.config['UPLOAD_FOLDER'], data))
-                    data = data[:-8] + '_converted.conll09'
                 session['requests'] = data, request.form['forest_format'], 'forest'
                 sentence = generate_sentence(
                             open(UPLOAD_FOLDER +'/' + data).read()
                             )
                 session['sentence'] = sentence
-                create_connection()
                 return redirect(url_for('annotate'))
     return render_template('load_file.html')
 
 @app.route('/annotate', methods = ['GET', 'POST'])
 def annotate():
-    try:
+        if len(session.keys()) == 0:
+            return redirect(url_for('no_cookies_set'))
+        if 'requests' not in session.keys():
+            return redirect(url_for('follow_instructions'))
         if type(session['requests']) == tuple:
             requests = request_creator(session['requests'])
         else:
@@ -153,8 +150,6 @@ def annotate():
                                 sentence_conll = handle_solution(received_message),
                                 message = received_message
                                 )
-    except NameError:
-        return redirect(url_for('follow_instructions'))
 
 
 @app.route('/endResult', methods=['GET', 'POST'])
@@ -231,7 +226,6 @@ def allowed_file(filename):
 
 def create_connection():
     ''' Connect to AnnotationHelper server '''
-    socket_to_server.connect((arg.host, arg.port))
 
 def inspect_message_buffer(message_buffer):
     '''
@@ -373,4 +367,9 @@ if __name__ == '__main__':
     except ValueError:
         PORT = 5000
     app.debug = True
+    try:
+        socket_to_server.connect((arg.host, arg.port))
+    except ConnectionRefusedError:
+        print("The connection was refused. Did you start the AnnotationHelper-server?")
+        sys.exit()
     app.run(HOST, PORT)
