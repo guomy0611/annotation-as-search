@@ -91,7 +91,7 @@ def close_annotator():
             if os.path.isfile('static/annotated_sentence.conll09'):
                 os.remove('static/annotated_sentence.conll09')
             [os.remove('loadedFiles/' + f) for f in os.listdir('loadedFiles')]
-            sys.exit()
+            return redirect(url_for('end_server'))
     return render_template('exit.html')
 
 @app.route('/contact/')
@@ -113,6 +113,17 @@ def about():
 def saveFile():
    ''' Render template to show option to download the annotated sentences '''
    return render_template('save_file.html')
+
+# only use this when running with Flasks default server
+def end_application():
+    app_end = request.environ.get('werkzeug.server.shutdown')
+    app_end()
+
+@app.route('/end_server', methods = ['GET'])
+def end_server():
+    end_application()
+    socket_to_server.close()
+    return 'Ending AaS-GUI...'
 
 @app.route('/choose_input', methods=['GET','POST'])
 def choose_input():
@@ -439,4 +450,5 @@ if __name__ == '__main__':
     except ConnectionRefusedError:
         print("The connection was refused. Did you start the AnnotationHelper-server?")
         sys.exit()
+    app.debug = True
     app.run(HOST, PORT)
