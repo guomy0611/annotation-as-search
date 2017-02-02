@@ -82,7 +82,7 @@ def find_tree(forest):
 def create_question(forest):
     '''
     Format a message of type question.
-    
+
     Args:
         forest: A Forest object that is not solved.
     '''
@@ -157,28 +157,46 @@ def create_forest(request, config):
             raise ValueError(msg % (request['target_format'])) from e
         return Forest.from_string(forest_string, format_info=info)
 
-def choose_processor(processors, source_format, target_format):
+def choose_processors(available_processors, source_format, target_format):
     '''
-    Choose a processor that can transduce text in a source_format into the
-    target_format.
+    Choose a list of processors that can transduce text in a
+    source_format into the target_format.
 
     Args:
-        processors: A list of dicts containing at least the keys
-            'source_format' and 'target_format'. They should also contain
-            the keys 'name', 'command' and 'type'.
+        available_processors: A list or tuple of dicts containing at least
+        the keys 'source_format' and 'target_format'. They should also contain
+        the keys 'name' and 'command'.
+
         source_format: A string specifying the source format.
         target_format: A string specifying the target format.
     '''
-    for p in processors:
+    # TODO: This can be made more efficient by saving the possible conversions
+    # in the config. The way it is now, we have to iterate over the processor
+    # list over and over again.
+    # Modifying the config, however, also means that we have to use a lock
+    # when accessing the config for writing. Alternatively, all possible
+    # conversion could be calculated when the server is started.
+    #
+    # Also, tree recursion is really cumbersome in Python:
+    for p in available_processors:
         if (p['source_format'] == source_format
                 and p['target_format'] == target_format):
-            return p
+            return (p,)
     else:
-        msg1 = 'Cannot find processor for '
-        msg2 = 'source_format %s and target_format %s.'
-        logging.warning(''.join([msg1, msg2]), source_format, target_format)
-        raise ValueError(''.join([msg1, msg2])
-            % (source_format, target_format))
+        for p_i, p in enumerate(available_processors):
+            if source_format != p['source_format']:
+                continue
+            remaining_processors = [
+                available_processors[i]
+                for i in range(len(available_processors))
+                if i != p_i
+                ]
+            additional_processors = choose_processors(remaining_processors,
+                p['target_format'], target_format)
+            if additional_processors is None:
+                return None
+            else:
+                return (p,) + additional_processors
 
 def call_processor(processor, infile):
     '''
@@ -194,6 +212,9 @@ def call_processor(processor, infile):
     Returns:
         outfile: The name of the file the output of the processor is written to.
     '''
+    # XXX: The whole server process is waiting for the subprocess to return.
+    # This kind of defeats the purpose of using asyncio. The subprocess has
+    # to be executed asynchronously.
     outfile = tempfile.mktemp()
     cmd_args = [
         arg.format(infile=infile, outfile=outfile)
@@ -220,8 +241,8 @@ def process(request, config):
         msg = 'Cannot determine target format for parsing.'
         msg += ' Specify a default_format in the configuration file.'
         raise ValueError(msg)
-    
-    processor = choose_processor(
+
+    processors = choose_processors(
         config['processors'],
         request['source_format'],
         target_format
@@ -229,7 +250,9 @@ def process(request, config):
 
     infile = tempfile.mktemp()
     open(infile, 'w').write(request['process'])
-    outfile = call_processor(processor, infile)
+    for processor in processors:
+        infile = call_processor(processor, infile)
+    outfile = infile
 
     forest_string = open(outfile).read()
     return forest_string
