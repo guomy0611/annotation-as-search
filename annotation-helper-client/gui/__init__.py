@@ -32,7 +32,6 @@ app.config['SECRET_KEY'] = 'jqUNf8?B\8d&(teVZq,~'
 # folder to save files to be annotated
 UPLOAD_FOLDER = 'loadedFiles'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-# TODO: put this in config
 conll_formats = {
                 'conll09_gold' : eval(open('conll09_gold.format').read()),
                 'conll09_predicted' : eval(open('conll09_parser.format').read())
@@ -41,6 +40,7 @@ conll_formats = {
 socket_to_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 
+# taken from server.py
 def update_config(config, new_pairs):
     '''
     Update the config dict (conll-formats) with the key-value-pairs in new_data.
@@ -64,6 +64,7 @@ def update_config(config, new_pairs):
         msg = '{} is neither a dict nor an argparse.Namespace.'
         raise TypeError(msg.format(new_pairs))
 
+# taken from server.py
 def read_configfile(configfile):
     '''
     Read a json-formatted configuration file and return the resulting dict.
@@ -76,18 +77,16 @@ def read_configfile(configfile):
 
 @app.route('/')
 def homepage():
-    ''' render startpage '''
-    # remove request-cookie of previous annotation process
+    ''' render startpage and remove request-information of previous annotation '''
     if 'requests' in session.keys():
         session.pop('requests')
     return render_template('index.html')
 
 @app.route('/exit/', methods = ['POST', 'GET'])
 def close_annotator():
-    ''' Render exit page and remove all created files from storage '''
+    ''' Render exit page, remove all created files from storage and close server '''
     if request.method == 'POST':
         if request.form['closeApplication']:
-            # ugly, but functional, improve later
             if os.path.isfile('static/annotated_sentence.conll09'):
                 os.remove('static/annotated_sentence.conll09')
             [os.remove('loadedFiles/' + f) for f in os.listdir('loadedFiles')]
@@ -96,7 +95,8 @@ def close_annotator():
 
 @app.route('/contact/')
 def contact():
-    authors = ["Michael Staniek", "Rebekka Hubert", "Simon Will"]
+    ''' Render contactpage and randomize order of displayed information'''
+    authors = ['Michael Staniek', 'Rebekka Hubert', 'Simon Will']
     shuffle(authors)
     return render_template('contact.html',
                             author1=authors[0],
@@ -106,33 +106,35 @@ def contact():
 
 @app.route('/about/')
 def about():
-    ''' Rendet template to display project information'''
+    ''' Display about-page to show project information'''
     return render_template('about.html')
 
 @app.route('/save_file/', methods = ['POST', 'GET'])
 def saveFile():
-   ''' Render template to show option to download the annotated sentences '''
+   ''' Show option to download the annotated sentences '''
    return render_template('save_file.html')
 
 # only use this when running with Flasks default server
 def end_application():
+    ''' create a request to shut werkzeug-server down and send it '''
     app_end = request.environ.get('werkzeug.server.shutdown')
     app_end()
 
 @app.route('/end_server', methods = ['GET'])
 def end_server():
+    ''' Shutdown Flask-server by sending a shutdown request to the Flask-sever '''
     end_application()
     socket_to_server.close()
     return 'Ending AaS-GUI...'
 
 @app.route('/choose_input', methods=['GET','POST'])
 def choose_input():
-    ''' Render template to show choose input - sentence, forest-file - and format '''
+    ''' Show input page '''
     return render_template('choose.html')
 
 @app.route('/input_sentence', methods=['GET', 'POST'])
 def input_sentence():
-    ''' Get a raw sentence, then create question and connect to AaS-server '''
+    ''' Get a raw sentence and create a question process '''
     if request.method == 'POST':
         if request.form['sentence']:
             requests = request_creator((request.form['sentence'],
@@ -148,7 +150,7 @@ def input_sentence():
 
 @app.route('/load_file', methods=['GET', 'POST'])
 def load_file():
-    ''' load forest file, create forest-request and connect to AaS-server '''
+    ''' load the given forest file and create a forest-request '''
     if request.method == 'POST':
         if request.files:
             data_file = request.files['file']
@@ -168,6 +170,16 @@ def load_file():
 
 @app.route('/annotate', methods = ['GET', 'POST'])
 def annotate():
+    ''' Start and continue annotation loop.
+
+    Send current question to the AaS-Server, then receive and visualise the
+    answer of the server. Display best tree and the received question.
+
+    Returns a html-page containing the best tree, current question and optional answers
+    if server sent an error:
+        Returns error-html-page
+    '''
+
         if len(session.keys()) == 0:
             return redirect(url_for('no_cookies_set'))
         if 'requests' not in session.keys():
@@ -178,12 +190,12 @@ def annotate():
             requests = session['requests']
         socket_to_server.send(pack_message(encode_message(requests)))
         received_message = decode_message(receive_message(socket_to_server))
-        sentence_visual = visualize(received_message)
+        sentence_visual = visualise(received_message)
         if sentence_visual == 'Parser was not found.':
             return render_template('parser_not_found.html')
         if 'question' in received_message:
             session['question'] = received_message['question']
-            return render_template('visualized_tree_dot.html',
+            return render_template('visualised_tree_dot.html',
                                     question=received_message['question'],
                                     sentence=session['sentence'],
                                     sentence_visual=sentence_visual
@@ -191,7 +203,7 @@ def annotate():
         elif 'error' in received_message:
             return render_template('error.html')
         session['message'] = received_message
-        return render_template('visualized_tree_final.html',
+        return render_template('visualised_tree_final.html',
                                 sentence_visual = sentence_visual,
                                 sentence_conll = handle_solution(received_message),
                                 message = received_message
@@ -200,6 +212,14 @@ def annotate():
 
 @app.route('/endResult', methods=['GET', 'POST'])
 def annotation_finished():
+    ''' Display final tree and optional user actions
+
+    Visualize remaining tree or in case of previous aborting best tree and show it.
+    Display tree (conll-format) in a textbox with the option to change it. Display
+    possilble user actions 'Save' and 'Visualize'.
+
+    Returns html-page containig visualised tree, question and user options
+    '''
     try:
         if request.method == 'POST':
             answer = request.form['answer']
@@ -212,10 +232,10 @@ def annotation_finished():
             elif answer == 'Visualise':
                 tree_sentence = request.form['sentence']
                 message = session['message']
-                message['tree']['nodes'] = [tree.split("\t")    \
-                                            for tree in tree_sentence.split("\n")]
-                return render_template('visualized_tree_final.html',
-                                        sentence_visual = visualize(message),
+                message['tree']['nodes'] = [tree.split('\t')    \
+                                            for tree in tree_sentence.split('\n')]
+                return render_template('visualised_tree_final.html',
+                                        sentence_visual = visualise(message),
                                         sentence_conll = tree_sentence
                                         )
         return redirect(url_for('homepage'))
@@ -238,8 +258,8 @@ def follow_instructions():
     return render_template('instructions.html')
 
 def request_creator(requests):
-    ''' Create first request to start annotation-loop 
-    Creates either a forest or a sentence request 
+    ''' Create first request to start annotation-loop
+    Creates either a forest or a sentence request
     Arguments:
         requests: tuple consisting of:
                     sentence or filename,
@@ -373,24 +393,25 @@ def handle_solution(data):
     return tree
 
 def handle_question(question):
-    visualize(question)
+    visualise(question)
 
-def visualize(data):
-    ''' Visualize given tree 
+def visualise(data):
+    ''' Visualize given tree
+
     Vizualize the given tree: Color fixed edges green, uncertain edges red, all
     others black
+
     Arguments:
         data: message sent by the AnnotationHelper-server
-    Returns:
-        svg-image of the best tree (first tree in the list of trees) or
-        svg-image of the last given tree (solution case)
+    Returns a svg-image of the best tree (first tree in the list of trees) or
+    a svg-image of the last given tree (solution case)
     '''
     try:
         if data['type'] == 'question':
             return generate_dot_tree(data['best_tree'], session['sentence_format']).pipe().decode('utf-8')
         return generate_dot_tree(data['tree'], session['sentence_format']).pipe().decode('utf-8')
     except KeyError:
-        return "Parser was not found."
+        return 'Parser was not found.'
 
 
 
@@ -448,7 +469,7 @@ if __name__ == '__main__':
     try:
         socket_to_server.connect((arg.host, arg.port))
     except ConnectionRefusedError:
-        print("The connection was refused. Did you start the AnnotationHelper-server?")
+        print('The connection was refused. Did you start the AaS-server?')
         sys.exit()
     app.debug = True
     app.run(HOST, PORT)
