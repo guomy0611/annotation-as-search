@@ -180,34 +180,38 @@ def annotate():
         Returns error-html-page
     '''
 
-        if len(session.keys()) == 0:
-            return redirect(url_for('no_cookies_set'))
-        if 'requests' not in session.keys():
-            return redirect(url_for('follow_instructions'))
-        if type(session['requests']) == tuple:
-            requests = request_creator(session['requests'])
-        else:
-            requests = session['requests']
-        socket_to_server.send(pack_message(encode_message(requests)))
-        received_message = decode_message(receive_message(socket_to_server))
-        sentence_visual = visualise(received_message)
-        if sentence_visual == 'Parser was not found.':
-            return render_template('parser_not_found.html')
-        if 'question' in received_message:
-            session['question'] = received_message['question']
-            return render_template('visualised_tree_dot.html',
-                                    question=received_message['question'],
-                                    sentence=session['sentence'],
-                                    sentence_visual=sentence_visual
-                                    )
-        elif 'error' in received_message:
-            return render_template('error.html')
-        session['message'] = received_message
-        return render_template('visualised_tree_final.html',
-                                sentence_visual = sentence_visual,
-                                sentence_conll = handle_solution(received_message),
-                                message = received_message
+    if len(session.keys()) == 0:
+        return redirect(url_for('no_cookies_set'))
+    if 'requests' not in session.keys():
+        return redirect(url_for('follow_instructions'))
+    if type(session['requests']) == tuple:
+        requests = request_creator(session['requests'])
+    else:
+        requests = session['requests']
+    socket_to_server.send(pack_message(encode_message(requests)))
+    received_message = decode_message(receive_message(socket_to_server))
+    sentence_visual = visualise(received_message)
+    if sentence_visual == 'Parser was not found.':
+        return render_template('parser_not_found.html')
+    if 'question' in received_message:
+        session['question'] = received_message['question']
+        question = "Is " + session['question']['dependent'] + " dependend on " \
+                    + session['question']['head'] + " (relationtype: "  \
+                    + session['question']['relation_type'] + ", relation: " \
+                    + session['question']['relation'] + ")?"
+        return render_template('visualised_tree_dot.html',
+                                question=question,
+                                sentence=session['sentence'],
+                                sentence_visual=sentence_visual
                                 )
+    elif 'error' in received_message:
+        return render_template('error.html')
+    session['message'] = received_message
+    return render_template('visualised_tree_final.html',
+                            sentence_visual = sentence_visual,
+                            sentence_conll = handle_solution(received_message),
+                            message = received_message
+                            )
 
 
 @app.route('/endResult', methods=['GET', 'POST'])
