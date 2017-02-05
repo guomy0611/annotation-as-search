@@ -32,10 +32,6 @@ app.config['SECRET_KEY'] = 'jqUNf8?B\8d&(teVZq,~'
 # folder to save files to be annotated
 UPLOAD_FOLDER = 'loadedFiles'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-conll_formats = {
-                'conll09_gold' : eval(open('conll09_gold.format').read()),
-                'conll09_predicted' : eval(open('conll09_parser.format').read())
-                }
 # define socket to send data
 socket_to_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -74,6 +70,14 @@ def read_configfile(configfile):
     except FileNotFoundError as e:
         return dict()
 
+def get_conll_formats(formats, format_aliases):
+    conll_formats = formats
+    for alias in format_aliases.keys():
+        if format_aliases[alias] in conll_formats.keys():
+            conll_formats[alias] = conll_formats[format_aliases[alias]]
+        else:
+            conll_formats[alias] = format_aliases[alias]
+    return conll_formats
 
 @app.route('/')
 def homepage():
@@ -195,7 +199,7 @@ def annotate():
         return render_template('parser_not_found.html')
     if 'question' in received_message:
         session['question'] = received_message['question']
-        question = "Is " + session['question']['dependent'] + " dependend on " \
+        question = "Does " + session['question']['dependent'] + " depend on " \
                     + session['question']['head'] + " (relationtype: "  \
                     + session['question']['relation_type'] + ", relation: " \
                     + session['question']['relation'] + ")?"
@@ -293,9 +297,6 @@ def allowed_file(filename):
     return '.' in filename and \
             filename.split('.')[-1].lower() in  ALLOWED_EXTENSIONS
 
-
-def create_connection():
-    ''' Connect to AnnotationHelper server '''
 
 def inspect_message_buffer(message_buffer):
     '''
@@ -425,7 +426,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=desc)
     parser.add_argument(
         '-H',
-        '--host',
+        '--host_to_connect',
         required=False,
         type=str,
         default='localhost',
@@ -447,33 +448,35 @@ if __name__ == '__main__':
         help='Unix socket file to use instead of host and port.'
         )
     parser.add_argument(
-        '-f',
-        '--conll_file',
-        required=False,
-        default=None,
-        help='Path of a file containing a forest.'
-        )
-    parser.add_argument(
         '-c',
         '--configfile',
         required=False,
         type=str,
-        help='Name of the config file.')
-
-    arg = parser.parse_args()
-    config = read_configfile(
-        arg.configfile if 'configfile' in arg else arg_defaults['configfile']
+        help='Name of the config file.',
+        default='config.json'
         )
-    update_config(conll_formats, config)
+
     HOST = os.environ.get('SERVER_HOST', 'localhost')
+    arg = parser.parse_args()
     try:
         PORT = int(os.environ.get('SERVER_PORT', '5000'))
     except ValueError:
         PORT = 5000
+    config = {
+        'host_to_connect': 'localhost',
+        'port': '8080',
+        'formats' : {},
+        'format_aliases' : {},
+        'configfile' : 'config.json'
+    }
+    config = read_configfile(
+        arg.configfile if 'configfile' in arg else config['configfile']
+        )
+    update_config(config, arg)
+    conll_formats = get_conll_formats(config['formats'], config['format_aliases'])
     try:
-        socket_to_server.connect((arg.host, arg.port))
+        socket_to_server.connect((config['host_to_connect'], config['port']))
     except ConnectionRefusedError:
         print('The connection was refused. Did you start the AaS-server?')
         sys.exit()
-    app.debug = True
-    app.run(HOST, PORT)
+    app.run(HOST,PORT)
