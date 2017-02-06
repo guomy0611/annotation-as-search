@@ -2,9 +2,9 @@
 
 ## Requirements
   * Python >= 3.4, including the following modules:
-  ** Flask
-  ** graphviz
-  ** json
+    * Flask
+    * graphviz
+    * json
   * a html5-capable browser
   * graphviz
 
@@ -45,26 +45,26 @@ View those, if you have trouble using the AaS.
 `Contact` links to a page containing information on how to contact the creators of AaS.
 
 Clicking on `Options` opens a drop-down menu with all possible options:
-    * `Annotate a new sentence`: Start annotation process and redirect to a page where you can enter the sentence you want to annotate.
-    * `Load a new forest`: Start the annotation process by uploading a file containing a parse forest. Keep in mind to only use formats known to the AaS-server
-    * `Download annotations`: Downlad your annotated sentences in one file.
-    * `End Annotation Helper`: End the webclient. All your annotated sentences and uploaded files will be deleted.
+  * `Annotate a new sentence`: Start annotation process and redirect to a page where you can enter the sentence you want to annotate.
+  * `Load a new forest`: Start the annotation process by uploading a file containing a parse forest. Keep in mind to only use formats known to the AaS-server
+  * `Download annotations`: Downlad your annotated sentences in one file.
+  * `End Annotation Helper`: End the webclient. All your annotated sentences and uploaded files will be deleted.
 
 You start the actual annotation process by clicking on `Start Annotation Helper` in the middle of the screen.
 Next either enter a sentence you want to annotate and choose the target format (remember: this requires a parser on the host of the  server) or upload a file containing a parse forest (if there is no upload folder yet, the client creates one).
 If you upload a file, you must specify the file format. At this moment only the formats conll, conll09, conllu and conll06 are allowed.
 
 Now the real annotation process starts. You are asked a question about the sentence and have the following options:
-    * `Yes`: Answer the displayed question with `yes`.
-    * `No`: Answer the displayed question with `no`.
-    * `Undo`: Return to the previous question.
-    * `Abort`: End the annotation process. The current best tree is used for further steps.
+  * `Yes`: Answer the displayed question with `yes`.
+  * `No`: Answer the displayed question with `no`.
+  * `Undo`: Return to the previous question.
+  * `Abort`: End the annotation process. The current best tree is used for further steps.
 
 On top of the page is always an graphical representation of the current best tree on the server side. 
 Each edge of the tree has one of the following colours:
-    * Black: All trees on the server contain this edge.
-    * Red: An edge exists in the tree, but there are other trees on the server that do not have this edge
-    * Green: The edge is `fixed`. One of the answers you have given confirmed the existence of this edge.
+  * Black: All trees on the server contain this edge.
+  * Red: An edge exists in the tree, but there are other trees on the server that do not have this edge
+  * Green: The edge is `fixed`. One of the answers you have given confirmed the existence of this edge.
 
 The annotation process ends when you click on `abort` or when there is only one tree left.
 
@@ -81,9 +81,9 @@ Remember to download your annotated sentences when you are done.
 If you want to change the webclients configuration, you need to create your own config file.
 The webclient uses the same serialization format as the AaS-server: [JSON] and its configuration file is very similar.
 The following keys will be recognized:
-    * `host_to_connect`: The host the webclient will connect to using a TCP connections. 
+  * `host_to_connect`: The host the webclient will connect to using a TCP connections. 
       Thus the specified host has to accept TCP connections
-    * `port`: The port of the server to connect to
-    * `formats`: The formats the server recognizes. For more details see AaS-Server-README
-    * `format_aliases: Experimantal feature to ease format description for the user
-    * `unix-socket`: The unix socket file to use instead of host and port
+  * `port`: The port of the server to connect to
+  * `formats`: The formats the server recognizes. For more details see AaS-Server-README
+  * `format_aliases: Experimantal feature to ease format description for the user
+  * `unix-socket`: The unix socket file to use instead of host and port
