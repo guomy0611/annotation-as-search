@@ -433,7 +433,10 @@ def visualise(data):
     try:
         if data['type'] == 'question':
             return generate_dot_tree(data['best_tree'], session['sentence_format']).pipe().decode('utf-8')
-        return generate_dot_tree(data['tree'], session['sentence_format']).pipe().decode('utf-8')
+        visual = generate_dot_tree(data['tree'], session['sentence_format'])
+        if type(visual) == str:
+            return visual
+        return visual.pipe().decode('utf-8')
     except KeyError:
         return 'Parser was not found.'
 

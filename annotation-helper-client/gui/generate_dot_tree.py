@@ -59,24 +59,27 @@ def generate_dot_tree(tree, format_info, fileformat='svg',
             # which sometimes uses strings like 'ROOT' to indicate its 'head'.
             continue
 
-        if head_index >= 0:
-            # head_index < 0 would probably be the root specifier.
-            head_id = tree['nodes'][head_index][id_column]
-            if relation_column in tree['overlays']['treated'][node_index]:
-                fontcolor = treated_fontcolor
-            elif relation_column in tree['overlays']['fixed'][node_index]:
-                fontcolor = fixed_fontcolor
-            else:
-                fontcolor = default_fontcolor
+        try:
+            if head_index >= 0:
+                # head_index < 0 would probably be the root specifier.
+                head_id = tree['nodes'][head_index][id_column]
+                if relation_column in tree['overlays']['treated'][node_index]:
+                    fontcolor = treated_fontcolor
+                elif relation_column in tree['overlays']['fixed'][node_index]:
+                    fontcolor = fixed_fontcolor
+                else:
+                    fontcolor = default_fontcolor
 
-            if head_column in tree['overlays']['treated'][node_index]:
-                color = treated_color
-            elif head_column in tree['overlays']['fixed'][node_index]:
-                color = fixed_color
-            else:
-                color = default_color
+                if head_column in tree['overlays']['treated'][node_index]:
+                    color = treated_color
+                elif head_column in tree['overlays']['fixed'][node_index]:
+                    color = fixed_color
+                else:
+                    color = default_color
 
-            dot.edge(head_id, node[id_column], label=node[relation_column],
-                color=color, fontcolor=fontcolor)
+                dot.edge(head_id, node[id_column], label=node[relation_column],
+                    color=color, fontcolor=fontcolor)
+        except IndexError:
+            return 'This tree is not possible!'
 
     return dot
