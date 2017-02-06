@@ -26,7 +26,6 @@ from generate_dot_tree import generate_dot_tree
 # define global read-only variables to make flask work
 # flask typical app variables and definitions
 app = Flask(__name__)
-# basic check if file is valid
 ALLOWED_EXTENSIONS = set(['conll', 'conll09', 'conll06', 'conllu'])
 app.config['SECRET_KEY'] = 'jqUNf8?B\8d&(teVZq,~'
 # folder to save files to be annotated
@@ -177,6 +176,9 @@ def load_file():
                 return redirect(url_for('choose_input'))
             if allowed_file(data_file.filename):
                 data = secure_filename(data_file.filename)
+                # create folder for uploaded files if one does not exist yet
+                if not os.path.exists(UPLOAD_FOLDER):
+                    os.makedirs(UPLOAD_FOLDER)
                 data_file.save(os.path.join(app.config['UPLOAD_FOLDER'], data))
                 session['requests'] = data, request.form['forest_format'], 'forest'
                 sentence = generate_sentence(
@@ -184,6 +186,9 @@ def load_file():
                             )
                 session['sentence'] = sentence
                 return redirect(url_for('annotate'))
+            else:
+                flash('File format is not allowed')
+                return redirect(url_for('choose_input'))
     return render_template('load_file.html')
 
 @app.route('/annotate', methods = ['GET', 'POST'])
