@@ -1,12 +1,12 @@
 # AaS-Webclient
 
 ## Requirements
-    Python >= 3.4, including the following modules:
-    ** Flask
-    ** graphviz
-    ** json
-    * a html5-capable browser
-    * graphviz
+  * Python >= 3.4, including the following modules:
+  ** Flask
+  ** graphviz
+  ** json
+  * a html5-capable browser
+  * graphviz
 
 ## Starting the webclient
 
