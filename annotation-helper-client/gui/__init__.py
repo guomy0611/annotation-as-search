@@ -71,6 +71,20 @@ def read_configfile(configfile):
         return dict()
 
 def get_conll_formats(formats, format_aliases):
+    ''' Save information about conll-formats in a dictionary.
+
+    Store conll-information in a dictionary. Each entry has the form
+    conll_formats[format] = all information  in config regarding this format.
+    Each format-alias is given the same information as the original as value.
+    If this information is not given in the config, the name of the original
+    is taken as value.
+
+    Args:
+        formats: The formats-dict specified in the config.
+        format_aliases: The format_aliases dict specified in the config.
+    Returns a dict containing all conll-formats and the specification needed to
+    start the AaS-server.
+    '''
     conll_formats = formats
     for alias in format_aliases.keys():
         if format_aliases[alias] in conll_formats.keys():
