@@ -64,7 +64,7 @@ On top of the page is always an graphical representation of the current best tre
 Each edge of the tree has one of the following colours:
   * Black: All trees on the server contain this edge.
   * Red: An edge exists in the tree, but there are other trees on the server that do not have this edge
-  * Green: The edge is `fixed`. One of the answers you have given confirmed the existence of this edge.
+  * Green: The edge is fixed. One of the answers you have given confirmed the existence of this edge.
 
 The annotation process ends when you click on `abort` or when there is only one tree left.
 
@@ -85,5 +85,5 @@ The following keys will be recognized:
       Thus the specified host has to accept TCP connections
   * `port`: The port of the server to connect to
   * `formats`: The formats the server recognizes. For more details see AaS-Server-README
-  * `format_aliases: Experimantal feature to ease format description for the user
+  * `format_aliases`: Experimantal feature to ease format description for the user
   * `unix-socket`: The unix socket file to use instead of host and port
