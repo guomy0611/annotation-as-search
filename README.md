@@ -217,12 +217,12 @@ We urge you to use a safe authentication method!
 #### Enabling save option after every question in the web client.
 
 The `abort-option` during the annotation process is no longer needed.
-It may be changed to a `save-option`. If one were to click on it, the process would be stopped and the best tree would be saved.
+You may change it to a `save-option`. If a user clicked on it, the process would be stopped and the best tree would be saved.
 
 ### Load a forest file which contains more than one sentence
 
-As it could prove to te be tedios to upload a new file each time you want to annotate a sentence, it may be a good idea to enable the webclient to handle more than one sentence per forest file.
-You could simply separate two forests by two blank lines and change the `load-file`-funtion accordingly.
+You may find it  tedios to upload a new file each time you want to annotate a sentence. You could enable the webclient to handle more than one sentence per forest file.
+Simply separate two forests by two blank lines and change the `load-file`-funtion accordingly.
 
 ## Appendix
 
