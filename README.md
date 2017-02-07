@@ -140,6 +140,19 @@ The keys `name` and `type` are not currently used by the server, though.
 }]
 ```
 
+### File Overview
+
+#### /annotation-helper/tree.py
+
+The file tree.py contains the complete code for the question generation algorithm.
+
+The code for the classes forest and tree are defined in it.
+
+The tree class treats all functions that a single parse should be able to handle, like checking if a certain tuple is contained in the tree (contains).
+The forest class treats all functions that a whole forest should be able to handle, like filtering all trees if they contain a certain tuple (filter) or calculating the best question to ask (get_best_tuple).
+
+Currently the implementation only supports question generation for dependency tuples. The filter and get_best_tuple methods have to be changed if any other algorithm is to be implemented.
+
 ## Appendix
 
 ### Training the Parser
