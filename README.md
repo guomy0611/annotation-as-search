@@ -229,15 +229,15 @@ As the `abort-option` already redirects to the final step in the annotation proc
 could also  save the sentence directly. Follow this simply plan: Redirect to a new site when the user clicks `save`. Simply create a new function (e.g. `save_aborted`) with a fitting url.
 Send and receive the data as coded in lines 214-215. Next copy lines 255 - 258 and paste them to be executed. Of course
 
-    ```
+```
     sentence = request.form['sentence']
-    ```
+```
     
 has to be 
     
-    ```
+```
     sentence = handle_solution(received_message)
-    ```
+```
     
 Next redirect to the homepage.
 
