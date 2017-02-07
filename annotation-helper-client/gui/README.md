@@ -11,7 +11,7 @@
 ## Starting the webclient
 
 Before you start the webclient you have to start the AaS-Server. Otherwise the 
-the webclient wil automatically end itself.
+the webclient will automatically end itself.
 
 Once you have started the server, the webclient can be started using a command 
 such as the following:
@@ -96,7 +96,7 @@ Otherwise you will have almost no security.
 
 ### Adapted Code
 All code in the static/css and static/js folders is taken from bootstrap:
-"https://getbootstrap.com/getting-started/#download" (retrieved in December 2016)
+https://getbootstrap.com/getting-started/#download (retrieved in December 2016)
 
 Flask documentation and tutorial inspired parts of the code:
-"http://flask.pocoo.org/docs/0.12/"
+http://flask.pocoo.org/docs/0.12/
