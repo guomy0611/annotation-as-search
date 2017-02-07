@@ -139,3 +139,45 @@ The keys `name` and `type` are not currently used by the server, though.
   "target_format": "conll09"
 }]
 ```
+
+## Appendix
+
+###Training the Parser
+
+Here the commands with which to train the parser:
+```bash
+java -cp anna-3.3-d8.jar is2.parser.Parser -train train.conll -model models/de3.anna.mdl
+java -cp anna-3.3-d8.jar is2.lemmatizer.Lemmatizer -train train.conll  -model models/de3.lemma.mdl
+java -cp anna-3.3-d8.jar is2.tag.Tagger -train train.conll  -model models/de3.tag.mdl
+java -cp anna-3.3-d8.jar is2.mtag.Tagger -train train.conll  -model models/de3.mtag.mdl
+```json
+
+The Parser, train.conll and the trained models can be found here: /mnt/proj/staniek/NBest/NBestParsers
+
+### Using the Parser
+
+Here a small script that makes use of the parser:
+
+```bash
+java -cp anna-3.61.jar is2.util.Split $1 > one-word-per-line.txt
+java -Xmx2G -cp anna-3.3-d8.jar is2.lemmatizer.Lemmatizer -model  de3.lemma.mdl -test one-word-per-line.txt -out  lemmatized.txt
+java -Xmx2G -cp anna-3.3-d8.jar is2.tag.Tagger  -model  de3.tag.mdl -test lemmatized.txt -out  tagged.txt
+java -Xmx2G -cp anna-3.3-d8.jar is2.mtag.Tagger  -model  de3.mtag.mdl -test tagged.txt -out  morph-tagged.txt
+java -cp anna-3.3-d8.jar:lib/trove-2.0.4.jar is2.parser.ParserNBest -model de3.anna.mdl -test morph-tagged.txt -out n-best.out -nbest 1000
+python nbest_to_conll.py n-best.out $2
+```
+
+Alternatively, normally trained models (except for the ParserNBest part) could be used.
+
+```bash
+java -cp anna-3.61.jar is2.util.Split $1 > one-word-per-line.txt
+java -Xmx2G -cp anna-3.3-d8.jar is2.lemmatizer.Lemmatizer -model  lemma-ger-3.6.model -test one-word-per-line.txt -out  lemmatized.txt
+java -Xmx2G -cp anna-3.3-d8.jar is2.tag.Tagger  -model  tag-ger-3.6.model -test lemmatized.txt -out  tagged.txt
+java -Xmx2G -cp anna-3.3-d8.jar is2.mtag.Tagger  -model  morphology-ger-3.6.model -test tagged.txt -out  morph-tagged.txt
+java -cp anna-3.3-d8.jar:lib/trove-2.0.4.jar is2.parser.ParserNBest -model de3.anna.mdl -test morph-tagged.txt -out n-best.out -nbest 1000
+python nbest_to_conll.py n-best.out $2
+```
+
+The nbest_to_conll.py script can be found here: /home/students/staniek/Public/Parser/
+
+Already generated parseddata can be found here: /mnt/proj/staniek/NBest/CreateTestdata
