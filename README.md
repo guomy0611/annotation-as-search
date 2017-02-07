@@ -195,11 +195,14 @@ For example, to create questions based on labels instead of relations only.
 
 #### Authentication
 
-Please note that as of now all server-client communication is not secure. Before you implement any authentification method, make all
+Please not:
+  * As of now all server-client communication is not secure. Before you implement any authentification method, make all
 server-client communication secure. Otherwise all authentification methods are useless, unless server and client run on the same machine (localhost)!
 For more information on how to transmit via ssl using socket, visit the official Python documentation at https://docs.python.org/3.5/library/ssl.html.
 
-Do not attempt to implement this, if you have no prior knowledge of creating secure connections!
+  * Do not attempt to implement this, if you have no prior knowledge of creating secure connections!
+
+  * You need a python interface to access the database, e.g. pygresql or psycopg22 for postgresql.
 
 In order to continue working over various sessions (e.g. stop the annotation of a sentence and continue it the next day) a data-base is needed.
 This data-base should be located on the host providing the AaS-server and be handled by the AaS-server.
