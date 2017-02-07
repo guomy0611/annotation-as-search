@@ -209,10 +209,10 @@ Create a psotgres-database on the server and store each user's annotated sentenc
 Of course you would also need to store each user's name and password in the data-base.
 Keep in mind to chose a secure authentification method (not `trust`!). For more information on authentification methods in postgresql, visit https://www.postgresql.org/docs/9.6/static/client-authentication.html.
 
-If you expect many users and you may want to install the database on yet more servers or split up the users data, you may want to take a look at LDAP.
-For more information on LDAP visit "http://www.openldap.org/doc/admin24/".
+If you expect many users and you want to install the database on yet more servers or split up the users data, you may want to take a look at LDAP.
+For more information on LDAP visit http://www.openldap.org/doc/admin24/.
 
-And for more information on authentication with a database using LDAP, visit "http://httpd.apache.org/docs/current/mod/mod_authnz_ldap.html".
+And for more information on authentication with a database using LDAP, visit http://httpd.apache.org/docs/current/mod/mod_authnz_ldap.html.
 
 
 We urge you to use a safe authentication method! 
