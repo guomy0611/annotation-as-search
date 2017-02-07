@@ -199,6 +199,8 @@ Please note that as of now all server-client communication is not secure. Before
 server-client communication secure. Otherwise all authentification methods are useless.
 For more information on how to transmit via ssl using socket, visit the official Python documentation at https://docs.python.org/3.5/library/ssl.html.
 
+Do not attempt to implement this, if you have no prior knowledge of creating secure connections!
+
 In order to continue working over various sessions (e.g. stop the annotation of a sentence and continue it the next day) a data-base is needed.
 This data-base should be located on the host providing the AaS-server and be handled by the AaS-server.
 In order to keep user data secure and separated from one another an authentication method would be needed (e.g. username, password, etc.)
