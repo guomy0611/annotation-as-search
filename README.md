@@ -195,6 +195,10 @@ For example, to create questions based on labels instead of relations only.
 
 #### Authentication
 
+Please note that as of now all server-client communication is not secure. Before you implement any of the ideas described below, make all
+server-client communication secure. Otherwise all authentification methods are useless.
+For more information on how to transmit via ssl using socket, visit the official Python documentation at https://docs.python.org/3.5/library/ssl.html.
+
 In order to continue working over various sessions (e.g. stop the annotation of a sentence and continue it the next day) a data-base is needed.
 This data-base should be located on the host providing the AaS-server and be handled by the AaS-server.
 In order to keep user data secure and separated from one another an authentication method would be needed (e.g. username, password, etc.)
