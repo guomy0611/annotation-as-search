@@ -142,7 +142,7 @@ The keys `name` and `type` are not currently used by the server, though.
 
 ## Appendix
 
-###Training the Parser
+### Training the Parser
 
 Here the commands with which to train the parser:
 ```bash
