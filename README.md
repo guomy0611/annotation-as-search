@@ -150,7 +150,7 @@ java -cp anna-3.3-d8.jar is2.parser.Parser -train train.conll -model models/de3.
 java -cp anna-3.3-d8.jar is2.lemmatizer.Lemmatizer -train train.conll  -model models/de3.lemma.mdl
 java -cp anna-3.3-d8.jar is2.tag.Tagger -train train.conll  -model models/de3.tag.mdl
 java -cp anna-3.3-d8.jar is2.mtag.Tagger -train train.conll  -model models/de3.mtag.mdl
-```json
+```
 
 The Parser, train.conll and the trained models can be found here: /mnt/proj/staniek/NBest/NBestParsers
 
