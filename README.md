@@ -109,7 +109,7 @@ Please note that processors bear an inherent security risk, as a client can star
 To minimize this risk, the processors that are made available should carefully check their input.
 Also be wary of passing unchecked user input to a shell to avoid shell injection attacks.
 
-The following is an example of some parsers.
+The following is an example of some processors.
 The keys `name` and `type` are not currently used by the server, though.
 
 ```json
@@ -123,7 +123,7 @@ The keys `name` and `type` are not currently used by the server, though.
   "name": "LEMMING",
   "type": "lemmatizer",
   "command": ["/usr/bin/lemming", "{infile}", "-o", "{outfile}"],
-  "source_format": "conll09_tokenized",
+  "source_format": "newline_separated",
   "target_format": "conll09_lemmatized"
 }, {
   "name": "RBG",
@@ -140,6 +140,45 @@ The keys `name` and `type` are not currently used by the server, though.
 }]
 ```
 
+#### Example use case for processors: Reading forests stored on the server.
+
+Since parsing a sentence into a forest can take quite a while, a mechanism to use forests already stored on the server is paramount.
+One approach is to create a directoy on the server containing pre-parsed forests (say `/media/forest_dir`) and use a processor to link the forest files to files the server has access to.
+The processor has to check if the input is valid and then link the file.
+Depending on the way the processor uses the input, validating is very important.
+One possible way to implement this processor is the following bash script, which assumes that the forest files have names consisting of digits only:
+
+```bash
+#!/usr/bin/env bash
+
+FOREST_DIR='/media/forest_dir'
+INFILE="$1"
+OUTFILE="$2"
+
+# Test if input consists of digits only.
+input_valid() {
+    local INPUT="$1"
+    [[ "$INPUT" =~ ^[[:digit:]]+$ ]]
+}
+
+if input_valid "$INFILE"; do
+    ln -sf "$FOREST_DIR/$INFILE" "$OUTFILE"
+done
+```
+
+This processor could then be configured for the server by specifying the following processor object in the `processors` list of the server’s configuration file.
+Here, we assume that the forest’s format is `conll09_predicted` and the script is located at `/path/to/script`.
+
+```json
+{
+  "name": "Forest Linker",
+  "type": "linker",
+  "command": ["/path/to/script", "{infile}", "{outfile}"],
+  "source_format": "filename",
+  "target_format": "conll09_predicted"
+}
+```
+
 ### File Overview
 
 #### /annotation-helper/tree.py
@@ -148,10 +187,10 @@ The file tree.py contains the complete code for the question generation algorith
 
 The code for the classes forest and tree are defined in it.
 
-The tree class treats all functions that a single parse should be able to handle, like checking if a certain tuple is contained in the tree (contains).
-The forest class treats all functions that a whole forest should be able to handle, like filtering all trees if they contain a certain tuple (filter) or calculating the best question to ask (get_best_tuple).
+The tree class treats all functions that a single parse should be able to handle, like checking if a certain tuple is contained in the tree (`contains`).
+The forest class treats all functions that a whole forest should be able to handle, like filtering all trees if they contain a certain tuple (`filter`) or calculating the best question to ask (`get_best_tuple`).
 
-Currently the implementation only supports question generation for dependency tuples. The filter and get_best_tuple methods have to be changed if any other algorithm is to be implemented.
+Currently the implementation only supports question generation for dependency tuples. The filter and `get_best_tuple` methods have to be changed if any other algorithm is to be implemented.
 
 ## Appendix
 
@@ -172,25 +211,25 @@ The Parser, train.conll and the trained models can be found here: /mnt/proj/stan
 Here a small script that makes use of the parser:
 
 ```bash
-java -cp anna-3.61.jar is2.util.Split $1 > one-word-per-line.txt
+java -cp anna-3.61.jar is2.util.Split "$1" > one-word-per-line.txt
 java -Xmx2G -cp anna-3.3-d8.jar is2.lemmatizer.Lemmatizer -model  de3.lemma.mdl -test one-word-per-line.txt -out  lemmatized.txt
 java -Xmx2G -cp anna-3.3-d8.jar is2.tag.Tagger  -model  de3.tag.mdl -test lemmatized.txt -out  tagged.txt
 java -Xmx2G -cp anna-3.3-d8.jar is2.mtag.Tagger  -model  de3.mtag.mdl -test tagged.txt -out  morph-tagged.txt
 java -cp anna-3.3-d8.jar:lib/trove-2.0.4.jar is2.parser.ParserNBest -model de3.anna.mdl -test morph-tagged.txt -out n-best.out -nbest 1000
-python nbest_to_conll.py n-best.out $2
+python nbest_to_conll.py n-best.out "$2"
 ```
 
 Alternatively, normally trained models (except for the ParserNBest part) could be used.
 
 ```bash
-java -cp anna-3.61.jar is2.util.Split $1 > one-word-per-line.txt
+java -cp anna-3.61.jar is2.util.Split "$1" > one-word-per-line.txt
 java -Xmx2G -cp anna-3.3-d8.jar is2.lemmatizer.Lemmatizer -model  lemma-ger-3.6.model -test one-word-per-line.txt -out  lemmatized.txt
 java -Xmx2G -cp anna-3.3-d8.jar is2.tag.Tagger  -model  tag-ger-3.6.model -test lemmatized.txt -out  tagged.txt
 java -Xmx2G -cp anna-3.3-d8.jar is2.mtag.Tagger  -model  morphology-ger-3.6.model -test tagged.txt -out  morph-tagged.txt
 java -cp anna-3.3-d8.jar:lib/trove-2.0.4.jar is2.parser.ParserNBest -model de3.anna.mdl -test morph-tagged.txt -out n-best.out -nbest 1000
-python nbest_to_conll.py n-best.out $2
+python nbest_to_conll.py n-best.out "$2"
 ```
 
-The nbest_to_conll.py script can be found here: /home/students/staniek/Public/Parser/
+The `nbest_to_conll.py` script can be found here: `/home/students/staniek/Public/Parser/`
 
-Already generated parseddata can be found here: /mnt/proj/staniek/NBest/CreateTestdata
+Already generated parseddata can be found here: `/mnt/proj/staniek/NBest/CreateTestdata/`

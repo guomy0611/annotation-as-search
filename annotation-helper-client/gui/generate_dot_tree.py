@@ -29,7 +29,7 @@ def generate_dot_tree(tree, format_info, fileformat='svg',
         format_info['relation_type'], format_info['label_type'])
     dot = graphviz.Digraph(comment=comment, format=fileformat)
 
-    # Generating the dot nodes.
+    # Generate the dot nodes.
     for node_index, node in enumerate(tree['nodes']):
         if label_column in tree['overlays']['treated'][node_index]:
             shape = treated_shape
@@ -48,7 +48,7 @@ def generate_dot_tree(tree, format_info, fileformat='svg',
         dot.node(node[id_column], label=dot_label, shape=shape,
             color=color, fontcolor=fontcolor)
 
-    # Generating the dot edges.
+    # Generate the dot edges.
     # Here we need to make sure to skip the root node because it has no real
     # head.
     for node_index, node in enumerate(tree['nodes']):
@@ -56,7 +56,7 @@ def generate_dot_tree(tree, format_info, fileformat='svg',
             head_index = int(node[head_column]) - 1
         except ValueError:
             # Either head specifier is invalid or it is the root specifier,
-            # which sometimes uses strings like 'ROOT' to indicate its 'head'.
+            # which sometimes uses strings like 'ROOT' to indicate its head.
             continue
 
         try:
