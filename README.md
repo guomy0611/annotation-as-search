@@ -200,14 +200,15 @@ This data-base should be located on the host providing the AaS-server and be han
 In order to keep user data secure and separated from one another an authentication method would be needed (e.g. username, password, etc.)
 
 There are various ways to realize this, depending on your desired level of security and the amount of users you expect.
-For instance, if you only expect a few users and are not too concerned about security, you could use the following setup:
+For instance, if you only expect a few users, you could use the following setup:
 Create a psotgres-database on the server and store each user's annotated sentences and prefered tree-format in it.
 Of course you would also need to store each user's name and password in the data-base.
-Keep in mind to chose a secure authentification method. For more information on authentification methods in postgresql, visit "https://www.postgresql.org/docs/9.6/static/auth-methods.html".
+Keep in mind to chose a secure authentification method (not `trust`!). For more information on authentification methods in postgresql, visit https://www.postgresql.org/docs/9.6/static/auth-methods.html.
 
-Another approach would be to use an LDAP-database (possibly on another server), if you are already familiar with LDAP.databases.
-For more information on authentication with an LDAP-database, visit "http://httpd.apache.org/docs/current/mod/mod_authnz_ldap.html".
-And for more information on LDAP: "http://www.openldap.org/doc/admin24/"
+If you expect many users and you may want to install the database on yet more servers or split up the users data, you may want to take a look at LDAP.
+For more information on LDAP: "http://www.openldap.org/doc/admin24/"
+And for more information on authentication with a database using LDAP, visit "http://httpd.apache.org/docs/current/mod/mod_authnz_ldap.html".
+
 
 We urge you to use a safe authentication method! 
 
