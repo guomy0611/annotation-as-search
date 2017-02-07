@@ -161,9 +161,9 @@ input_valid() {
     [[ "$INPUT" =~ ^[[:digit:]]+$ ]]
 }
 
-if input_valid "$INFILE"; do
+if input_valid "$INFILE"; then
     ln -sf "$FOREST_DIR/$INFILE" "$OUTFILE"
-done
+fi
 ```
 
 This processor could then be configured for the server by specifying the following processor object in the `processors` list of the server’s configuration file.
@@ -179,11 +179,11 @@ Here, we assume that the forest’s format is `conll09_predicted` and the script
 }
 ```
 
-### File Overview
+### Extending AaS server and client
 
-#### /annotation-helper/tree.py
+#### Changing the question generation algorithm.
 
-The file tree.py contains the complete code for the question generation algorithm.
+The file `annotation-helper/tree.py` contains the complete code for the question generation algorithm.
 
 The code for the classes forest and tree are defined in it.
 
@@ -191,6 +191,13 @@ The tree class treats all functions that a single parse should be able to handle
 The forest class treats all functions that a whole forest should be able to handle, like filtering all trees if they contain a certain tuple (`filter`) or calculating the best question to ask (`get_best_tuple`).
 
 Currently the implementation only supports question generation for dependency tuples. The filter and `get_best_tuple` methods have to be changed if any other algorithm is to be implemented.
+For example, to create questions based on labels instead of relations only.
+
+#### Authentication
+
+#### Automatically loading forests
+
+#### Enabling save option after every question in the web client.
 
 ## Appendix
 
