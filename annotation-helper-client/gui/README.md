@@ -90,7 +90,7 @@ The following keys will be recognized:
 
 ### Security
 
-The Flask web-client should only be used locally. If you want to use it on a server,
+The Flask webclient should only be used locally. If you want to use it on a server,
 you have to use another server to host the webclient (e.g. uWSGI).
 Otherwise you will have almost no security.
 
