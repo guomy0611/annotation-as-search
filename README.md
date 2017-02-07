@@ -198,7 +198,7 @@ For example, to create questions based on labels instead of relations only.
 Please note:
   * As of now all server-client communication is not secure. Before you implement any authentification method, make all
 server-client communication secure. Otherwise all authentification methods are useless, unless server and client run on the same machine (localhost)!
-For more information on how to transmit via ssl using socket, visit the official Python documentation at https://docs.python.org/3.5/library/ssl.html.
+For more information on how to transmit via ssl using socket, visit the official Python documentation for ssl and sockets at https://docs.python.org/3.5/library/ssl.html.
 
   * You need a python interface to access the database, e.g. pygresql or psycopg2 for postgresql.
 
