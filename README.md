@@ -260,7 +260,7 @@ Next redirect to the homepage.
 ### Load a forest file which contains more than one sentence
 
 You may find it  tedios to upload a new file each time you want to annotate a sentence. You could enable the webclient to handle more than one sentence per forest file.
-Simply separate two forests by two blank lines and change the `load_file`-funtion accordingly.
+Simply separate two forests by two blank lines and change the `load_file`-function accordingly.
 
 ## Appendix
 
