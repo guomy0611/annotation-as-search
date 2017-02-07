@@ -253,7 +253,7 @@ Simply separate two forests by two blank lines and change the `load_file`-functi
 
 Store the not yet annotated sentences and change the end of the `annotation_finished()`-function:
 After completing the annotation of one sentence, check if there are sentences currently stored.
-If there are more sentences, take ono of them and start a new annotation process for that sentence.
+If there are more sentences, take one of them and start a new annotation process for that sentence.
 If there are no more sentences, redirect to the homepage.
 
 ## Appendix
