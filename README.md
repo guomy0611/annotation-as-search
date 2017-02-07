@@ -249,7 +249,12 @@ Next redirect to the homepage.
 ### Load a forest file which contains more than one sentence
 
 You may find it  tedios to upload a new file each time you want to annotate a sentence. You could enable the webclient to handle more than one sentence per forest file.
-Simply separate two forests by two blank lines and change the `load_file`-function accordingly.
+Simply separate two forests by two blank lines and change the `load_file`-function accordingly:
+
+Store the not yet annotated sentences and change the end of the `annotation_finished()`-function:
+After completing the annotation of one sentence, check if there are sentences currently stored.
+If there are more sentences, take ono of them and start a new annotation process for that sentence.
+If there are no more sentences, redirect to the homepage.
 
 ## Appendix
 
