@@ -79,7 +79,7 @@ Remember to download your annotated sentences when you are done.
 ### Configuring the webclient
 
 If you want to change the webclients configuration, you need to create your own config file.
-The webclient uses the same serialization format as the AaS-server: [JSON] and its configuration file is very similar.
+The webclient uses the same serialization format as the AaS-server [JSON] and its configuration file is very similar.
 The following keys will be recognized:
   * `host_to_connect`: The host the webclient will connect to using a TCP connections. 
       Thus the specified host has to accept TCP connections
