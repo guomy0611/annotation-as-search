@@ -200,9 +200,9 @@ Please not:
 server-client communication secure. Otherwise all authentification methods are useless, unless server and client run on the same machine (localhost)!
 For more information on how to transmit via ssl using socket, visit the official Python documentation at https://docs.python.org/3.5/library/ssl.html.
 
-  * Do not attempt to implement this, if you have no prior knowledge of creating secure connections!
+  * You need a python interface to access the database, e.g. pygresql or psycopg2 for postgresql.
 
-  * You need a python interface to access the database, e.g. pygresql or psycopg22 for postgresql.
+  * Do not attempt to implement this, if you have no prior knowledge of creating secure connections or no knowledge of database interfaces!
 
 In order to continue working over various sessions (e.g. stop the annotation of a sentence and continue it the next day) a data-base is needed.
 This data-base should be located on the host providing the AaS-server and be handled by the AaS-server.
