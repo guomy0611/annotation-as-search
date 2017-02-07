@@ -206,7 +206,8 @@ Of course you would also need to store each user's name and password in the data
 Keep in mind to chose a secure authentification method (not `trust`!). For more information on authentification methods in postgresql, visit https://www.postgresql.org/docs/9.6/static/auth-methods.html.
 
 If you expect many users and you may want to install the database on yet more servers or split up the users data, you may want to take a look at LDAP.
-For more information on LDAP: "http://www.openldap.org/doc/admin24/"
+For more information on LDAP visit "http://www.openldap.org/doc/admin24/".
+
 And for more information on authentication with a database using LDAP, visit "http://httpd.apache.org/docs/current/mod/mod_authnz_ldap.html".
 
 
