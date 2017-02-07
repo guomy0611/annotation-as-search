@@ -233,7 +233,7 @@ Send and receive the data as coded in lines 214-215. Next copy lines 255 - 258 a
     sentence = request.form['sentence']
     ```
     
-    has to be 
+has to be 
     
     ```
     sentence = handle_solution(received_message)
