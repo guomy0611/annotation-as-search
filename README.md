@@ -195,7 +195,7 @@ For example, to create questions based on labels instead of relations only.
 
 #### Authentication
 
-Please note that as of now all server-client communication is not secure. Before you implement any authntification method, make all
+Please note that as of now all server-client communication is not secure. Before you implement any authentification method, make all
 server-client communication secure. Otherwise all authentification methods are useless.
 For more information on how to transmit via ssl using socket, visit the official Python documentation at https://docs.python.org/3.5/library/ssl.html.
 
