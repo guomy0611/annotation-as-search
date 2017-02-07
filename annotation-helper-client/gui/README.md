@@ -87,3 +87,10 @@ The following keys will be recognized:
   * `formats`: The formats the server recognizes. For more details see AaS-Server-README
   * `format_aliases`: Experimantal feature to ease format description for the user
   * `unix-socket`: The unix socket file to use instead of host and port
+
+### Adapted Code
+All code in the static/css and static/js folders is taken from bootstrap:
+"https://getbootstrap.com/getting-started/#download" (retrieved in December 2016)
+
+Flask documentation and tutorial inspired parts of the code:
+"http://flask.pocoo.org/docs/0.12/"
