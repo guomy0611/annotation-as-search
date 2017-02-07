@@ -226,7 +226,7 @@ We urge you to use a safe authentication method!
 The `abort-option` during the annotation process is no longer needed.
 You may change it to a `save-option`. If a user clicked on it, the process would be stopped and the best tree would be saved.
 As the `abort-option` already redirects to the final step in the annotation process, you may only change the button. However, you
-could also  save the sentence directly. Follow this simply plan, though you might need to tweak it a bit: Redirect to a new site when the user clicks `save`. Simply create a new function (e.g. `save_aborted`) with a fitting url.
+could also  save the sentence directly. Follow this simple plan, though you might need to tweak it a bit: Redirect to a new site when the user clicks `save`. Simply create a new function (e.g. `save_aborted`) with a fitting url.
 Send and receive the data as shown in
 ```
 socket_to_server.send(pack_message(encode_message(requests)))
