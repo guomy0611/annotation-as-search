@@ -236,23 +236,12 @@ socket_to_server.send(pack_message(encode_message(requests)))
 received_message = decode_message(receive_message(socket_to_server))
 ```
 
-Next copy lines 255 - 258 and paste them to be executed:
+Next copy lines 255 - 258 and change them to get the annotated sentence in conll09-format:
 ```
-    sentence = request.form['sentence']
+    sentence = handle_solution(received_message)
     sentence_file = open('static/annotated_sentence.conll09', 'a')
     sentence_file.write(sentence+'\n\n')
     sentence_file.close()
-```
-Of course
-
-```
-    sentence = request.form['sentence']
-```
-    
-has to be 
-    
-```
-    sentence = handle_solution(received_message)
 ```
     
 Next redirect to the homepage.
