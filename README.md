@@ -139,3 +139,58 @@ The keys `name` and `type` are not currently used by the server, though.
   "target_format": "conll09"
 }]
 ```
+
+### File Overview
+
+#### /annotation-helper/tree.py
+
+The file tree.py contains the complete code for the question generation algorithm.
+
+The code for the classes forest and tree are defined in it.
+
+The tree class treats all functions that a single parse should be able to handle, like checking if a certain tuple is contained in the tree (contains).
+The forest class treats all functions that a whole forest should be able to handle, like filtering all trees if they contain a certain tuple (filter) or calculating the best question to ask (get_best_tuple).
+
+Currently the implementation only supports question generation for dependency tuples. The filter and get_best_tuple methods have to be changed if any other algorithm is to be implemented.
+
+## Appendix
+
+### Training the Parser
+
+Here the commands with which to train the parser:
+```bash
+java -cp anna-3.3-d8.jar is2.parser.Parser -train train.conll -model models/de3.anna.mdl
+java -cp anna-3.3-d8.jar is2.lemmatizer.Lemmatizer -train train.conll  -model models/de3.lemma.mdl
+java -cp anna-3.3-d8.jar is2.tag.Tagger -train train.conll  -model models/de3.tag.mdl
+java -cp anna-3.3-d8.jar is2.mtag.Tagger -train train.conll  -model models/de3.mtag.mdl
+```
+
+The Parser, train.conll and the trained models can be found here: /mnt/proj/staniek/NBest/NBestParsers
+
+### Using the Parser
+
+Here a small script that makes use of the parser:
+
+```bash
+java -cp anna-3.61.jar is2.util.Split $1 > one-word-per-line.txt
+java -Xmx2G -cp anna-3.3-d8.jar is2.lemmatizer.Lemmatizer -model  de3.lemma.mdl -test one-word-per-line.txt -out  lemmatized.txt
+java -Xmx2G -cp anna-3.3-d8.jar is2.tag.Tagger  -model  de3.tag.mdl -test lemmatized.txt -out  tagged.txt
+java -Xmx2G -cp anna-3.3-d8.jar is2.mtag.Tagger  -model  de3.mtag.mdl -test tagged.txt -out  morph-tagged.txt
+java -cp anna-3.3-d8.jar:lib/trove-2.0.4.jar is2.parser.ParserNBest -model de3.anna.mdl -test morph-tagged.txt -out n-best.out -nbest 1000
+python nbest_to_conll.py n-best.out $2
+```
+
+Alternatively, normally trained models (except for the ParserNBest part) could be used.
+
+```bash
+java -cp anna-3.61.jar is2.util.Split $1 > one-word-per-line.txt
+java -Xmx2G -cp anna-3.3-d8.jar is2.lemmatizer.Lemmatizer -model  lemma-ger-3.6.model -test one-word-per-line.txt -out  lemmatized.txt
+java -Xmx2G -cp anna-3.3-d8.jar is2.tag.Tagger  -model  tag-ger-3.6.model -test lemmatized.txt -out  tagged.txt
+java -Xmx2G -cp anna-3.3-d8.jar is2.mtag.Tagger  -model  morphology-ger-3.6.model -test tagged.txt -out  morph-tagged.txt
+java -cp anna-3.3-d8.jar:lib/trove-2.0.4.jar is2.parser.ParserNBest -model de3.anna.mdl -test morph-tagged.txt -out n-best.out -nbest 1000
+python nbest_to_conll.py n-best.out $2
+```
+
+The nbest_to_conll.py script can be found here: /home/students/staniek/Public/Parser/
+
+Already generated parseddata can be found here: /mnt/proj/staniek/NBest/CreateTestdata
