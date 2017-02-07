@@ -195,9 +195,33 @@ For example, to create questions based on labels instead of relations only.
 
 #### Authentication
 
+In order to continue working over various sessions (e.g. stop the annotation of a sentence and continue it the next day) a data-base is needed.
+This data-base should be located on the host providing the AaS-server and be handled by the AaS-server.
+In order to keep user data secure and separated from one another an authentication method would be needed (e.g. username, password, etc.)
+
+There are various ways to realize this, depending on your desired level of security and the amount of users you expect.
+For instance, if you only expect a few users and are not too concerned about security, you could use the following setup:
+Create a psotgres-database on the server and store each user's annotated sentences and prefered tree-format in it.
+Of course you would also need to store each user's name and password in the data-base.
+Keep in mind to chose a secure authentification method. For more information on authentification methods in postgresql, visit "https://www.postgresql.org/docs/9.6/static/auth-methods.html".
+
+Another approach would be to use an LDAP-database (possibly on another server), if you are already familiar with LDAP.databases.
+For more information on authentication with an LDAP-database, visit "http://httpd.apache.org/docs/current/mod/mod_authnz_ldap.html".
+And for more information on LDAP: "http://www.openldap.org/doc/admin24/"
+
+We urge you to use a safe authentication method! 
+
 #### Automatically loading forests
 
 #### Enabling save option after every question in the web client.
+
+The `abort-option` during the annotation process is no longer needed.
+It may be changed to a `save-option`. If one were to click on it, the process would be stopped and the best tree would be saved.
+
+### Load a forest file which contains more than one sentence
+
+As it could prove to te be tedios to upload a new file each time you want to annotate a sentence, it may be a good idea to enable the webclient to handle more than one sentence per forest file.
+You could simply separate two forests by two blank lines and change the `load-file`-funtion accordingly.
 
 ## Appendix
 

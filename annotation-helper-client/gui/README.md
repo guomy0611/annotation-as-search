@@ -94,12 +94,6 @@ The Flask web-client should only be used locally. If you want to use it on a ser
 you have to use another server to host the webclient (e.g. uWSGI).
 Otherwise you will have almost no security.
 
-### Possible Changes
-
-The `abort-option` during the annotation process is no longer needed. It may be changed
-to a `save-option`. If one were to click on it, the process would be stopped and 
-the best tree saved.
-
 ### Adapted Code
 All code in the static/css and static/js folders is taken from bootstrap:
 "https://getbootstrap.com/getting-started/#download" (retrieved in December 2016)
