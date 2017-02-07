@@ -157,12 +157,11 @@ def format_tree(tree):
     '''
     Format a tree object as described in the AaSP specification.
     '''
-    if tree['tree_format'].startswith('conll09'):
+    try:
         return '\n'.join(
             '\t'.join(elm for elm in node)
             for node
             in tree['nodes']
             ) + '\n'
-    else:
-        msg_template = 'Cannot format tree with unknown tree_format: {}.'
-        raise ValueError(msg_template.format(tree['tree_format']))
+    except Exception as e:
+        raise ValueError('Tree cannot be formatted.') from e

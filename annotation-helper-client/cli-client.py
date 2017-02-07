@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+'''
+The cli-client module serves as a simple commandline client conforming
+to the Annotation as Search Protocol.
+'''
+
 import argparse
 import asyncio
 from enum import Enum
@@ -13,6 +18,9 @@ from common import (
     )
 
 class UserAction(Enum):
+    '''
+    Possible actions the user can take.
+    '''
     yes = 1
     no = 2
     undo = 3
@@ -29,6 +37,9 @@ ARGUMENT_OBLIGATORY_ACTIONS = (
     )
 
 def perform_yes(question):
+    '''
+    Return a yes AaSP message.
+    '''
     return {
         'type': 'answer',
         'answer': True,
@@ -36,6 +47,9 @@ def perform_yes(question):
         }
 
 def perform_no(question):
+    '''
+    Return a yes AaSP message.
+    '''
     return {
         'type': 'answer',
         'answer': False,
@@ -43,25 +57,41 @@ def perform_no(question):
         }
 
 def perform_undo(answers):
+    '''
+    Return an undo AaSP message.
+    '''
     return {
         'type': 'undo',
         'answers': int(answers.split()[0])
         }
 
 def perform_save(filename, tree):
+    '''
+    Save a tree in a file.
+    '''
     open(filename, 'w').write(format_tree(tree))
     print('Saved tree to {}'.format(filename))
 
 def perform_exit(exit_code=0):
+    '''
+    Terminate the program with the given exit_code.
+    '''
     sys.exit(exit_code)
 
 def perform_abort():
+    '''
+    Return an abort AaSP message.
+    '''
     return {
         'type': 'abort'
         }
 
 def perform_process_request(sentence, default_target='conll09',
         default_source='raw'):
+    '''
+    Ask the user for source and target format and return a process AaSP
+    message.
+    '''
     prompt = "What format have you provided? (Default: {}) "
     user_provided = input(prompt.format(default_source))
     source_format = user_provided or default_source
@@ -76,6 +106,10 @@ def perform_process_request(sentence, default_target='conll09',
         }
 
 def perform_forest_request(forest_filename, default_format='conll09'):
+    '''
+    Ask the user for the foreset format and return a use_forest AaSP
+    message.
+    '''
     prompt = "What's the given forest's format? (Default: {}) "
     user_provided = input(prompt.format(default_format))
     forest_format = user_provided or default_format
@@ -86,6 +120,10 @@ def perform_forest_request(forest_filename, default_format='conll09'):
         }
 
 def perform_user_action(user_action, argument=None, **message_properties):
+    '''
+    Given a UserAction object and an argument, perform the UserAction
+    using the argument.
+    '''
     if user_action is UserAction.yes:
         return perform_yes(message_properties['question'])
     elif user_action is UserAction.no:
@@ -106,6 +144,10 @@ def perform_user_action(user_action, argument=None, **message_properties):
         raise ValueError('{} is not a valid UserAction.'.format(user_action))
 
 def format_user_action_hint(user_action):
+    '''
+    Given a UserAction object, return a string describing the user
+    action and possible arguments.
+    '''
     first_letter = user_action.name[0]
     rest = user_action.name[1:]
 
@@ -158,10 +200,16 @@ def prompt_for_user_action(*user_actions):
             print('Invalid input.')
 
 def display_solution(tree):
+    '''
+    Display a tree to the user.
+    '''
     print('Solution:')
     print(format_tree(tree))
 
 def handle_solution(self, solution):
+    '''
+    Ask the user what to do with a solution message.
+    '''
     display_solution(solution['tree'])
 
     action, argument = prompt_for_user_action(
@@ -181,6 +229,9 @@ def handle_solution(self, solution):
         self.end_conversation()
 
 def display_question(question):
+    '''
+    Display a question to the user.
+    '''
     sent = ' '.join([n[1] for n in question['best_tree']['nodes']])
     print('\n{}'.format(sent))
     qo = question['question']
@@ -190,6 +241,9 @@ def display_question(question):
     print(s)
 
 def handle_question(self, question):
+    '''
+    Put a question to the user and collect their response.
+    '''
     display_question(question)
 
     action, argument = prompt_for_user_action(
@@ -213,14 +267,24 @@ def handle_question(self, question):
         self.end_conversation()
 
 def display_error(error):
+    '''
+    Display an error to the user.
+    '''
     msg = 'Error: {}'
     print(msg.format(error['error_message']))
 
 def handle_error(self, error):
+    '''
+    'Handle' an error message. This is actually just displaying it and
+    exiting.
+    '''
     display_error(error)
     sys.exit(1)
 
 def create_request(forest_file=None):
+    '''
+    Generate a request either from a given file or by asking the user.
+    '''
     if forest_file:
         request = perform_forest_request(forest_file)
     else:
@@ -233,6 +297,10 @@ def create_request(forest_file=None):
     return request
 
 def main():
+    '''
+    The main function is used to start the connection to the AaS server
+    and create the asyncio event loop.
+    '''
     desc = '''Start a client that connects with the annotation-helper server
     and helps with annotating sentences.'''
     parser = argparse.ArgumentParser(description=desc)
@@ -260,7 +328,8 @@ def main():
         lambda : AnnotationHelperClientProtocol(
             loop,
             request_creator,
-            inform=lambda self, message: 0, # Don't inform me.
+            # Don't inform the user about boring client-server-communication.
+            inform=lambda self, message: 0,
             handle_question=handle_question,
             handle_error=handle_error,
             handle_solution=handle_solution
