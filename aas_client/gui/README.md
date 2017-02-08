@@ -18,11 +18,11 @@ such as the following:
 
     $ python3 __init__.py -p 8080 --host_to_connect localhost -c config.json
 
-Attention! The __init__.py has to be started from the same directory it is contained in, 
-if you want to download your annotated sentences
+Attention! The `__init__.py` has to be started from the same directory it is contained in, 
+if you want to download your annotated sentences.
 That's still a bug that hasn't been fixed yet.
 The current situation is as following:
-As of now the internal structure of the webclient does not permit to download a file from 
+As of now the internal structure of the webclient does not permit downloading a file from 
 another location than the static folder of the webclient.
 
 Please note that during the annotation the webclient will save a few files on the 
@@ -31,8 +31,8 @@ This will automatically delete all files created during the annotation process f
 the working system.
 
 All options can be omitted. The programm will then proceed using the
-default options. 
-In this case the default conll-formats will be used as specified in __init__.py
+default options.
+In this case the default conll-formats will be used as specified in `__init__.py`.
 
 Use the following command to remind yourself of the options:
 
@@ -42,9 +42,10 @@ After you have started the webclient it will connect to the AaS-Server automatic
 
 ### Using the webclient
 
-Once you have started the weblcient via the command line, you can work with your
+Once you have started the webclient via the command line, you can work with your
 browser only.
 Open your favourite browser and visit the url shown on the command line.
+
 You have various options now. Firstly, focus on the title bar. There you have four buttons: 
 `Home`, `Contact`, `About` and `Options`. 
 
