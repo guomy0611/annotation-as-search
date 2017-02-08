@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- Header of each html-document -->
 <html lang=en">
     <head>
         <meta charset="utf-8">
@@ -17,6 +18,7 @@
     </head>
 
     <header>
+    <!-- navigation bar on top of each page: Home, About, Contact, Options -->
     <div class="container">
       <div class="header clearfix">
         <nav>
@@ -27,6 +29,7 @@
             <li role="presentation" class="dropdown">
             <a class=dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
             aria-expanded="true">Options<span class="caret"></span></a>
+            <!-- drop-down menu with all possible Options -->
             <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
                 <li><a href="/input_sentence">Annotate a new sentence</a></li>
                 <li><a href="/load_file">Load a new forest</a></li>
@@ -39,6 +42,7 @@
         </nav>
       </div>
         <div class="jumbotron">
+        <!-- Display start button -->
         <h1>Annotation Helper Client</h1>
         <p><a class="btn btn-lg btn-primary" href="/choose_input" role="button">Start Annotation Helper</a></p>
       </div>
@@ -50,7 +54,7 @@
     <div id="main" class="center">
 
         <hr/>
-
+        <!-- Display text if no script are allowed in the uesr's browser -->
         <div id="content">
             <p>Remember to allow Cookies to use AnnotationHelper</p>
             <div id="noscript">

@@ -1,5 +1,5 @@
 {% extends "header.html"  %}
-
+<!-- On this page the user enters the input (sentence/forest file) -->
 {% block body %}
 <div class="jumbotron">
     <h1>Choose input</h1>
@@ -18,7 +18,8 @@
                 </ul>
             {% endif %}
         {% endwith %}
- 
+        <!-- Display this if a sentence is entered -->
+        <!-- Send input information to function input_sentence() -->
         <form method="POST" id='getInputSentence' action="/input_sentence" hidden>
             <h3>Enter the sentence to be parsed</h3>
             <br>
@@ -28,6 +29,8 @@
             <br>
             <input type=submit value=Upload>
         </form>;
+        <!-- Display this form if the user chooses to upload a forest file -->
+        <!-- Send input information to function load_file() -->
         <form method="POST" enctype="multipart/form-data" id='getForest' 
         action="/load_file" hidden>
             <h3>Load a forest from a file</h3>
@@ -45,6 +48,7 @@
     </p>
 </div>
 
+<!-- JS-function to display input options -->
 <script>
 $(document).ready(function(){
     

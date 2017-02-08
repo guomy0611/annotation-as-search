@@ -1,4 +1,5 @@
 {% extends "header.html"  %}
+<!-- Display page to load a forest file -->
 {% block body %}
 <div class="jumbotron">
     <form method="POST" enctype="multipart/form-data">
@@ -16,7 +17,7 @@
         <p><input type=file name=file>
                 <br>
                 <p>Enter the format of the forest</p>
-                <input type="text" name="forest_format" value="wanted format">
+                <input type="text" name="forest_format" value="conll09">
                 <br>
 
         <input type=submit value=Upload>

@@ -437,6 +437,7 @@ def visualise(data):
         if type(visual) == str:
             return visual
         return visual.pipe().decode('utf-8')
+    # catch eventual parser not found error thrown by the AaS-server
     except KeyError:
         return 'Parser was not found.'
 

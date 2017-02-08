@@ -1,5 +1,6 @@
 {% extends "header.html"  %}
 {% block body %}
+<!-- Display current best tree, current question and possible answer to choose from -->
 <div class="jumbotron">   
 <p >{{sentence_visual|safe}}</p>
 <br>
@@ -8,6 +9,7 @@
             <h3>{{ question }}</h3>
         </div>
         <br>
+        <!-- Send answer to get_answer() function -->
         <form method="post" action="/get_answer">
             <input type="submit" class="btn btn-success btn-lg" name="choice" value="Yes">
             <input type="submit" class="btn btn-warning btn-lg" name="choice" value="No">

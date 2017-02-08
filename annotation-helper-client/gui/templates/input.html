@@ -1,5 +1,5 @@
 {% extends "header.html"  %}
-
+<!-- Display page where the user can enter an not yet parsed sentence and the target format-->
 {% block body %}
 <div class="jumbotron">
     <form method="POST">
@@ -8,7 +8,7 @@
         <input type="text" name="sentence">
         <br>
         <p>Enter the format you want</p> 
-        <input type="text" name="format_sentence" value="wanted format">
+        <input type="text" name="format_sentence" value="conll09">
         <br>
         <input type=submit value=Upload>
    </form>
