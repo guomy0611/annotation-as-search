@@ -1,6 +1,6 @@
 {
   "host_to_connect": "localhost",
-  "port" : "8080",
+  "port" : 8080,
   "formats": {
     "conll09_gold": {
         "name": "conll09_gold",

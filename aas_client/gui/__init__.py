@@ -526,7 +526,7 @@ if __name__ == '__main__':
     }
     config_from_file = read_configfile(
         arg.configfile if 'configfile' in arg else [])
-    update_config(config, arg)
+    update_config(config, config_from_file)
     conll_formats = get_conll_formats(config['formats'], config['format_aliases'])
     try:
         socket_to_server.connect((config['host_to_connect'], config['port']))
