@@ -4,8 +4,8 @@ MIN_PYLINT_RATING=${1:-7}
 
 TEST_DIR=$(dirname "${BASH_SOURCE[0]}")
 
-SERVER_DIR="$TEST_DIR/../annotation-helper/"
-CLIENT_DIR="$TEST_DIR/../annotation-helper-client/"
+SERVER_DIR="$TEST_DIR/../aas_server/"
+CLIENT_DIR="$TEST_DIR/../aas_client/"
 
 echo 'Assessing code quality with pylint ...'
 pylint --rcfile="$TEST_DIR/pylintrc" "$SERVER_DIR" "$CLIENT_DIR" >pylint_results || true

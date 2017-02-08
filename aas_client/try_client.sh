@@ -8,7 +8,7 @@ PORT=${1:-8080}
 PYTHON=python3
 
 SCRIPT_DIR=$(dirname "${BASH_SOURCE[0]}")
-SERVER_DIR="$SCRIPT_DIR/../annotation-helper/"
+SERVER_DIR="$SCRIPT_DIR/../aas_server/"
 CLIENT_DIR="$SCRIPT_DIR"
 
 SERVER_LOG='/tmp/annotation.log'

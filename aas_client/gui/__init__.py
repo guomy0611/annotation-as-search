@@ -15,13 +15,13 @@ import socket
 from random import shuffle
 import json
 
-from common import (
+from aas_client.common import (
     encode_message,
     decode_message,
     pack_message
     )
 from get_sentence_from_conll import generate_sentence
-from generate_dot_tree import generate_dot_tree
+from aas_client.generate_dot_tree import generate_dot_tree
 
 # define global read-only variables to make flask work
 # flask typical app variables and definitions
@@ -444,7 +444,7 @@ def visualise(data):
 
 
 if __name__ == '__main__':
-    desc = '''Start a client that connects with the annotation-helper server
+    desc = '''Start a client that connects with the AaS server
     and helps with annotating sentences.'''
     parser = argparse.ArgumentParser(description=desc)
     parser.add_argument(

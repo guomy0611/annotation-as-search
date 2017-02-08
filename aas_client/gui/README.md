@@ -85,7 +85,7 @@ The following keys will be recognized:
       Thus the specified host has to accept TCP connections
   * `port`: The port of the server to connect to
   * `formats`: The formats the server recognizes. For more details see AaS-Server-README
-  * `format_aliases`: Experimantal feature to ease format description for the user
+  * `format_aliases`: Experimental feature to ease format description for the user
   * `unix-socket`: The unix socket file to use instead of host and port
 
 ### Security

@@ -12,8 +12,10 @@ The protocol is documented at `doc/protocol-spec`.
 For setting up the server, refer to the section [AaS-Server](#aas-server)
 
 As for the client, we provide two solutions:
-  * A minimal CLI client documented at `annotation-helper-client/README.md`
-  * A more involved Web Client documented at `annotation-helper-client/gui/README.md`.
+  * A minimal CLI client documented through its commandline interface option `--help`
+  * A more involved Web Client documented at `aas_client/gui/README.md`.
+
+When using one of the clients, make sure that the directory containing the `aas_client` package is part of your `PYTHONPATH` and that the requirements in `aas_client/requirements.txt` are installed.
 
 ## AaS-Server
 
@@ -192,7 +194,7 @@ Below, we have compiled a short introduction to implementing some of them.
 
 #### Changing the question generation algorithm.
 
-The file `annotation-helper/tree.py` contains the complete code for the question generation algorithm.
+The file `aas_server/tree.py` contains the complete code for the question generation algorithm.
 
 The code for the classes forest and tree are defined in it.
 

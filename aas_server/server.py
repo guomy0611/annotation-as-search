@@ -13,7 +13,7 @@ import logging
 import socket
 import os
 
-# annotation-helper modules
+# aas_server modules
 import tree
 from json_interface import (
     create_error,

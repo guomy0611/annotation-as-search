@@ -12,7 +12,7 @@ from enum import Enum
 import socket
 import sys
 
-from common import (
+from aas_client.common import (
     AnnotationHelperClientProtocol,
     format_tree
     )
@@ -301,7 +301,7 @@ def main():
     The main function is used to start the connection to the AaS server
     and create the asyncio event loop.
     '''
-    desc = '''Start a client that connects with the annotation-helper server
+    desc = '''Start a client that connects with the AaS server
     and helps with annotating sentences.'''
     parser = argparse.ArgumentParser(description=desc)
     parser.add_argument('-H', '--host', required=False, type=str,
