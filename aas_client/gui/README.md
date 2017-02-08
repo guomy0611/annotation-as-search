@@ -18,6 +18,9 @@ such as the following:
 
     $ python3 __init__.py -p 8080 --host_to_connect localhost -c config.json
 
+Attention! The __init__.py has to be started from the same directory it is contained in.
+That's still a bug that hasn't been fixed yet.
+
 All options can be omitted except the -c. TThe programm will then proceed using the
 default option. The specification of the config file can only be omitted, if the 
 default config-file 'config.json' is in the current folder.
