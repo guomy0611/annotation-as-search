@@ -8,7 +8,7 @@ For more detailed information see our documentation at `doc/system-spec`.
 ## Infrastructure
 
 An AaS setup consists of a server and a client.
-For setting up the server, refer to the section [AaS-Server](#AaS-Server)
+For setting up the server, refer to the section [AaS-Server](#aas-server)
 
 As for the client, we provide two solutions:
   * A minimal CLI client documented at `annotation-helper-client/README.md`
@@ -223,6 +223,26 @@ And for more information on authentication with a database using LDAP, visit htt
 We urge you to use a safe authentication method! 
 
 #### Automatically loading forests
+
+When using the annotation-helper suite to annotate not only one sentence but a whole pre-defined corpus of sentences, it will be more practical for the client to automatically send a process request for the next sentence in the corpus instead of having to ask the user for the next one every time.
+To implement this, we recommend adding a section to the configuration file of the client that specifies which requests are to be produced.
+Of course, you will also have to change the code of the client to make use of said section configuration file.
+
+For example, the section could look something like this, assuming the linker processor described above in the example use case for processors.
+The client should then produce requests for processing forests 10 through 30 on the server using the source format `filename` and producing forests formatted as `conll09_predicted`.
+
+```json
+{
+  "first_request": "10",
+  "next_request": "lambda prev: int(prev) + 1",
+  "last_request": "lambda req: req == '30'",
+  "source_format": "filename",
+  "target_format": "conll09_predicted"
+}
+```
+
+Of course, the use of `lambda` here suggests to `eval` the `next_request` and `last_request` in the python code.
+If you don't want to do this, you can also make up your own DSL.
 
 #### Enabling save option after every question in the web client.
 
