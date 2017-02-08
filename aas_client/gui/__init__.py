@@ -531,5 +531,4 @@ if __name__ == '__main__':
     except ConnectionRefusedError:
         print('The connection was refused. Did you start the AaS-server?')
         sys.exit()
-    app.debug = True
     app.run(HOST,PORT)
