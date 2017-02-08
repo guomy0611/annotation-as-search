@@ -268,6 +268,13 @@ def annotation_finished():
         return redirect(url_for('homepage'))
     except KeyError:
         return redirect(url_for('no_cookies_set'))
+    except FileNotFoundError:
+        return redirect(url_for('wrong_folder'))
+
+@app.route('/wrong_folder')
+def wrong_folder():
+    ''' Display this page if current working directory is not aas_client '''
+    return render_template('folder.html')
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -488,13 +495,35 @@ if __name__ == '__main__':
     config = {
         'host_to_connect': 'localhost',
         'port': '8080',
-        'formats' : {},
-        'format_aliases' : {},
+        'formats': {
+            'conll09_gold': {
+            'name': 'conll09_gold',
+            'id': 0,
+            'form': 1,
+            'label': 4,
+            'label_type': 'pos',
+            'head': 8,
+            'relation': 10,
+            'relation_type': 'deprel'
+        }, 'conll09_predicted': {
+           'name': 'conll09_predicted',
+            'id': 0,
+            'form': 1,
+            'label': 4,
+            'label_type': 'pos',
+            'head': 9,
+            'relation': 11,
+            'relation_type': 'deprel'
+        },
+    },
+    'format_aliases': {
+        'conll09': 'conll09_predicted'
+    },
+
         'configfile' : 'config.json'
     }
-    config = read_configfile(
-        arg.configfile if 'configfile' in arg else config['configfile']
-        )
+    config_from_file = read_configfile(
+        arg.configfile if 'configfile' in arg else [])
     update_config(config, arg)
     conll_formats = get_conll_formats(config['formats'], config['format_aliases'])
     try:
@@ -502,4 +531,5 @@ if __name__ == '__main__':
     except ConnectionRefusedError:
         print('The connection was refused. Did you start the AaS-server?')
         sys.exit()
+    app.debug = True
     app.run(HOST,PORT)
