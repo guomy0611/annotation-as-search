@@ -16,6 +16,9 @@ As for the client, we provide two solutions:
   * A more involved Web Client documented at `aas_client/gui/README.md`.
 
 When using one of the clients, make sure that the directory containing the `aas_client` package is part of your `PYTHONPATH` and that the requirements in `aas_client/requirements.txt` are installed.
+Assuming that the annotation-helper repository is located at `/home/me/annotation-helper/`, you can set the PYTHONPATH for the current shell with the following command:
+
+    $ PYTHONPATH='/home/me/annotation-helper/'
 
 ## AaS-Server
 
