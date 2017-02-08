@@ -187,6 +187,9 @@ Here, we assume that the forest’s format is `conll09_predicted` and the script
 
 ### Extending AaS server and client
 
+There are still quite a few things missing from a complete annotation suite.
+Below, we have compiled a short introduction to implementing some of them.
+
 #### Changing the question generation algorithm.
 
 The file `annotation-helper/tree.py` contains the complete code for the question generation algorithm.
