@@ -106,7 +106,9 @@ def close_annotator():
         if request.form['closeApplication']:
             if os.path.isfile('static/annotated_sentence.conll09'):
                 os.remove('static/annotated_sentence.conll09')
-            [os.remove('loadedFiles/' + f) for f in os.listdir('loadedFiles')]
+            [os.remove(UPLOAD_FOLDER + '/' + f) for f in os.listdir(UPLOAD_FOLDER)]
+            if os.path.exists(UPLOAD_FOLDER):
+                os.rmdir(UPLOAD_FOLDER)
             return redirect(url_for('end_server'))
     return render_template('exit.html')
 
