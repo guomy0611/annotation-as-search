@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-'''
+"""
 This module provides a stream based server that interfaces between the tree
 module and a client wishing to use the tree module for help with annotating.
-'''
+"""
 
 import argparse
 import asyncio
@@ -25,44 +25,44 @@ from json_interface import (
     )
 
 def encode_message(message):
-    '''
+    """
     Prepare a message for being sent. This includes converting to json.
-    '''
+    """
     return json.dumps(message).encode()
 
 def decode_message(bytestring):
-    '''
+    """
     Read a sent bytestring in as a json object.
-    '''
+    """
     return json.loads(bytestring.decode())
 
 def pack_message(bytestring):
-    '''
+    """
     Prefix a bytestring by its length and a null byte. This prefix is
     used after sending to extract the message at the receiving side.
-    '''
+    """
     return str(len(bytestring)).encode() + b'\0' + bytestring
 
 class AnnotationHelperProtocol(asyncio.Protocol):
-    '''
+    """
     Serverside asyncio protocol that accepts connections from clients.
     The client will request
-    '''
+    """
 
     def __init__(self, config, forest=None):
-        '''
+        """
         Initialize the protocol object with the config dict.
-        '''
+        """
         self.config = config
         self.forest = forest
         self.message_buffer = b''
 
     def get_message(self):
-        '''
+        """
         Read a complete binary message from a message buffer. The
         message is stripped of its length indicator and only the 'payload'
         is returned.
-        '''
+        """
         separator_index = self.message_buffer.index(0)
         message_length_part = self.message_buffer[0:separator_index]
         try:
@@ -83,19 +83,19 @@ class AnnotationHelperProtocol(asyncio.Protocol):
             return None
 
     def connection_made(self, transport):
-        '''
+        """
         Initialize the protocol object when a connection is made and log
         connection information.
-        '''
+        """
         self.peername = transport.get_extra_info('peername')
-        logging.info('Connection from %s', self.peername)
+        logging.info('Connection from %s', self.peername)  #Connection from ('127.0.0.1', 51884)
         self.transport = transport
 
     def data_received(self, data):
-        '''
+        """
         Use received data to update the forest object and send a response to
         the client to prompt them for further action.
-        '''
+        """
         self.message_buffer += data
         logging.debug('Received %s from %s.', data, self.peername)
         binary_message = self.get_message()
@@ -107,15 +107,30 @@ class AnnotationHelperProtocol(asyncio.Protocol):
             logging.debug('Sent %s to %s.', binary_response, self.peername)
 
     def interpret_message(self, data):
-        '''
+        """
         Helper function used to decide what to with decoded message and to
         interface with the forest.
-        '''
+
+        @:param data: message received from client
+
+        # {
+        #     "type": "answer",
+        #     "question": {
+        #         "head" : "badet-3",
+        #         "dependent": "Lurch-6",
+        #         "relation": "SB",
+        #         "relation_type": "deprel"
+        #     },
+        #     "answer": true
+        # }
+        """
+
         response = {}
         if 'type' not in data:
-            response = create_error('No message type')
-            logging.info('No-message-type error with %s.', self.peername)
+            response = create_error('No message type') #-> sends response back to client
+            logging.info('No-message-type error with %s.', self.peername) #-> logging
 
+        #1
         elif data['type'] == 'request':
             try:
                 self.forest = create_forest(data, self.config)
@@ -131,24 +146,28 @@ class AnnotationHelperProtocol(asyncio.Protocol):
                 logging.error(msg, self.peername)
                 return response
 
-            response = create_question_or_solution(self.forest)
+            response = create_question_or_solution(self.forest)    #start asking questions
 
+        #2
         elif data['type'] == 'answer':
             if not isinstance(self.forest, tree.Forest):
                 error_messsage = 'Create a forest before answering questions.'
                 response = create_error(error_messsage)
                 logging.info('No-forest error with %s.', self.peername)
             else:
-                self.forest.filter(data['question'], data['answer'])
-                response = create_question_or_solution(self.forest)
+                self.forest.filter(data['question'], data['answer']) #filter???
+                response = create_question_or_solution(self.forest)    #keep asking questions
 
+        #3
         elif data['type'] == 'undo':
             self.forest.undo(data['answers'] if 'answers' in data else 1)
             response = create_question_or_solution(self.forest)
 
+        #4
         elif data['type'] == 'abort':
             response = create_solution(self.forest)
 
+        #5
         else:
             response = create_error(
                 'Unknown message type: {}'.format(data['type'])
@@ -158,20 +177,21 @@ class AnnotationHelperProtocol(asyncio.Protocol):
         return response
 
     def connection_lost(self, exc):
-        '''
+        """
         Log when a connection is terminated.
-        '''
+        """
         logging.info('Connection to %s lost.', self.peername)
 
+
 def setup_logging(logfile, loglevel):
-    '''
+    """
     Set up logging for the server application.
 
     Args:
         logfile: The name of the logfile.
         loglevel: String representation of one of the default loglevels:
                 DEBUG, INFO, WARNING, ERROR or CRITICAL.
-    '''
+    """
     logging.basicConfig(
         filename=logfile,
         format='%(asctime)s|%(levelname)s: %(message)s',
@@ -179,16 +199,16 @@ def setup_logging(logfile, loglevel):
         level=getattr(logging, loglevel.upper(), logging.INFO))
 
 def read_configfile(configfile):
-    '''
+    """
     Read a json-formatted configuration file and return the resulting dict.
-    '''
+    """
     try:
         return json.load(open(configfile))
     except FileNotFoundError as e:
         return dict()
 
 def update_config(config, new_pairs):
-    '''
+    """
     Update the config dict with the key-value-pairs in new_data.
 
     Args:
@@ -197,7 +217,7 @@ def update_config(config, new_pairs):
             key-value-pairs that are to be inserted. In the case of a
             namespace, only names not starting with an underscore are added to
             the config. If a vale is None, the pair is ignored.
-    '''
+    """
     if isinstance(new_pairs, dict):
         config.update({k: v for k, v in new_pairs.items() if v is not None})
     elif isinstance(new_pairs, argparse.Namespace):

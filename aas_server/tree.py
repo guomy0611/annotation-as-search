@@ -16,7 +16,7 @@ class Tree(object):
     '''
 
     def __init__(self, format_info=None, id_=0, form=1, head=None, rel=None,
-            rel_type=None):
+            rel_type=None): #needs to specify the index of fields due to different formats, later in config file
         '''
         Initialize the Tree with an empty list later containing the CONLL-Tuples
         and an empty dictionary later containing the position -> word mapping.
@@ -50,7 +50,7 @@ class Tree(object):
         '''
         Initialize a tree object from an already formatted conll string.
         '''
-        tree = cls(**kwargs)
+        tree = cls(**kwargs) #keyword-args
         lines = [
             line.strip()
             for line in tree_string.split('\n')
@@ -72,11 +72,11 @@ class Tree(object):
         self.nodes.append(tuple(conll_parts))
 
         # fills mapping position -> word
-        self.dictio[conll_parts[self.id]] = conll_parts[self.form]
+        self.dictio[conll_parts[self.id]] = conll_parts[self.form] #position -> word mapping
 
     def contains(self, tup):
         '''
-        Checks if a 3-tuple (for example ('Es1', 'ist2', 'SB') ) is contained
+        Checks if a 3-tuple (for example ('Es-1', 'ist-2', 'SB') ) is contained
         in this tree.
         '''
         return tup in self.get()
@@ -93,6 +93,12 @@ class Tree(object):
         Gets a list of 3-tuples from the list containing the CONLL-tuples.
         '''
         #print(self.dictio)
+
+        """
+             ( dependent-id, head-id, relation)
+        e.g. ('toller-4', 'Satz-5', 'NK')
+
+        """
         if self.tuples is not None: return self.tuples
         self.tuples={(self.dictio[x[0]]+"-"+x[0], #Look up the index
                  #in the dictionary, take the word and add the
@@ -273,6 +279,9 @@ class Forest(object):
         This method assumes that all trees in the forest have the same number
         of nodes.
         '''
+
+        #compare each field of each node of each tree the first tree in the forest, (because the first one is the best??)
+
         fixed_fields = []
         if len(self.trees) == 0:
             return fixed_fields
@@ -313,16 +322,19 @@ class Forest(object):
             raise ValueError('This forest contains no trees.')
 
 if __name__ == "__main__":
-    tree = Tree()
-    forest = Forest()
-    for line in open(sys.argv[1]):
-        if line == "\n":
-            forest.add(tree)
-            tree = Tree()
-            continue
-        tree.add(line)
+    # tree = Tree(head = 9, rel = 11, rel_type = "deprel")
+    # forest = Forest()
+    # for line in open("output.txt"): #sys.argv[1]):
+    #     if line == "\n":
+    #         forest.add(tree)
+    #         tree = Tree(head = 9, rel = 11, rel_type = "deprel")
+    #         continue
+    #     tree.add(line)
+    #     print(tree.nodes)
+
+    forest = Forest.from_string(open('output.txt').read(), head=9, rel=10, rel_type="deprel")
     while len(forest.trees) != 1:
-        print(forest.get_fixed_fields())
+
         question = forest.question()
         print(" ".join(x[1] for x in forest.trees[0].nodes))
         answer = input(question)
@@ -331,5 +343,17 @@ if __name__ == "__main__":
         else:
             forest.filter(question, False)
         if len(forest.trees) == 1:
-            forest.trees[0].to_latex()
+            #forest.trees[0].to_latex()
             print(forest.trees[0].to_conll())
+
+
+
+    # tree = Tree()
+    # tree = Tree.from_string(open('test_tree.txt').read(),head = 9, rel = 10, rel_type = "deprel")
+    #
+    # print(tree.nodes)
+    # print(tree.dictio)
+    # print(tree.get())
+
+
+

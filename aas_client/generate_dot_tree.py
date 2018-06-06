@@ -83,3 +83,5 @@ def generate_dot_tree(tree, format_info, fileformat='svg',
             return 'This tree is not possible!'
 
     return dot
+
+

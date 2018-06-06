@@ -1,6 +1,6 @@
 {
-  "host": "",
-  "port": "8080",
+  "host": "0.0.0.0",
+  "port": 8080,
   "formats": {
     "conll09_gold": {
       "name": "conll09_gold",
@@ -35,7 +35,8 @@
     "conll09": "conll09_predicted"
   },
   "default_format": "conll09",
-  "processors": [{
+  "processors": [
+    {
     "name": "UCTO",
     "type": "tokenizer",
     "command": ["/usr/bin/ucto", "{infile}", "{outfile}"],

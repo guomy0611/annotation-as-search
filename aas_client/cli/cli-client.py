@@ -48,7 +48,7 @@ def perform_yes(question):
 
 def perform_no(question):
     '''
-    Return a yes AaSP message.
+    Return a no AaSP message.
     '''
     return {
         'type': 'answer',

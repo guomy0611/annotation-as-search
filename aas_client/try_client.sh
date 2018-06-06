@@ -28,7 +28,7 @@ start_server() {
 start_client() {
     local host="$1"
     local port="$2"
-    "$PYTHON" "$CLIENT_DIR/cli-client.py"\
+    "$PYTHON" "$CLIENT_DIR/cli/cli-client.py"\
         -H "$host"\
         -p "$port"\
         -f "$CLIENT_DIR/../test/badender_lurch.conll09"

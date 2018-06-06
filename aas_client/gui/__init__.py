@@ -7,6 +7,7 @@ from flask import (
     redirect,
     session
     )
+
 from werkzeug.utils import secure_filename
 import sys
 import os
@@ -20,8 +21,10 @@ from aas_client.common import (
     decode_message,
     pack_message
     )
-from get_sentence_from_conll import generate_sentence
 from aas_client.generate_dot_tree import generate_dot_tree
+from get_sentence_from_conll import generate_sentence
+
+
 
 # define global read-only variables to make flask work
 # flask typical app variables and definitions
@@ -37,7 +40,7 @@ socket_to_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # taken from server.py
 def update_config(config, new_pairs):
-    '''
+    """
     Update the config dict (conll-formats) with the key-value-pairs in new_data.
 
     Args:
@@ -46,7 +49,7 @@ def update_config(config, new_pairs):
             key-value-pairs that are to be inserted. In the case of a
             namespace, only names not starting with an underscore are added to
             the config. If a vale is None, the pair is ignored.
-    '''
+    """
     if isinstance(new_pairs, dict):
         config.update({k: v for k, v in new_pairs.items() if v is not None})
     elif isinstance(new_pairs, argparse.Namespace):
@@ -61,16 +64,16 @@ def update_config(config, new_pairs):
 
 # taken from server.py
 def read_configfile(configfile):
-    '''
+    """
     Read a json-formatted configuration file and return the resulting dict.
-    '''
+    """
     try:
         return json.load(open(configfile))
     except FileNotFoundError as e:
         return dict()
 
 def get_conll_formats(formats, format_aliases):
-    ''' Save information about conll-formats in a dictionary.
+    """ Save information about conll-formats in a dictionary.
 
     Store conll-information in a dictionary. Each entry has the form
     conll_formats[format] = all information  in config regarding this format.
@@ -83,7 +86,7 @@ def get_conll_formats(formats, format_aliases):
         format_aliases: The format_aliases dict specified in the config.
     Returns a dict containing all conll-formats and the specification needed to
     start the AaS-server.
-    '''
+    """
     conll_formats = formats
     for alias in format_aliases.keys():
         if format_aliases[alias] in conll_formats.keys():
@@ -94,14 +97,14 @@ def get_conll_formats(formats, format_aliases):
 
 @app.route('/')
 def homepage():
-    ''' render startpage and remove request-information of previous annotation '''
+    """ render startpage and remove request-information of previous annotation """
     if 'requests' in session.keys():
         session.pop('requests')
     return render_template('index.html')
 
 @app.route('/exit/', methods = ['POST', 'GET'])
 def close_annotator():
-    ''' Render exit page, remove all created files from storage and close server '''
+    """ Render exit page, remove all created files from storage and close server """
     if request.method == 'POST':
         if request.form['closeApplication']:
             if os.path.isfile('static/annotated_sentence.conll09'):
@@ -114,7 +117,7 @@ def close_annotator():
 
 @app.route('/contact/')
 def contact():
-    ''' Render contactpage and randomize order of displayed information'''
+    """ Render contactpage and randomize order of displayed information"""
     authors = ['Michael Staniek', 'Rebekka Hubert', 'Simon Will']
     shuffle(authors)
     return render_template('contact.html',
@@ -125,35 +128,35 @@ def contact():
 
 @app.route('/about/')
 def about():
-    ''' Display about-page to show project information'''
+    """ Display about-page to show project information"""
     return render_template('about.html')
 
 @app.route('/save_file/', methods = ['POST', 'GET'])
 def saveFile():
-   ''' Show option to download the annotated sentences '''
+   """ Show option to download the annotated sentences """
    return render_template('save_file.html')
 
 # only use this when running with Flasks default server
 def end_application():
-    ''' create a request to shut werkzeug-server down and send it '''
+    """ create a request to shut werkzeug-server down and send it """
     app_end = request.environ.get('werkzeug.server.shutdown')
     app_end()
 
 @app.route('/end_server', methods = ['GET'])
 def end_server():
-    ''' Shutdown Flask-server by sending a shutdown request to the Flask-sever '''
+    """ Shutdown Flask-server by sending a shutdown request to the Flask-sever """
     end_application()
     socket_to_server.close()
     return 'Ending AaS-GUI...'
 
 @app.route('/choose_input', methods=['GET','POST'])
 def choose_input():
-    ''' Show input page '''
+    """ Show input page """
     return render_template('choose.html')
 
 @app.route('/input_sentence', methods=['GET', 'POST'])
 def input_sentence():
-    ''' Get a raw sentence and create a question process '''
+    """ Get a raw sentence and create a question process """
     if request.method == 'POST':
         if request.form['sentence']:
             requests = request_creator((request.form['sentence'],
@@ -169,7 +172,8 @@ def input_sentence():
 
 @app.route('/load_file', methods=['GET', 'POST'])
 def load_file():
-    ''' load the given forest file and create a forest-request '''
+    """ load the given forest file and create a forest-request """
+
     if request.method == 'POST':
         if request.files:
             data_file = request.files['file']
@@ -195,7 +199,7 @@ def load_file():
 
 @app.route('/annotate', methods = ['GET', 'POST'])
 def annotate():
-    ''' Start and continue annotation loop.
+    """ Start and continue annotation loop.
 
     Send current question to the AaS-Server, then receive and visualise the
     answer of the server. Display best tree and the received question.
@@ -203,7 +207,7 @@ def annotate():
     Returns a html-page containing the best tree, current question and optional answers
     if server sent an error:
         Returns error-html-page
-    '''
+    """
 
     if len(session.keys()) == 0:
         return redirect(url_for('no_cookies_set'))
@@ -241,14 +245,14 @@ def annotate():
 
 @app.route('/endResult', methods=['GET', 'POST'])
 def annotation_finished():
-    ''' Display final tree and optional user actions
+    """ Display final tree and optional user actions
 
     Visualize remaining tree or in case of previous aborting best tree and show it.
     Display tree (conll-format) in a textbox with the option to change it. Display
     possilble user actions 'Save' and 'Visualize'.
 
     Returns html-page containig visualised tree, question and user options
-    '''
+    """
     try:
         if request.method == 'POST':
             answer = request.form['answer']
@@ -275,26 +279,26 @@ def annotation_finished():
 
 @app.route('/wrong_folder')
 def wrong_folder():
-    ''' Display this page if current working directory is not aas_client '''
+    """ Display this page if current working directory is not aas_client """
     return render_template('folder.html')
 
 @app.errorhandler(404)
 def page_not_found(e):
-    ''' Catch 404 error and render costumized template'''
+    """ Catch 404 error and render costumized template"""
     return render_template('404.html')
 
 @app.route('/noCookies')
 def no_cookies_set():
-    ''' Catch session[key] error and render costumized, helpful template '''
+    """ Catch session[key] error and render costumized, helpful template """
     return render_template('cookies.html')
 
 @app.route('/follow_instructions')
 def follow_instructions():
-    ''' Catch NameError if user tries to skip annotationprocess '''
+    """ Catch NameError if user tries to skip annotationprocess """
     return render_template('instructions.html')
 
 def request_creator(requests):
-    ''' Create first request to start annotation-loop
+    """ Create first request to start annotation-loop
     Creates either a forest or a sentence request
     Arguments:
         requests: tuple consisting of:
@@ -302,7 +306,7 @@ def request_creator(requests):
                     conll-format,
                     nothing or key-word forest to choose correct request
     Returns a json-like dictionary
-    '''
+    """
     if requests[2] == 'forest':
         data = open(UPLOAD_FOLDER +'/' + requests[0]).read()
         session['sentence_format'] = conll_formats[requests[1]]
@@ -321,18 +325,18 @@ def request_creator(requests):
             }
 
 def allowed_file(filename):
-    ''' Check if file has an extension specified in global allowed extensions '''
+    """ Check if file has an extension specified in global allowed extensions """
     return '.' in filename and \
             filename.split('.')[-1].lower() in  ALLOWED_EXTENSIONS
 
 
 def inspect_message_buffer(message_buffer):
-    '''
+    """
     Check if a message buffer contains a complete prefix indicating
     the length of the message. If so, return the index of the null byte
     separating the length indication from the payload and return the
     indicated length of the message.
-    '''
+    """
     try:
         separator_index = message_buffer.index(0)
     except ValueError as e:
@@ -350,12 +354,12 @@ def inspect_message_buffer(message_buffer):
     return separator_index, message_length
 
 def receive_message(socket, buffersize=1024):
-    '''
+    """
     Read data from the given socket until a full message is received.
     Return the message as a bytestring.
     If there is more than one message in the message buffer the global
     message_buffer will hold the rest.
-    '''
+    """
     global message_buffer
     if 'message_buffer' not in globals():
         message_buffer = b''
@@ -379,7 +383,7 @@ def receive_message(socket, buffersize=1024):
 
 @app.route('/get_answer', methods = ['GET', 'POST'])
 def get_answer():
-    ''' Return request for annotation-loop according to user answer'''
+    """ Return request for annotation-loop according to user answer"""
     if request.method == 'POST':
         answer = request.form['choice']
         if answer == 'Yes':
@@ -419,7 +423,7 @@ def get_abort():
     }
 
 def handle_solution(data):
-    ''' Return conll representation of annotated tree '''
+    """ Return conll representation of annotated tree """
     solution = data['tree']['nodes']
     words = ['\t'.join(word) for word in solution]
     tree = '\n'.join(words)
@@ -429,7 +433,7 @@ def handle_question(question):
     visualise(question)
 
 def visualise(data):
-    ''' Visualize given tree
+    """ Visualize given tree
 
     Vizualize the given tree: Color fixed edges green, uncertain edges red, all
     others black
@@ -438,7 +442,7 @@ def visualise(data):
         data: message sent by the AnnotationHelper-server
     Returns a svg-image of the best tree (first tree in the list of trees) or
     a svg-image of the last given tree (solution case)
-    '''
+    """
     try:
         if data['type'] == 'question':
             return generate_dot_tree(data['best_tree'], session['sentence_format']).pipe().decode('utf-8')
@@ -453,8 +457,8 @@ def visualise(data):
 
 
 if __name__ == '__main__':
-    desc = '''Start a client that connects with the AaS server
-    and helps with annotating sentences.'''
+    desc = """Start a client that connects with the AaS server
+    and helps with annotating sentences."""
     parser = argparse.ArgumentParser(description=desc)
     parser.add_argument(
         '-H',
@@ -496,7 +500,7 @@ if __name__ == '__main__':
         PORT = 5000
     config = {
         'host_to_connect': 'localhost',
-        'port': '8080',
+        'port': 8080,
         'formats': {
             'conll09_gold': {
             'name': 'conll09_gold',
@@ -533,4 +537,6 @@ if __name__ == '__main__':
     except ConnectionRefusedError:
         print('The connection was refused. Did you start the AaS-server?')
         sys.exit()
-    app.run(HOST,PORT)
+
+    app.debug = True
+    app.run(HOST, PORT) #web client runs on local host and port
