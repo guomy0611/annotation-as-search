@@ -11,6 +11,7 @@ __pycache__/
 
 # Distribution / packaging
 .Python
+.idea/
 env/
 build/
 develop-eggs/
@@ -23,6 +24,7 @@ lib64/
 parts/
 sdist/
 var/
+loadedFiles/
 *.egg-info/
 .installed.cfg
 *.egg
