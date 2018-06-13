@@ -42,10 +42,12 @@ body {
 }
 
 /* Main marketing message and sign up button */
+
 .jumbotron {
   text-align: center;
   border-bottom: 1px solid #e5e5e5;
 }
+
 .jumbotron .btn {
   padding: 14px 24px;
   font-size: 21px;
@@ -76,4 +78,11 @@ body {
   .jumbotron {
     border-bottom: 0;
   }
+
+  /*.subcat{
+    border: 1px solid #687D6D;
+    text-align: left;
+    border-radius: 5px;
+
+  }*/
 }

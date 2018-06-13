@@ -1,0 +1,14 @@
+1	Doch	_	doch	_	KON	_	_	-1	-1	_	_	_	_
+2	alleine	_	alleine	_	ADV	_	_	-1	-1	_	_	_	_
+3	auf	_	auf	_	APPR	_	_	-1	-1	_	_	_	_
+4	Bonn	_	Bonn	_	NE	_	acc|sg|neut	-1	-1	_	_	_	_
+5	und	_	und	_	KON	_	_	-1	-1	_	_	_	_
+6	Brüssel	_	Brüssel	_	NE	_	acc|sg|neut	-1	-1	_	_	_	_
+7	zu	_	zu	_	PTKZU	_	_	-1	-1	_	_	_	_
+8	hoffen	_	hoffen	_	VVINF	_	_	-1	-1	_	_	_	_
+9	,	_	--	_	$,	_	_	-1	-1	_	_	_	_
+10	wäre	_	sein	_	VAFIN	_	sg|3|past|subj	-1	-1	_	_	_	_
+11	viel	_	viel	_	ADV	_	_	-1	-1	_	_	_	_
+12	zu	_	zu	_	PTKA	_	_	-1	-1	_	_	_	_
+13	einfach	_	einfach	_	ADJD	_	pos	-1	-1	_	_	_	_
+14	.	_	--	_	$.	_	_	-1	-1	_	_	_	_

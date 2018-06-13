@@ -100,6 +100,7 @@ class Tree(object):
 
         """
         if self.tuples is not None: return self.tuples
+        #TODO: try except KeyError return ErrorMessage: indicated format and file format doesn't match
         self.tuples={(self.dictio[x[0]]+"-"+x[0], #Look up the index
                  #in the dictionary, take the word and add the
                  #the index to the word.
@@ -322,6 +323,7 @@ class Forest(object):
             raise ValueError('This forest contains no trees.')
 
 if __name__ == "__main__":
+    from pprint import pprint
     # tree = Tree(head = 9, rel = 11, rel_type = "deprel")
     # forest = Forest()
     # for line in open("output.txt"): #sys.argv[1]):
@@ -332,28 +334,32 @@ if __name__ == "__main__":
     #     tree.add(line)
     #     print(tree.nodes)
 
-    forest = Forest.from_string(open('output.txt').read(), head=9, rel=10, rel_type="deprel")
-    while len(forest.trees) != 1:
+    forest = Forest.from_string(open('../Parser/res/output.conll09').read(), head=9, rel=11, rel_type="deprel")
+    for tree in forest.trees:
+        pprint(tree.dictio)
+        pprint(tree.get())
 
-        question = forest.question()
-        print(" ".join(x[1] for x in forest.trees[0].nodes))
-        answer = input(question)
-        if answer == "j":
-            forest.filter(question, True)
-        else:
-            forest.filter(question, False)
-        if len(forest.trees) == 1:
-            #forest.trees[0].to_latex()
-            print(forest.trees[0].to_conll())
 
+    # while len(forest.trees) != 1:
+    #
+    #     question = forest.question()
+    #     print(" ".join(x[1] for x in forest.trees[0].nodes))
+    #     answer = input(question)
+    #     if answer == "j":
+    #         forest.filter(question, True)
+    #     else:
+    #         forest.filter(question, False)
+    #     if len(forest.trees) == 1:
+    #         #forest.trees[0].to_latex()
+    #         print(forest.trees[0].to_conll())
 
 
     # tree = Tree()
-    # tree = Tree.from_string(open('test_tree.txt').read(),head = 9, rel = 10, rel_type = "deprel")
+    # tree = Tree.from_string(open('../test/single_tree.conll09').read(),head = 9, rel = 11, rel_type = "deprel")
     #
-    # print(tree.nodes)
-    # print(tree.dictio)
-    # print(tree.get())
+    # #pprint(tree.nodes)
+    # pprint(tree.dictio)
+    # pprint(tree.get())
 
 
 

@@ -1,0 +1,8 @@
+
+#to start the server:
+python aas_server/server.py --logfile aas_server/aas-server.log --configfile aas_server/config.json --loglevel INFO
+
+#to start the client
+python aas_client/gui/__init__.py -c aas_client/gui/config.json
+
+

@@ -1,14 +1,15 @@
 {% extends "header.html"  %}
 <!-- On this page the user enters the input (sentence/forest file) -->
 {% block body %}
-<div class="jumbotron">
+<div class="jumbotron" >
     <h1>Choose input</h1>
-    <h3>You can</h3>
+    <br>
     <p>
         <a class="btn btn-lg btn-default" id='inputSentence'
         role="button">Enter a sentence</a>
         <a class="btn btn-lg btn-default" id='loadForest'
         role="button">Load a forest from a conll-file</a>
+
         {% with messages = get_flashed_messages() %}
             {% if messages %}
                 <ul class=flashes>  
@@ -18,6 +19,7 @@
                 </ul>
             {% endif %}
         {% endwith %}
+
         <!-- Display this if a sentence is entered -->
         <!-- Send input information to function input_sentence() -->
         <form method="POST" id='getInputSentence' action="/input_sentence" hidden>
@@ -28,24 +30,23 @@
             <input type="text" name="format_sentence" value="conll09">
             <br>
             <input type=submit value=Upload>
-        </form>;
+        </form>
+
         <!-- Display this form if the user chooses to upload a forest file -->
         <!-- Send input information to function load_file() -->
         <form method="POST" enctype="multipart/form-data" id='getForest' 
         action="/load_file" hidden>
-            <h3>Load a forest from a file</h3>
-            <p>
-                <input type=file name=file>
-                <p>Enter the format of the forest trees</p>
-                <input type="text" name="forest_format" value="conll09">
-                <br>
-                <input type=submit value=Upload>
-            </p>
+
+            <p>choose the file</p>
+            <input type=file name=file>
+
+            <label for="forest_format">Enter the format of the forest trees</label>
+            <input id="forest_format" type="text" name="forest_format" value="conll09_gold">
+            <br>
+            <br>
+            <input type=submit value=Upload>
+
         </form>
- 
-
-
-    </p>
 </div>
 
 <!-- JS-function to display input options -->

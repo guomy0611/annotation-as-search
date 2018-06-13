@@ -1,0 +1,6 @@
+java -cp anna-3.61.jar is2.util.Split $1 > one-word-per-line.txt
+java -Xmx2G -cp anna-3.3-d8.jar is2.lemmatizer.Lemmatizer -model  lemma-ger-3.6.model -test one-word-per-line.txt -out  lemmatized.txt
+java -Xmx2G -cp anna-3.3-d8.jar is2.tag.Tagger  -model  tag-ger-3.6.model -test lemmatized.txt -out  tagged.txt
+java -Xmx2G -cp anna-3.3-d8.jar is2.mtag.Tagger  -model  morphology-ger-3.6.model -test tagged.txt -out  morph-tagged.txt
+java -cp anna-3.3-d8.jar:lib/trove-2.0.4.jar is2.parser.ParserNBest -model de3.anna.mdl -test morph-tagged.txt -out n-best.out -nbest 1000
+python nbest_to_conll.py n-best.out $2

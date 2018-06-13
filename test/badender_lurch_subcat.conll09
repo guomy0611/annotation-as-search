@@ -1,6 +1,6 @@
 1	Mit	mit	_	ADP	APPR	_	_	3	_	MO	_	_
 2	Bedacht	bedacht	_	NOUN	NN	_	_	1	_	NK	_	_
-3	badet	baden	_	VERB	VVFIN	_	_	0	_	--	_	_
+3	badet	baden	_	VERB	VVFIN	_	_	0	_	--	_	(OBJA,SUBJ)
 4	heute	heute	_	ADV	ADV	_	_	3	_	MO	_	_
 5	ein	ein	_	DET	ART	_	_	6	_	NK	_	_
 6	Lurch	lurch	_	NOUN	NN	_	_	3	_	SB	_	_
@@ -11,7 +11,7 @@
 
 1	Mit	mit	_	ADP	APPR	_	_	3	_	MO	_	_
 2	Bedacht	bedacht	_	NOUN	NN	_	_	1	_	NK	_	_
-3	badet	baden	_	VERB	VVFIN	_	_	0	_	--	_	_
+3	badet	baden	_	VERB	VVFIN	_	_	0	_	--	_	(OBJA,SUBJ)
 4	heute	heute	_	ADV	ADV	_	_	6	_	MO	_	_
 5	ein	ein	_	DET	ART	_	_	6	_	NK	_	_
 6	Lurch	lurch	_	NOUN	NN	_	_	3	_	SB	_	_
@@ -22,7 +22,7 @@
 
 1	Mit	mit	_	ADP	APPR	_	_	3	_	MO	_	_
 2	Bedacht	bedacht	_	NOUN	NN	_	_	1	_	NK	_	_
-3	badet	baden	_	VERB	VVFIN	_	_	0	_	--	_	_
+3	badet	baden	_	VERB	VVFIN	_	_	0	_	--	_	(OBJP,SUBJ)
 4	heute	heute	_	ADV	ADV	_	_	3	_	MO	_	_
 5	ein	ein	_	DET	ART	_	_	6	_	NK	_	_
 6	Lurch	lurch	_	NOUN	NN	_	_	3	_	MO	_	_
@@ -33,7 +33,7 @@
 
 1	Mit	mit	_	ADP	APPR	_	_	3	_	MO	_	_
 2	Bedacht	bedacht	_	NOUN	NN	_	_	1	_	NK	_	_
-3	badet	baden	_	VERB	VVFIN	_	_	0	_	--	_	_
+3	badet	baden	_	VERB	VVFIN	_	_	0	_	--	_	(OBJP,SUBJ)
 4	heute	heute	_	ADV	ADV	_	_	3	_	MO	_	_
 5	ein	ein	_	DET	ART	_	_	6	_	MO	_	_
 6	Lurch	lurch	_	NOUN	NN	_	_	3	_	SB	_	_
@@ -45,7 +45,7 @@
 
 1	Mit	mit	_	ADP	APPR	_	_	3	_	MO	_	_
 2	Bedacht	bedacht	_	NOUN	NN	_	_	1	_	NK	_	_
-3	badet	baden	_	VERB	VVFIN	_	_	0	_	--	_	_
+3	badet	baden	_	VERB	VVFIN	_	_	0	_	--	_	(OBJP,SUBJ)
 4	heute	heute	_	ADV	ADV	_	_	3	_	MO	_	_
 5	ein	ein	_	DET	ART	_	_	6	_	NK	_	_
 6	LALA	lurch	_	NOUN	NN	_	_	3	_	SB	_	_
@@ -56,7 +56,7 @@
 
 1	Mit	mit	_	ADP	APPR	_	_	3	_	MO	_	_
 2	Bedacht	bedacht	_	NOUN	NN	_	_	1	_	NK	_	_
-3	badet	baden	_	VERB	VVFIN	_	_	0	_	--	_	_
+3	badet	baden	_	VERB	VVFIN	_	_	0	_	--	_	(OBJP,SUBJ)
 4	heute	heute	_	ADV	ADV	_	_	6	_	MO	_	_
 5	ein	ein	_	DET	ART	_	_	6	_	NK	_	_
 6	LALA	lurch	_	NOUN	NN	_	_	3	_	SB	_	_
@@ -67,7 +67,7 @@
 
 1	Mit	mit	_	ADP	APPR	_	_	3	_	MO	_	_
 2	Bedacht	bedacht	_	NOUN	NN	_	_	1	_	NK	_	_
-3	badet	baden	_	VERB	VVFIN	_	_	0	_	--	_	_
+3	badet	baden	_	VERB	VVFIN	_	_	0	_	--	_	(OBJP,SUBJ)
 4	heute	heute	_	ADV	ADV	_	_	3	_	MO	_	_
 5	ein	ein	_	DET	ART	_	_	6	_	NK	_	_
 6	LALA	lurch	_	NOUN	NN	_	_	3	_	MO	_	_
@@ -78,7 +78,7 @@
 
 1	Mit	mit	_	ADP	APPR	_	_	3	_	MO	_	_
 2	Bedacht	bedacht	_	NOUN	NN	_	_	1	_	NK	_	_
-3	badet	baden	_	VERB	VVFIN	_	_	0	_	--	_	_
+3	badet	baden	_	VERB	VVFIN	_	_	0	_	--	_	(OBJP,SUBJ)
 4	heute	heute	_	ADV	ADV	_	_	3	_	MO	_	_
 5	ein	ein	_	DET	ART	_	_	6	_	MO	_	_
 6	LALA	lurch	_	NOUN	NN	_	_	3	_	SB	_	_

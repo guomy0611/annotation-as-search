@@ -1,0 +1,49 @@
+{% extends "header.html"  %}
+{% block body %}
+<!-- display the subcat-frame of current sentence, asks the if it is correct, and possible answer to correct it-->
+<div>
+    <br>
+    <div class="container" >
+        <h2>{{ sentence }}</h2>
+        <h3>{{ subcat }}</h3>
+    </div>
+    <br>
+    <br>
+
+    <div class="container">
+        <!-- Send answer to get_answer_subcat() function -->
+        <form method="post" action="/get_answer_subcat">
+
+            <input type="radio" name="subcat" id=0 value="correct">
+            <label for=0>The given subcat frame is correct</label>
+            <br>
+            <br>
+
+            <div class = "subcat">
+                <p><b>The given subcat frame is incorrect and the correct subcat frame is:</b></p>
+
+                <input type="radio" name="subcat" id=1 value="(subj,obj)">
+                <label for=1>(subj,obj)</label><br>
+
+                <input type="radio" name="subcat" id=2 value="(subj,objp)">
+                <label for=2>(subj,objp)</label><br>
+
+                <label for=3>Other</label>
+                <input type="text" name="subcat" id=3 value=""><br>
+            </div>
+            <br>
+
+            <input type="radio" name="subcat" id=4 value="don't care">
+            <label for=4>Don't care</label><br>
+
+            <br>
+            <div>
+            <h3>Do you want to annotate the sentence?</h3>
+                <input type="submit" name="annotate" value="Yes">
+                <input type="submit" name="annotate" value="No">
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

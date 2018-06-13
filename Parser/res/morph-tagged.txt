@@ -1,0 +1,25 @@
+1	Das	_	der	_	PDS	_	nom|sg|neut	-1	-1	_	_	_	_
+2	ist	_	sein	_	VAFIN	_	sg|3|pres|ind	-1	-1	_	_	_	_
+3	ein	_	ein	_	ART	_	nom|sg|masc	-1	-1	_	_	_	_
+4	toller	_	toll	_	ADJA	_	nom|sg|masc|pos	-1	-1	_	_	_	_
+5	Satz	_	Satz	_	NN	_	nom|sg|masc	-1	-1	_	_	_	_
+6	,	_	--	_	$,	_	_	-1	-1	_	_	_	_
+7	den	_	der	_	PRELS	_	acc|sg|masc	-1	-1	_	_	_	_
+8	ich	_	ich	_	PPER	_	nom|sg|*|1	-1	-1	_	_	_	_
+9	sehr	_	sehr	_	ADV	_	_	-1	-1	_	_	_	_
+10	gerne	_	gerne	_	ADV	_	_	-1	-1	_	_	_	_
+11	habe	_	haben	_	VAFIN	_	sg|1|pres|ind	-1	-1	_	_	_	_
+12	,	_	--	_	$,	_	_	-1	-1	_	_	_	_
+13	und	_	und	_	KON	_	_	-1	-1	_	_	_	_
+14	von	_	von	_	APPR	_	_	-1	-1	_	_	_	_
+15	dem	_	der	_	PRELS	_	dat|sg|masc	-1	-1	_	_	_	_
+16	ich	_	ich	_	PPER	_	nom|sg|*|1	-1	-1	_	_	_	_
+17	will	_	wollen	_	VMFIN	_	sg|3|pres|ind	-1	-1	_	_	_	_
+18	das	_	der	_	PDS	_	acc|sg|neut	-1	-1	_	_	_	_
+19	er	_	er	_	PPER	_	nom|sg|masc|3	-1	-1	_	_	_	_
+20	sehr	_	sehr	_	ADV	_	_	-1	-1	_	_	_	_
+21	gut	_	gut	_	ADJD	_	pos	-1	-1	_	_	_	_
+22	geparsed	_	parsedn	_	VVPP	_	_	-1	-1	_	_	_	_
+23	wird	_	werden	_	VAFIN	_	sg|3|pres|ind	-1	-1	_	_	_	_
+24	.	_	--	_	$.	_	_	-1	-1	_	_	_	_
+

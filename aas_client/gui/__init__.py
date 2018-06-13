@@ -9,6 +9,8 @@ from flask import (
     )
 
 from werkzeug.utils import secure_filename
+#secure_filename("My cool movie.mov") = 'My_cool_movie.mov'
+
 import sys
 import os
 import argparse
@@ -22,7 +24,7 @@ from aas_client.common import (
     pack_message
     )
 from aas_client.generate_dot_tree import generate_dot_tree
-from get_sentence_from_conll import generate_sentence
+from helper import generate_sentence, get_subcatframe, save_result
 
 
 
@@ -172,30 +174,58 @@ def input_sentence():
 
 @app.route('/load_file', methods=['GET', 'POST'])
 def load_file():
-    """ load the given forest file and create a forest-request """
+    """
+        load the given forest file and create a forest-request
 
+    """
     if request.method == 'POST':
         if request.files:
             data_file = request.files['file']
             if data_file.filename == '':
                 flash('No file selected')
                 return redirect(url_for('choose_input'))
+
             if allowed_file(data_file.filename):
-                data = secure_filename(data_file.filename)
+                data = secure_filename(data_file.filename) # ->the file name saved on the server
+                session['input_file'] = data
                 # create folder for uploaded files if one does not exist yet
                 if not os.path.exists(UPLOAD_FOLDER):
                     os.makedirs(UPLOAD_FOLDER)
-                data_file.save(os.path.join(app.config['UPLOAD_FOLDER'], data))
-                session['requests'] = data, request.form['forest_format'], 'forest'
-                sentence = generate_sentence(
-                            open(UPLOAD_FOLDER +'/' + data).read()
-                            )
-                session['sentence'] = sentence
-                return redirect(url_for('annotate'))
+                data_file.save(os.path.join(app.config['UPLOAD_FOLDER'], data)) #->save the file on server
+
+
+                # session['requests'] = data, request.form['forest_format'], 'forest'
+                #                     #('input.conll09', 'conll09_gold','forest')
+
+                # sentence = generate_sentence(
+                #             open(UPLOAD_FOLDER +'/' + data).read()
+                #             )
+
+                session['format_name'] = request.form['forest_format']
+                session['sentence_format'] = conll_formats[request.form['forest_format']] #(format_name,format_json)
+                session['conll_strings'] = [conll_str for conll_str in open(UPLOAD_FOLDER + '/' + data).read().split('\n\n\n')]
+                session['sentences'] = [generate_sentence(conll_str) for conll_str in session['conll_strings']]  # ->list of raw sentence
+                session['subcats'] = [get_subcatframe(conll_str) for conll_str in session['conll_strings']] # ->list of subcatframes
+
+                return redirect(url_for('check_subcat'))
+
             else:
                 flash('File format is not allowed')
                 return redirect(url_for('choose_input'))
     return render_template('load_file.html')
+
+
+@app.route('/subcatframe')
+def check_subcat():
+    sentence = session['sentences'][0]
+    print(sentence)
+    print(session['subcats'])
+    subcat = session['subcats'][0] #e.g.('badet', '(subj,obj)')
+    subcat = '{}{}'.format(subcat[1],subcat[2])
+    return render_template('subcat.html',
+                           sentence=sentence,
+                           subcat=subcat
+                           )
 
 @app.route('/annotate', methods = ['GET', 'POST'])
 def annotate():
@@ -209,33 +239,52 @@ def annotate():
         Returns error-html-page
     """
 
+    print('anno')
+    print(session['subcats'])
     if len(session.keys()) == 0:
         return redirect(url_for('no_cookies_set'))
+
     if 'requests' not in session.keys():
-        return redirect(url_for('follow_instructions'))
-    if type(session['requests']) == tuple:
-        requests = request_creator(session['requests'])
+        requests = request_creator2()  # the start of a sentence annotation
+
     else:
         requests = session['requests']
+
+
+
     socket_to_server.send(pack_message(encode_message(requests)))
     received_message = decode_message(receive_message(socket_to_server))
     sentence_visual = visualise(received_message)
+
     if sentence_visual == 'Parser was not found.':
         return render_template('parser_not_found.html')
+
     if 'question' in received_message:
+
         session['question'] = received_message['question']
         question = "Does " + session['question']['dependent'] + " depend on " \
                     + session['question']['head'] + " (relationtype: "  \
                     + session['question']['relation_type'] + ", relation: " \
                     + session['question']['relation'] + ")?"
+
+        sentence = session['sentences'][0]
+
         return render_template('visualised_tree_dot.html',
                                 question=question,
-                                sentence=session['sentence'],
+                                sentence=sentence,
                                 sentence_visual=sentence_visual
                                 )
+
+
     elif 'error' in received_message:
         return render_template('error.html')
-    session['message'] = received_message
+
+    session.pop('requests') #clear the request for the next sentence to annotate
+    session['conll_strings'].pop(0)
+    session["sentences"].pop(0)
+
+    #the right tree nodes
+    session['solution'] = received_message['tree']['nodes']
     return render_template('visualised_tree_final.html',
                             sentence_visual = sentence_visual,
                             sentence_conll = handle_solution(received_message),
@@ -257,25 +306,32 @@ def annotation_finished():
         if request.method == 'POST':
             answer = request.form['answer']
             if answer == 'Save':
-                sentence = request.form['sentence']
-                sentence_file = open('static/annotated_sentence.conll09', 'a')
-                sentence_file.write(sentence+'\n\n')
-                sentence_file.close()
-                return redirect(url_for('homepage'))
-            elif answer == 'Visualise':
-                tree_sentence = request.form['sentence']
-                message = session['message']
-                message['tree']['nodes'] = [tree.split('\t')    \
-                                            for tree in tree_sentence.split('\n')]
-                return render_template('visualised_tree_final.html',
-                                        sentence_visual = visualise(message),
-                                        sentence_conll = tree_sentence
-                                        )
-        return redirect(url_for('homepage'))
+                file_ = 'annotated_' + session['input_file']
+                file = os.path.join(os.path.dirname(__file__), file_) #@TODO decide where to save the files,  and download files and don't remove the file? + stylesheet
+                save_result(session['solution'], session['subcat_archive'], file)
+
+            # elif answer == 'Visualise':
+            #     tree_sentence = request.form['sentence']
+            #     message = session['message']
+            #     message['tree']['nodes'] = [tree.split('\t')    \
+            #                                 for tree in tree_sentence.split('\n')]
+            #     return render_template('visualised_tree_final.html',
+            #                             sentence_visual = visualise(message),
+            #                             sentence_conll = tree_sentence
+            #                             )
     except KeyError:
         return redirect(url_for('no_cookies_set'))
     except FileNotFoundError:
         return redirect(url_for('wrong_folder'))
+
+    if len(session["conll_strings"]) > 0:
+        return redirect(url_for('check_subcat'))
+    else:
+        return redirect(url_for('homepage'))
+
+
+
+
 
 @app.route('/wrong_folder')
 def wrong_folder():
@@ -305,17 +361,34 @@ def request_creator(requests):
                     sentence or filename,
                     conll-format,
                     nothing or key-word forest to choose correct request
+
+                    looks like: session['requests'] = data, request.form['forest_format'], 'forest'
     Returns a json-like dictionary
     """
+    #a forest request
     if requests[2] == 'forest':
-        data = open(UPLOAD_FOLDER +'/' + requests[0]).read()
-        session['sentence_format'] = conll_formats[requests[1]]
+        #data = open(UPLOAD_FOLDER +'/' + requests[0]).read()
+        data = session['conll_strings'][0]
+        session['conll_strings'].pop(0)
+        session["sentences"].pop(0)
+
+        session['sentence_format'] = conll_formats[requests[1]]   #the format json        ?????
+                                                                  # {
+                                                                  #   "name": "conll09_gold",
+                                                                  #   "id": 0,
+                                                                  #   "form": 1,
+                                                                  #   "label": 4,
+                                                                  #   "label_type": "pos",
+                                                                  #   "head": 8,
+                                                                  #   "relation": 10,
+                                                                  #   "relation_type": "deprel"}
         return {
             'type': 'request',
-            'use_forest': data,
+            'use_forest': data, #the raw conll forest string
             'forest_format': requests[1]
             }
 
+    #a sentence request (ignore for now)
     else:
         return {
             'type': 'request',
@@ -323,6 +396,19 @@ def request_creator(requests):
             'source_format': 'raw',
             'target_format': requests[1]
             }
+
+def request_creator2():
+
+    # session['conll_strings'].pop(0)
+    # session["sentences"].pop(0)
+
+    request = {
+        'type': 'request',
+        'use_forest': session['conll_strings'][0],  # the raw conll forest string
+        'forest_format': session['format_name']
+    }
+    return request
+
 
 def allowed_file(filename):
     """ Check if file has an extension specified in global allowed extensions """
@@ -380,7 +466,66 @@ def receive_message(socket, buffersize=1024):
 
     return binary_message
 
+#----------------------get and handle answer for subcatframe checking-----------------------------
+@app.route('/get_answer_subcat', methods = ['GET', 'POST'])
+def get_answer_subcat():
+    """
+    get and handle answer for subcatframe checking
+    """
+    if request.method == 'POST':
+        #the subcat chosen by the annotator
+        if request.form['subcat'] != 'correct' and request.form['subcat'] != 'don\'t care':
+            session['subcats'][0][2] = request.form['subcat']
+            #list of index,verb,subcat string  #only subcat string
 
+        answer = request.form['annotate']
+        if answer == 'Yes':  # go to annotate the sentence
+            session['subcat_archive'] = session['subcats'].pop(0)
+            print(session['subcats'])
+            session.modified = True
+            return redirect(url_for('annotate'))
+
+        elif answer == 'No':  # load a new next sentence
+            print('!!!!')
+            session['subcat_archive'] = session['subcats'].pop(0)
+            session['conll_strings'].pop(0)
+            session["sentences"].pop(0)
+            session.modified = True
+            print(session["sentences"])
+            return redirect(url_for('check_subcat'))
+
+# @app.route('/save_subcat', methods = ['GET', 'POST'])
+# def save_subcat():
+#     """
+#     let the annotator choose to save the subcat or not:
+#     """
+#     if request.method == 'POST':
+#         if request.form['save'] == 'Yes':
+#             session['subcats'][0][2] = session['subcat_anno']
+#             print(session['subcats'][0])
+#     return redirect(url_for('check_subcat'))
+#
+# @app.route('/annotate_or_not', methods = ['GET', 'POST'])
+# def annotate_or_not():
+#     """
+#     let the annotator choose to annotate the sentence or not
+#     """
+#     # if don't annotate, but saved subcatframe, how to save the subcat? all forest or just sentence @TODO
+#     print(session['subcats'][0])
+#     print(session['subcat_anno'])
+#     if request.method == 'POST':
+#         answer = request.form['annotate']
+#         if answer == 'Yes': #go to annotate the sentence
+#             #session['subcats'].pop(0)
+#             print(session['subcats'][0])
+#
+#         elif answer == 'No': #load a new next sentence
+#             session['subcats'].pop(0)
+#             session['conll_strings'].pop(0)
+#             session["sentences"].pop(0)
+#     return redirect(url_for('annotate'))
+
+#----------------------get and handle answer for forest annotation-----------------------------
 @app.route('/get_answer', methods = ['GET', 'POST'])
 def get_answer():
     """ Return request for annotation-loop according to user answer"""
@@ -395,6 +540,8 @@ def get_answer():
         elif answer == 'Abort':
             session['requests'] = get_abort()
     return redirect(url_for('annotate'))
+
+
 
 def get_yes(question):
     return {
@@ -421,6 +568,8 @@ def get_abort():
         'type' : 'abort',
         'wanted' : 'best'
     }
+#--------------------------------------------------------------------------------------------------------
+
 
 def handle_solution(data):
     """ Return conll representation of annotated tree """
@@ -539,4 +688,4 @@ if __name__ == '__main__':
         sys.exit()
 
     app.debug = True
-    app.run(HOST, PORT) #web client runs on local host and port
+    app.run(HOST, PORT) #web client runs on localhost and port

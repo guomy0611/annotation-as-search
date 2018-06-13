@@ -1,0 +1,10 @@
+1	Mit	mit	ADP	APPR	_	3	MO	_	_
+2	Bedacht	bedacht	NOUN	NN	_	1	NK	_	_
+3	badet	baden	VERB	VVFIN	_	0	--	_	(subj,obj)
+4	heute	heute	ADV	ADV	_	3	MO	_	_
+5	ein	ein	DET	ART	_	6	NK	_	_
+6	Lurch	lurch	NOUN	NN	_	3	SB	_	_
+7	in	in	ADP	APPR	_	3	MO	_	_
+8	einem	in	ART	DET	_	9	NK	_	_
+9	See	see	NOUN	NN	_	7	NK	_	_
+10	.	--	.	$.	_	3	--	_	_
