@@ -5,16 +5,14 @@
 python aas_server/server.py --logfile aas_server/aas-server.log --configfile aas_server/config.json --loglevel INFO&
 
 #to start the web client
-python aas_client/gui/__init__.py -c aas_client/gui/config.json
 python aas_client/gui/application.py
-#to use the web client
-#the parse raw sentence part doesn't work yet(we don't need it for now)
-#the uploaded file and the indicated format must match
-try  conll09_gold test/badender_lurch.conll09
-     conll09_predicted Parser/IO/output(2).conll09
 
 #to use the parser
 see commands under Parser/parse_commands
+
+#to generate the database
+code unfinished in database/data.py
++ code in senti-infer/source/SubcatFrame/test.py
 
 
 
