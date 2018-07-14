@@ -9,11 +9,12 @@
         <title>Annotation Helper</title>
         <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}"
         rel="stylesheet" >
-        <link href="{{ url_for('static', filename='css/custom.css') }}"
+        <link href="{{ url_for('static', filename='css/jumbotron-narrow.css') }}"
         rel="stylesheet">
-
         <script src="{{ url_for('static', filename='js/jquery-3.1.1.min.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+
+
     </head>
 
     <header>
@@ -43,12 +44,12 @@
         <div class="jumbotron">
         <!-- Display start button -->
         <h1>Annotation Helper Client</h1>
-        <p><a class="btn btn-lg btn-primary" href="/choose_input" role="button">Start Annotation Helper</a></p>
+        <p><a class="btn btn-lg btn-primary" href="/init_annotation" role="button">Start Annotation Helper</a></p>
       </div>
     </div>
     </header>
 
-       
+
     <body>
     <div id="main" class="center">
 
@@ -62,7 +63,7 @@
             </div>
         </noscript>
         </div>
-          
+
 
 </body>
 </html>

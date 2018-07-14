@@ -1,23 +1,24 @@
 {% extends "header.html"  %}
 {% block body %}
 <!-- Display last remaining tree and the possibility to correct this tree -->
-<div class="jumbotron">   
-<p>{{sentence_visual|safe}}</p>
-<br>
-<h3>Please correct any error in the tree.</h3>
-<p>Click 'Visualise' to view a graphical representation of your corrected tree</p>
-<p>Click 'Save' to save your tree in a conll-file.</p>
-<br>
-<!-- Send user's answer to annotation_finished()-function -->
-<form method="post" action="/endResult">
-<textarea rows="8" id="conll_sentence" name="sentence" 
-cols="82">{{ sentence_conll }}</textarea></p>
-<br>
-<!-- Visualise the corrected tree -->
-<input id="visualise" type="submit" class="btn btn-success btn-lg" name="answer" value="Visualise">
-<!-- Save tree in conll09-format in a file -->
-<input type="submit" class="btn btn-info btn-lg" name="answer" value="Save">
-</form>
+<div class="jumbotron">
+    <p>{{sentence_visual|safe}}</p>
+    <br>
+    <h3>Please correct any error in the tree.</h3>
+    <p>Click 'Visualise' to view a graphical representation of your corrected tree</p>
+    <p>Click 'Save' to save your tree in a conll-file.</p>
+    <br>
+    <!-- Send user's answer to annotation_finished()-function -->
+    <form method="post" action="/endResult">
+<textarea rows="8" id="conll_sentence" name="sentence"
+          cols="82">{{ sentence_conll }}</textarea></p>
+        <br>
+        <!-- Visualise the corrected tree -->
+        <input id="visualise" type="submit" class="btn btn-success btn-lg" name="answer" value="Visualise">
+        <!-- Save tree in conll09-format in a file -->
+        <input type="submit" class="btn btn-info btn-lg" name="answer" value="Save">
+        <input type="submit" class="btn btn-info btn-lg" name="answer" value="End Annotation">
+    </form>
 </div>
 
 {% endblock %}

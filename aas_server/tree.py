@@ -81,6 +81,19 @@ class Tree(object):
         '''
         return tup in self.get()
 
+    def contains_subcat(self, subcat):
+        """
+        checks if the tree contains the subcat structure
+        :param subcat: list of subcat:[('Lurch-6', 'badet-3', 'SB'),('in-7', 'badet-3', 'MO')]
+        :return:boolean
+        """
+
+        for dep in subcat:
+            if tuple(dep) not in self.get():
+                return False
+        return True
+
+
     def overlap(self, other):
         '''
         Returns the number of triples contained in the tree and a given
@@ -92,7 +105,7 @@ class Tree(object):
         '''
         Gets a list of 3-tuples from the list containing the CONLL-tuples.
         '''
-        #print(self.dictio)
+
 
         """
              ( dependent-id, head-id, relation)
@@ -322,6 +335,17 @@ class Forest(object):
         else:
             raise ValueError('This forest contains no trees.')
 
+    def subcat_trees(self, subcat):
+        """
+
+        :return: list of trees containing the suggsted subcat frame
+        """
+        li = []
+        for tree in self.trees:
+            if tree.contains_subcat(subcat):
+                li.append(tree)
+        return li
+
 if __name__ == "__main__":
     from pprint import pprint
     # tree = Tree(head = 9, rel = 11, rel_type = "deprel")
@@ -334,10 +358,11 @@ if __name__ == "__main__":
     #     tree.add(line)
     #     print(tree.nodes)
 
-    forest = Forest.from_string(open('../Parser/res/output.conll09').read(), head=9, rel=11, rel_type="deprel")
+    forest = Forest.from_string(open('../test/badender_lurch.conll09').read(), head=8, rel=10, rel_type="deprel")
     for tree in forest.trees:
         pprint(tree.dictio)
         pprint(tree.get())
+        print(forest.subcat_trees([('Lurch-6', 'badet-3', 'SB'),('in-7', 'badet-3', 'MO')]))
 
 
     # while len(forest.trees) != 1:

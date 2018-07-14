@@ -19,3 +19,11 @@
 9	See	see	NOUN	NN	_	7	NK	_	_
 10	.	--	.	$.	_	3	--	_	_
 
+            <div>
+            <h3>Step 2: Annotate the sentence?</h3>
+                <input type="submit" name="annotate" value="Annotate">
+                <input type="submit" name="annotate" value="Skip">
+            </div>
+
+                         ( dependent-id, head-id, relation
+        e.g. ('toller-4', 'Satz-5', 'NK')

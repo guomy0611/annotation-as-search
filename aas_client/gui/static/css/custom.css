@@ -79,10 +79,13 @@ body {
     border-bottom: 0;
   }
 
-  /*.subcat{
-    border: 1px solid #687D6D;
-    text-align: left;
-    border-radius: 5px;
+  .subcat_input{
+    height: 10px;
+    width: 500px;
+  }
 
-  }*/
+  input[type="text"] {
+    height: 10px;
+    width: 800px;
+   }
 }

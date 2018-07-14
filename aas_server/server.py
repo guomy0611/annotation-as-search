@@ -20,6 +20,7 @@ from json_interface import (
     create_question_or_solution,
     create_solution,
     create_forest,
+    subcat_tree,
     Recommendation,
     SolutionType
     )
@@ -129,6 +130,24 @@ class AnnotationHelperProtocol(asyncio.Protocol):
         if 'type' not in data:
             response = create_error('No message type') #-> sends response back to client
             logging.info('No-message-type error with %s.', self.peername) #-> logging
+
+        elif data['type'] == 'subcat':
+            try:
+                self.forest = create_forest(data, self.config)
+            except ValueError as e:
+                msg = 'Cannot create forest. ({})'.format(e)
+                response = create_error(msg)
+                logging.info('Cannot-create-forest error with %s.', self.peername)
+                return response
+            except Exception as e:
+                msg = 'Cannot create forest. ({})'.format(e)
+                response = create_error(msg)
+                msg = 'Unexpected exception: {} with %s'.format(e)
+                logging.error(msg, self.peername)
+                return response
+
+            response = subcat_tree(self.forest, data['subcat'])
+            print("server", data["subcat"])
 
         #1
         elif data['type'] == 'request':

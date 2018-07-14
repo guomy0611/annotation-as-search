@@ -24,9 +24,17 @@ from aas_client.common import (
     pack_message
     )
 from aas_client.generate_dot_tree import generate_dot_tree
-from helper import generate_sentence, get_subcatframe, save_result
 
+from helper import (
+    generate_sentence,
+    get_subcatframe,
+    save_result,
+    update_config,
+    read_configfile,
+    get_conll_formats
+    )
 
+from flask_sqlalchemy import SQLAlchemy
 
 # define global read-only variables to make flask work
 # flask typical app variables and definitions
@@ -39,64 +47,12 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # define socket to send data
 socket_to_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://localhost/demo"
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+#TODO:use config class and file for the flask application
 
-# taken from server.py
-def update_config(config, new_pairs):
-    """
-    Update the config dict (conll-formats) with the key-value-pairs in new_data.
-
-    Args:
-        config: The current configuration dict.
-        new_pairs: A dict or an argparse.Namespace containing the
-            key-value-pairs that are to be inserted. In the case of a
-            namespace, only names not starting with an underscore are added to
-            the config. If a vale is None, the pair is ignored.
-    """
-    if isinstance(new_pairs, dict):
-        config.update({k: v for k, v in new_pairs.items() if v is not None})
-    elif isinstance(new_pairs, argparse.Namespace):
-        for key in dir(new_pairs):
-            if not key.startswith('_'):
-                value = getattr(new_pairs, key)
-                if value is not None:
-                    config[key] = value
-    else:
-        msg = '{} is neither a dict nor an argparse.Namespace.'
-        raise TypeError(msg.format(new_pairs))
-
-# taken from server.py
-def read_configfile(configfile):
-    """
-    Read a json-formatted configuration file and return the resulting dict.
-    """
-    try:
-        return json.load(open(configfile))
-    except FileNotFoundError as e:
-        return dict()
-
-def get_conll_formats(formats, format_aliases):
-    """ Save information about conll-formats in a dictionary.
-
-    Store conll-information in a dictionary. Each entry has the form
-    conll_formats[format] = all information  in config regarding this format.
-    Each format-alias is given the same information as the original as value.
-    If this information is not given in the config, the name of the original
-    is taken as value.
-
-    Args:
-        formats: The formats-dict specified in the config.
-        format_aliases: The format_aliases dict specified in the config.
-    Returns a dict containing all conll-formats and the specification needed to
-    start the AaS-server.
-    """
-    conll_formats = formats
-    for alias in format_aliases.keys():
-        if format_aliases[alias] in conll_formats.keys():
-            conll_formats[alias] = conll_formats[format_aliases[alias]]
-        else:
-            conll_formats[alias] = format_aliases[alias]
-    return conll_formats
-
+from models import User, Sentence
 @app.route('/')
 def homepage():
     """ render startpage and remove request-information of previous annotation """

@@ -6,12 +6,14 @@
     <div class="container" >
         <h2>{{ sentence }}</h2>
         <h3>{{ subcat }}</h3>
+        <br>
+        <h4>below is the best tree in the forest containing the suggested subcat frame, if there is one, else the first tree of the forest is shown</h4>
+        <p>{{ sentence_visual|safe }}</p>
     </div>
     <br>
-    <br>
-
     <div class="container">
-        <!-- Send answer to get_answer_subcat() function -->
+        <h3>Step 1: Edit the subcat frame</h3>
+        <br>
         <form method="post" action="/get_answer_subcat">
 
             <input type="radio" name="subcat" id=0 value="correct">
@@ -29,18 +31,11 @@
                 <label for=2>(subj,objp)</label><br>
 
                 <label for=3>Other</label>
-                <input type="text" name="subcat" id=3 value=""><br>
+                <input type="text" class="subcat_input" name="subcat" id=3 value="" size=80><br>
             </div>
             <br>
-
-            <input type="radio" name="subcat" id=4 value="don't care">
-            <label for=4>Don't care</label><br>
-
-            <br>
             <div>
-            <h3>Do you want to annotate the sentence?</h3>
-                <input type="submit" name="annotate" value="Yes">
-                <input type="submit" name="annotate" value="No">
+                <input type="submit" name="submit" value="Submit">
             </div>
         </form>
     </div>

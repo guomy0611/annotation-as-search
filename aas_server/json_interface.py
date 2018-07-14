@@ -108,6 +108,25 @@ def create_error(error_message, recommendation=Recommendation.abort):
         }
     return error
 
+def subcat_tree(forest, subcat):
+    """
+    return the best tree containing the suggested subcat frame
+    :param forest:
+    :return: tree json object
+    """
+    if forest.subcat_trees(subcat):
+        subcat_tree = forest.subcat_trees(subcat)[0]
+    else:
+        subcat_tree = forest.get_best_tree()
+
+    return {
+        'tree_format': subcat_tree.format,
+        'nodes': subcat_tree.nodes,
+        'overlays': {
+            'treated': forest.get_treated_fields(),
+            'fixed': forest.get_fixed_fields()
+            }
+        }
 
 def find_tree(forest):
 

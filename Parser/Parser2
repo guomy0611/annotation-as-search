@@ -1,2 +1,0 @@
-java -cp anna-3.3-d8.jar:lib/trove-2.0.4.jar is2.parser.ParserNBest -model de3.anna.mdl -test $1 -out n-best.out -nbest 1000
-python nbest_to_conll.py n-best.out $2
