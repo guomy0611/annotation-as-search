@@ -1,0 +1,14 @@
+{
+  "host_to_connect": "localhost",
+  "port" : 8080,
+  "formats": {
+        "name": "conll09_gold",
+        "id": 0,
+        "form": 1,
+        "label": 4,
+        "label_type": "pos",
+        "head": 8,
+        "relation": 10,
+        "relation_type": "deprel"
+      }
+}
